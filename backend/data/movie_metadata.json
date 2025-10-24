@@ -1,0 +1,443 @@
+[
+  {
+    "title": "The Ideal Squad",
+    "overview": "Biệt Đội Lý Tưởng là một bộ phim hài, xoay quanh bộ đôi Khuê (Hoàng Oanh) và Phong (Hua Vi Vân). Sau một lần tình cờ gặp gỡ, bộ đôi đã lôi kéo Bảy Cúc (Võ Tấn Phát), Bảy Sức (Nguyễn Thảo), Quáu (Ngọc Phước), Quo (Ngọc Hòa) tham gia một nhiệm vụ đặc biệt: Hoán đổi chiếc vòng tay đi kèm. Nụ hôn gắn kim cương quý giá và lộ bộ mặt thật của Tuấn (Quang Tuấn) - chồng cũ của Khuê trong đám cưới giữa anh và Tú Xoan (Lê Khánh) - nữ đại gia miền Tây sở hữu khối tài sản triệu USD. Sự kết hợp bất đắc dĩ của Biệt Đội Lý Tưởng - Phong, Khuê và Gia Đình Cúc Sức nhắm vào tầm mắt \"cô dâu chú rể\" tại khu nghỉ dưỡng sang trọng hứa hẹn sẽ vô cùng gay cấn, hồi hộp nhưng không kém phần hài hước, giàu cảm xúc.",
+    "release_date": "31/03/2023",
+    "director": "Ta Nguyen Hiep",
+    "stars": "['Vi Van Hua', 'Khanh Le', 'Hoàng Oanh', 'Ngoc Phuoc', Vo Tan Phat', 'Lac Hoang Long']",
+    "genres": "['Comedy']",
+    "poster": "posters\\Biệt_Đội_Rất_Ổn.jpg"
+  },
+  {
+    "title": "Glorious Ashes",
+    "overview": "Lấy bối cảnh tại ngôi làng nghèo ven biển Thơm Rơm ở đồng bằng sông Cửu Long, bộ phim kể về cuộc đời của ba người phụ nữ có đời sống tình cảm khác thường và độc đáo theo bản chất của họ. Bộ phim được kể lại dưới góc nhìn của Hậu, khi cô trải nghiệm cuộc sống với một người chồng chỉ để mắt đến một người phụ nữ khác và phát triển tình bạn ngày càng lớn mạnh với tình địch của mình.",
+    "release_date": "02/12/2022",
+    "director": "Bui Thac Chuyên",
+    "stars": "['Hoang Le Cong', 'Bao Ngoc Doling Juliet', 'Phuong Anh Dao']",
+    "genres": "['Drama']",
+    "poster": "posters\\Tro_tàn_rực_rỡ.jpg"
+  },
+  {
+    "title": "Mai",
+    "overview": "Bị ám ảnh không ngừng bởi quá khứ, Mai được chào đón bởi một bình minh mới khi cô miễn cưỡng kết bạn với người đàn ông hàng xóm. Nhưng hôm qua cô ấy đuổi kịp cô ấy thì ngày mai cô ấy sẽ ra sao?",
+    "release_date": "10/02/2024",
+    "director": "Tran Thanh",
+    "stars": "['Tuan Tran', 'Phuong Anh Dao', 'Hong Dao', 'Ngoc Giau', 'Quoc Khanh', 'Manh Lan' ,'Tran Thanh', 'Tuan Tran']",
+    "genres": "['Drama', 'Comedy', 'Romance']",
+    "poster": ""
+  },
+  {
+    "title": "Muoi: The Legend of  a Portrait",
+    "overview": "“Muội” vạch ra con đường của một nhà văn Hàn Quốc tới Việt Nam tìm kiếm truyện cho cuốn tiểu thuyết thứ hai của mình. Ở đó, cô biết được một bí ẩn xoay quanh một linh hồn báo thù có niên đại hàng thế kỷ.",
+    "release_date": "26/07/2007",
+    "director": "Tae-kyeong Kim",
+    "stars": "['Jo An', 'So-hee Hong', 'Hong-Anh']",
+    "genres": "['Drama', 'History', 'Horror', 'Mystery', 'Thriller']",
+    "poster": "posters\\Mười.jpg"
+  },
+  {
+    "title": "Camellia Sisters 5 - Living Like Royalty",
+    "overview": "Ba chị em đoàn tụ trong cung điện giàu có mà họ lớn lên khi những bí mật trong gia đình họ bắt đầu được làm sáng tỏ.",
+    "release_date": "05/03/2021",
+    "director": "Nam Cito",
+    "stars": "['Kaity Nguyen', 'Le Khanh', 'Hong Van', 'Le Khuong', 'Hoang Dung']",
+    "genres": "['Comedy', 'Drama']",
+    "poster": "posters\\Gái_Già_Lắm_Chiêu_V_Những_Cuộc_Đời_Vương_Giả.jpg"
+  },
+  {
+    "title": "Em and Trinh",
+    "overview": "Bộ phim xoay quanh nhạc sĩ biểu tượng Trịnh Công Sơn và những nàng thơ đến rồi đi trong cuộc đời ông, từ tuổi trẻ đầy nhiệt huyết những năm 1960 cho đến cuối những năm 1990 ở tuổi trung niên.",
+    "release_date": "17/06/2022",
+    "director": "Phan Gia Nhat Linh",
+    "stars": "['Hoang Ha', 'Ha Quoc Hoang', 'Nguyen Le Viet Hung']",
+    "genres": "['Romance', 'Music']",
+    "poster": "posters\\Em_và_Trịnh.jpg"
+  },
+  {
+    "title": "Furies",
+    "overview": "Phần tiền truyện của Furie (2019). Kể về cuộc đời thuở ban đầu của Thanh Sói, kẻ phản diện độc ác của Hai Phượng trên con phố tàn nhẫn ngày xưa ở Sài Gòn.",
+    "release_date": "23/03/2023",
+    "director": "Veronica Ngo",
+    "stars": "['Dong Anh Quynh', 'Toc Tien', 'Thuan Nguyen']",
+    "genres": "['Action', 'Crime', 'Thriller']",
+    "poster": "posters\\Thanh_Sói_Cúc_Dại_Trong_Đêm.jpg"
+  },
+  {
+    "title": "Face Off: 48H",
+    "overview": "Phải chạy trốn khỏi băng nhóm tội phạm sau một giao dịch nhầm lẫn, tay võ sĩ đã giải nghệ có 2 ngày để giải quyết ân oán với tên trùm. Nếu thất bại, anh có thể mất cả vợ lẫn con.",
+    "release_date": "18/06/2021",
+    "director": "Ly Hai",
+    "stars": "['Le Ha Anh', 'Tiet Cuong', 'Huynh Dong', 'Mac Van Khoa', 'Oc Thanh Van']",
+    "genres": "['Action']",
+    "poster": ""
+  },
+  {
+    "title": "Song of the South",
+    "overview": "Khi chế độ thực dân Pháp chấm dứt bạo lực ở Việt Nam, cậu bé 12 tuổi thực hiện hành trình đầy nguy hiểm để tìm kiếm người cha ghẻ lạnh của mình.",
+    "release_date": "20/10/2023",
+    "director": "Quang Dung Nguyen",
+    "stars": "['Bang Di', 'Hong-Anh', 'Vi Van Hua', 'Tran Thanh', 'Tuan Tran']",
+    "genres": "['War', 'Family', 'Drama']",
+    "poster": "posters\\Đất_Rừng_Phương_Nam.jpg"
+  },
+  {
+    "title": "The Rebel",
+    "overview": "Khi Pháp cai trị Việt Nam vào năm 1922, các sĩ quan Pháp và Việt Nam âm mưu đánh hơi tên phản loạn Đề Cảnh.",
+    "release_date": "27/04/2007",
+    "director": "Charlie Nguyen",
+    "stars": "['Johnny Tri Nguyen', 'Veronica Ngo', 'Dustin Nguyen']",
+    "genres": "['Action', 'Drama']",
+    "poster": "posters\\Dòng_Máu_Anh_Hùng.jpg"
+  },
+  {
+    "title": "Clash",
+    "overview": "Trinh, một lính đánh thuê, phải hoàn thành một loạt công việc tội phạm có tổ chức cho ông chủ của mình để giành được sự giải thoát cho cô con gái bị bắt cóc. Cô thuê một số lính đánh thuê để giúp đỡ, trong đó có Quân, người mà cô bị thu hút. Mối quan hệ của Trinh và Quân trở nên phức tạp khi rõ ràng động cơ của họ không giống nhau.",
+    "release_date": "09/12/2009",
+    "director": "Thanh Son Le",
+    "stars": "['Johnny Tri Nguyen', 'Veronica Ngo', 'Hoang Phuc Nguyen']",
+    "genres": "['Action', 'Thriller', 'Romance']",
+    "poster": "posters\\Bẫy_Rồng.jpg"
+  },
+  {
+    "title": "Nhà Bà Nữ",
+    "overview": "Bà Nữ (Lê Giang) là một mẫu hệ độc đoán, điều hành gia đình ba thế hệ của mình giống như cách bà điều hành quán bún riêu thành công của mình. Nói tóm lại, cô ấy điều hành một con tàu chặt chẽ trong mọi khía cạnh của cuộc sống. Tuy nhiên, khi ba thế hệ cùng chung sống dưới một mái nhà, tia lửa chắc chắn sẽ bay ra - và không nhất thiết phải là tia lửa tốt. Cảm thấy ngột ngạt trước ánh mắt áp bức của mẹ, cô con gái út Nhị (Uyên An) của Nu quyết định bỏ trốn theo người bạn trai vô tư John (Song Luân). Nhưng cặp đôi trẻ sớm nhận ra rằng họ chưa chuẩn bị sẵn sàng cho tương lai cùng nhau như thế nào. Thời gian trôi qua, những người phụ nữ nhà Nu dần dần hòa giải, mỗi người đều tìm hiểu về bản thân và nhau trên đường đi.",
+    "release_date": "11/01/2023",
+    "director": "Tran Thanh",
+    "stars": "['Huynh Uyen An', 'Le Giang', 'Ngoc Giau', 'Song Luan', 'Ngoc Giau', 'Kha Nhu', 'Tran Thanh']",
+    "genres": "['Drama', 'Comedy']",
+    "poster": ""
+  },
+  {
+    "title": "Head Rush",
+    "overview": "Một người đàn ông sắp chết vì bệnh nan y được phẫu thuật thay thế cơ thể thử nghiệm. Anh sớm phát hiện ra rằng mình có những ký ức không phải của riêng mình cùng với sức mạnh siêu phàm. Tuy nhiên, lịch sử đen tối của quá trình điều trị trở nên gắn chặt với cuộc đời anh khi anh phải sống sót và giữ an toàn cho những người thân yêu của mình.",
+    "release_date": "22/12/2017",
+    "director": "Victor Vu",
+    "stars": "['Cuong Seven', 'Nha Phuong', 'Ngoc Anh Vu', 'Chanh Tin Nguyen', 'Quach Ngoc Ngoan']",
+    "genres": "['Action', 'Drama', 'Sci-Fi', 'Thriller']",
+    "poster": "posters\\Lôi_Báo.jpg"
+  },
+  {
+    "title": "Maika: The Girl From Another Galaxy",
+    "overview": "Mọi chuyện có thể tốt hơn với cậu bé Hùng 8 tuổi đang đau buồn vì mất mẹ đã qua đời một năm trước. Mối quan hệ của anh với cha mình trở nên căng thẳng, người bạn thân nhất của anh sắp chuyển đi nơi khác, và trên hết, một tên chủ nhà tham lam đang bắt nạt cha anh để buộc họ rời khỏi căn hộ của mình. Anh tìm thấy niềm an ủi bằng cách ngắm bầu trời đêm từ nóc tòa nhà chung cư của mình. Một đêm nọ, anh chứng kiến ​​một trận mưa sao băng và một ngôi sao rơi nhầm chỗ ở vùng nông thôn gần đó. Anh điều tra, nhưng thay vì tìm thấy một ngôi sao băng, anh gặp một người bạn mới và anh quyết định làm mọi thứ có thể để giúp cô ấy.",
+    "release_date": "03/06/2022",
+    "director": "Ham Tran",
+    "stars": "['Tom Dang', 'Dom Dinh', 'Elyse Dinh', 'Chu Diep Anh']",
+    "genres": "['Science Fiction', 'Family', 'Adventure']",
+    "poster": "posters\\Maika_-_Cô_Bé_Đến_Từ_Hành_Tinh_Khác.jpg"
+  },
+  {
+    "title": "The Third Wife",
+    "overview": "Dù chỉ mới 14 tuổi nhưng Mây được chọn làm vợ thứ ba của một địa chủ giàu có. Ngôi nhà mới của cô có vẻ bình dị, được chồng ưu ái và cô nhanh chóng mang thai đứa con mà cô chắc chắn sẽ là con trai như mong muốn. Nhưng rắc rối đang âm thầm ập đến: cô chứng kiến ​​một cuộc hẹn hò bị cấm sẽ gây ra một chuỗi phản ứng bất hạnh - và khuấy động vào tháng Năm thôi thúc rằng cho đến nay vẫn chưa hoạt động.",
+    "release_date": "15/05/2019",
+    "director": "Nguyen Phuong Anh",
+    "stars": "['Hong Chuong Nguyen', 'Long Le Vu', 'Nu Yên-Khê Tran']",
+    "genres": "['Drama']",
+    "poster": "posters\\Vợ_ba.jpg"
+  },
+  {
+    "title": "Sweet 20",
+    "overview": "Bà Đại, một bà ngoại 70 tuổi chợt phát hiện mình đã biến thành con người 20 tuổi của mình. Phong cách và cách cư xử lỗi thời của cô gây ra một số rắc rối, nhưng tình yêu có thể là vấn đề lớn nhất.",
+    "release_date": "11/12/2015",
+    "director": "Phan Gia Nhat Linh",
+    "stars": "['Hong-Anh', 'Vi Van Hua', 'Ngo Kien Huy']",
+    "genres": "['Comedy']",
+    "poster": "posters\\Em_Là_Bà_Nội_Của_Anh.jpg"
+  },
+  {
+    "title": "Furie",
+    "overview": "Khi một bé gái bị một đường dây buôn người bắt cóc, họ sớm nhận ra mình đã nhầm nhầm đứa trẻ. Mẹ của cô, một cựu thủ lĩnh băng đảng khét tiếng, đang theo sát dấu vết của họ và sẽ làm mọi cách để đưa con mình về nhà.",
+    "release_date": "22/02/2019",
+    "director": "Le-Van Kiet",
+    "stars": "['Veronica Ngo', 'Mai Cát Vi', 'Thanh Nhien Phan']",
+    "genres": "['Action', 'Drama', 'Thriller']",
+    "poster": "posters\\Hai_Phượng.jpg"
+  },
+  {
+    "title": "Tam Cam: The Untold",
+    "overview": "“Tấm Cám: Chuyện Chưa Kể” được lấy cảm hứng từ truyện cổ tích Tấm Cám. Cha mất sớm, mẹ kế và Cám bắt nạt Tâm cho đến khi cô gặp Hoàng tử (Isaac) và trở thành vợ anh. Tuy nhiên, câu chuyện của phim vẫn chưa được nhắc đến nhiều trong truyện cổ tích Cô bé Lọ Lem, đây sẽ là lần đầu tiên Ngô Thanh Vân truyền tải phim sử dụng hình ảnh mới lạ và độc đáo.",
+    "release_date": "19/08/2016",
+    "director": "Veronica Ngo",
+    "stars": "['Ha Vi', 'Ninh Duong Lan Ngoc', 'Veronica Ngo']",
+    "genres": "['Drama', 'Fantasy']",
+    "poster": "posters\\Tấm_Cám_Chuyện_Chưa_Kể.jpg"
+  },
+  {
+    "title": "Nightmares",
+    "overview": "Một bác sĩ trẻ thành đạt thường xuyên bị ám ảnh bởi những cơn ác mộng về một kẻ giết người bí ẩn dường như không chỉ theo đuổi cô trong giấc mơ.",
+    "release_date": "26/08/2022",
+    "director": "Dinh Cong Hieu",
+    "stars": "['Phuong Anh Dao', 'Oanh Kieu', 'Hieu Nguyen']",
+    "genres": "['Horror']",
+    "poster": "posters\\Vô_Diện_Sát_Nhân.jpg"
+  },
+  {
+    "title": "Let Hoi Decide",
+    "overview": "Một doanh nhân chuyển giới Việt Nam trở nên nghèo khó mỗi khi yêu ai đó.",
+    "release_date": "12/12/2014",
+    "director": "Charlie Nguyen",
+    "stars": "['Thai Hoa', 'Cory Jackson', 'Huy Khanh']",
+    "genres": "['Comedy', 'Romance']",
+    "poster": ""
+  },
+  {
+    "title": "Sword of the Assassin",
+    "overview": "Nguyên Vũ là người sống sót duy nhất trong gia đình bị hoàng hậu Việt Nam xử tử. Khi phát hiện ra rằng gia đình mình có thể đã bị buộc tội vì những tội ác mà họ không hề phạm phải, anh bắt đầu đi tìm công lý và minh oan cho gia đình mình.",
+    "release_date": "20/01/2012",
+    "director": "Victor Vu",
+    "stars": "['Huynh Dong', 'Midu', 'Khuong Ngoc']",
+    "genres": "['Adventure', 'Drama', 'Action']",
+    "poster": "posters\\Thiên_Mệnh_Anh_Hùng.jpg"
+  },
+  {
+    "title": "Muoi: The Curse Returns",
+    "overview": "Khi một người bán tranh trẻ bất ngờ làm hòa với người bạn thân đã mất từ ​​lâu của mình, cả hai bị cuốn vào một loạt sự kiện siêu nhiên đáng sợ tại một dinh thự bí ẩn, nơi một linh hồn khét tiếng bị mắc kẹt trong một bức tranh đang ẩn nấp để giải phóng lời nguyền thế kỷ của nó một lần nữa. .",
+    "release_date": "30/09/2022",
+    "director": "Hang Trinh",
+    "stars": "['Hong-Anh', 'Binh Minh', 'Chi Pu']",
+    "genres": "['Horror', 'Drama']",
+    "poster": "posters\\Mười_Lời_Nguyền_Trở_Lại.jpg"
+  },
+  {
+    "title": "Dad, I'm Sorry",
+    "overview": "Câu chuyện về Ba Sang – con thứ 2 trong 4 anh em ồn ào: Giàu, Sáng, Phú, Quý. Ba Sang là người hay can thiệp, “quá” tốt bụng và luôn hy sinh vì người khác dù họ có muốn hay không. Quân – Con trai Ba Sang là một Youtuber trẻ hiện đại.",
+    "release_date": "12/03/2021",
+    "director": "Tran Thanh",
+    "stars": "['Tran Thanh', 'Tuan Tran', 'Le Giang']",
+    "genres": "['Comedy', 'Family', 'Drama']",
+    "poster": "posters\\Bố_Già.jpg"
+  },
+  {
+    "title": "Trạng Quỳnh",
+    "overview": "Một kẻ chơi khăm thông minh cố gắng minh oan cho người thầy yêu quý của mình khỏi một bản án rắc rối liên quan đến một quan chức gian ác.",
+    "release_date": "05/02/2019",
+    "director": "Duc Thinh",
+    "stars": "['Tran Quoc Anh', 'Cong Duong', 'Kha Nhu', 'Nha Phuong', 'Tran Thanh']",
+    "genres": "['Comedy', 'Adventure']",
+    "poster": "posters\\Trạng_Quỳnh.jpg"
+  },
+  {
+    "title": "Dao, Pho va Piano",
+    "overview": "Giữa trận chiến cuối cùng ở Hà Nội năm 1946, một chiến binh Hà Nội thuộc Lực lượng Phòng vệ đang thực hiện nhiệm vụ lấy thêm vũ khí. Để trốn tránh quân Pháp, ông trú ẩn tại nhà của 2 gánh phở ven đường. Cặp đôi mời anh một bát phở, miễn là anh giúp họ tìm hẹ.",
+    "release_date": "10/02/2024",
+    "director": "Phi Tien Son",
+    "stars": "['Doan Quoc Dam', 'Tuan Hung', 'Cao Thi Thuy Linh']",
+    "genres": "['Drama', 'Romance', 'War']",
+    "poster": ""
+  },
+  {
+    "title": "The Guardian",
+    "overview": "Bi kịch xoay quanh ngôi sao nhạc pop đã đưa ca sĩ dự bị của cô trở nên nổi tiếng, nhưng ngôi sao mới lại bị cản trở bởi những hiện tượng siêu nhiên.",
+    "release_date": "30/04/2021",
+    "director": "Victor Vu",
+    "stars": "['Amee', 'Samuel An', 'Trúc Anh']",
+    "genres": "['Thriller', 'Drama', 'Horror']",
+    "poster": "posters\\Thiên_Thần_Hộ_Mệnh.jpg"
+  },
+  {
+    "title": "Camellia Sisters",
+    "overview": "Khi người dẫn chương trình truyền hình đến quê hương của vị hôn phu để khám phá một bí mật showbiz, cô biết được mẹ chồng tương lai đang tìm cách ngăn cản đám cưới của họ.",
+    "release_date": "25/01/2020",
+    "director": "Nam Cito",
+    "stars": "['Khanh Le', 'Ninh Duong Lan Ngoc', 'Le Xuan Tien', 'Thuy Anh', 'Kaity Nguyen', 'Le Khanh', 'Jun Vu' ,'Phuong Lan', 'Hong Van', 'Lam Vissay', 'Hoang Dung, 'Binh An']",
+    "genres": "[]",
+    "poster": "posters\\Gái_Già_Lắm_Chiêu_3.jpg"
+  },
+  {
+    "title": "Naked Truth",
+    "overview": "Một câu chuyện sâu sắc, khéo léo cân bằng giữa sự nhẹ nhàng và hấp dẫn, Bảy Ngọc Ngao (Sự thật trần trụi) xoay quanh bốn người bạn thời thơ ấu từng điên cuồng quyết tâm thoát khỏi cuộc sống độc thân. Sau nhiều năm xa cách, họ vui vẻ đoàn tụ để kỷ niệm 3 năm ngày cưới của người kế vị duy nhất của nhóm đi tìm hạnh phúc hôn nhân. Cuộc hội ngộ của họ có một bước ngoặt đáng kinh ngạc khi từng lớp một, những cuộc đời bị che giấu được tiết lộ, nhốt mỗi nhân vật trong một mạng lưới bí mật nguy hiểm rối rắm có nguy cơ đẩy các mối quan hệ bấp bênh đến bờ vực. Bảy Ngọt Ngao (Sự thật trần trụi) kể về sức mạnh của tình bạn lâu năm, bóng tối tiềm ẩn của nạn bạo hành gia đình và sức mạnh giải phóng cá nhân. Đạo diễn Đinh Hà Uyên Thư. Được sản xuất bởi Live On. Phát hành tại Mỹ bởi 3388 Films.",
+    "release_date": "11/02/2022",
+    "director": "Ha Uyen Thu Dinh",
+    "stars": "['Bao Anh', 'Minh Hang', 'Thuan Nguyen']",
+    "genres": "['Drama', 'Thriller']",
+    "poster": "posters\\Bẫy_Ngọt_Ngào.jpg"
+  },
+  {
+    "title": "A Fragile Flower",
+    "overview": "Nữ ca sĩ Việt nở rộ với giọng hát mê hoặc và tâm hồn dịu dàng trải nghiệm sự kiên cường và hy vọng giữa những khó khăn cá nhân.",
+    "release_date": "29/03/2024",
+    "director": "Mai Thu Huyen",
+    "stars": "['Mai Thu Huyen', 'Maya', 'Quoc Cuong']",
+    "genres": "['Drama', 'Music', 'Romance']",
+    "poster": ""
+  },
+  {
+    "title": "Diary of Fireflies",
+    "overview": "Đau buồn trước sự ra đi của cả cha lẫn mẹ vì căn bệnh ung thư, một sinh viên y khoa bỏ học và gặp một nhiếp ảnh gia chuyên chụp ảnh thương hiệu lửa với niềm khao khát cuộc sống.",
+    "release_date": "02/12/2016",
+    "director": "Van Cong Vien",
+    "stars": "['Vo Dinh Hieu', 'Jun Vu', 'Hong Dao']",
+    "genres": "['Comedy', 'Romance']",
+    "poster": "posters\\Cho_Em_Gần_Anh_Thêm_Chút_Nữa.jpg"
+  },
+  {
+    "title": "Jailbait",
+    "overview": "Cuộc đời của một tay chơi thay đổi sau khi anh gặp và ngủ với một cô gái chưa tròn 18 tuổi.",
+    "release_date": "28/04/2017",
+    "director": "Thanh Son Le",
+    "stars": "['Alex', 'Chau Bui', 'Jackie']",
+    "genres": "['Drama', 'Comedy']",
+    "poster": "posters\\Em_Chưa_18.jpg"
+  },
+  {
+    "title": "Face Off 3: Imperfect Trio",
+    "overview": "Bị bỏ rơi khi còn nhỏ, ba người bạn khuyết tật nổi tiếng trên truyền hình — dẫn họ vào cuộc phiêu lưu tìm kiếm người mẹ đã bỏ rơi một trong số họ.",
+    "release_date": "17/04/2018",
+    "director": "Ly Hai",
+    "stars": "['Huy Khanh', 'Song Luan', 'Pornnappan Pornpenpipat']",
+    "genres": "['Comedy', 'Adventure']",
+    "poster": "posters\\Lật_Mặt_3_Ba_Chàng_Khuyết.jpg"
+  },
+  {
+    "title": "Face Off 4: The Walking Guests",
+    "overview": "Khi một người phụ nữ và bạn bè về thăm quê hương để tìm địa điểm chụp ảnh cưới cho khách hàng, nỗi kinh hoàng đã chuyển hướng tập trung của họ.",
+    "release_date": "12/04/2019",
+    "director": "Ly Hai",
+    "stars": "['Ly Hai', 'Huy Khanh', 'Jay Quan']",
+    "genres": "['Comedy', 'Horror']",
+    "poster": "posters\\Lật_Mặt_4_Nhà_Có_Khách.jpg"
+  },
+  {
+    "title": "Bẫy Cấp 3",
+    "overview": "Năm người bạn cùng nhau đi du lịch để thoát khỏi cuộc sống xô bồ của Sài Gòn. Điều hứa hẹn là một cuộc phiêu lưu khó quên đối với những người bạn này đã trở thành cơn ác mộng mà tất cả họ đều muốn quên nếu họ sống sót.",
+    "release_date": "18/05/2012",
+    "director": "Le-Van Kiet",
+    "stars": "['Khac Duy Nguyen', 'Minnie Nguyen', 'Thi Kieu Trinh Nguyen']",
+    "genres": "['Thriller']",
+    "poster": ""
+  },
+  {
+    "title": "Touch Happiness",
+    "overview": "Câu chuyện là một xã hội thu nhỏ với những quan điểm về tình yêu và giá trị cuộc sống. Hãy để các nhân vật thốt lên rằng “Khi yêu thì tuổi nào cũng dại”. Ẩn sâu trong câu chuyện tình yêu và giá trị gia đình là sự đấu tranh tư tưởng và những bài học của thời đại.",
+    "release_date": "01/09/2023",
+    "director": "Mai Long",
+    "stars": "['Nhu Quynh', 'Quang Teo', 'Doi Anh Quan']",
+    "genres": "['Comedy', 'Romance', 'Drama']",
+    "poster": "posters\\Chạm_Vào_Hạnh_Phúc.jpg"
+  },
+  {
+    "title": "The Girl from Yesterday",
+    "overview": "Một cậu thiếu niên gây ra vấn đề hàng ngày. Anh yêu một cô học sinh chuyển trường và trở nên thân thiết với cô ấy, nhưng anh vẫn luôn nghĩ về mối tình đầu thuở còn thơ ấu mà anh không thể thổ lộ tình cảm của mình.",
+    "release_date": "21/07/2017",
+    "director": "Phan Gia Nhat Linh",
+    "stars": "['Le Ha Anh', 'Hoang Yen Chibi', 'Ngo Kien Huy']",
+    "genres": "['Comedy', 'Romance']",
+    "poster": "posters\\Cô_Gái_Đến_Từ_Hôm_Qua.jpg"
+  },
+  {
+    "title": "Liberation of Saigon",
+    "overview": "Câu chuyện giải phóng Sài Gòn của Quân đội Nhân dân Việt Nam và Mặt trận Dân tộc Giải phóng miền Nam Việt Nam ngày 30 tháng 4 năm 1975.",
+    "release_date": "30/04/2005",
+    "director": "Long Vân",
+    "stars": "['Pham Cuong', 'Quang Dai', 'Tom Du Can']",
+    "genres": "['Drama', 'History', 'War']",
+    "poster": ""
+  },
+  {
+    "title": "Face Off: The Studio",
+    "overview": "A movie of Ly Hai Director (Vietnamese)",
+    "release_date": "29/04/2016",
+    "director": "Ly Hai",
+    "stars": "['Hua Minh Dat', 'Ly Hai', 'Vo Dinh Hieu']",
+    "genres": "['Action']",
+    "poster": "posters\\Lật_Mặt_2_Phim_Trường.jpg"
+  },
+  {
+    "title": "Lô Tô",
+    "overview": "“Lotto” là câu chuyện xoay quanh cuộc đời của Lê Liễu – “trái đào” chính của làng lô tô Phú Hòa. Lê Liễu vốn là một người tên Nam. Con đực lớn lên và phải kết hôn như những người đàn ông khác. Cho đến một ngày Nam quyết định rời xa gia đình để đi theo sự thôi thúc trong tâm trí, anh đến với nhóm bingo để sống với con người thật của mình và với khát vọng của mình dù cuộc sống bộn bề, cô đơn, loạng choạng như đầu máy hát đây đó. ..",
+    "release_date": "31/03/2017",
+    "director": "Huynh Tuan Anh",
+    "stars": "['Nam Em' ,'Trinh Xuan Nhan', 'Hai Trieu' ,'Nguyen Trung Dan', 'Phuong Thanh' ,'Binh Minh', 'Long Nhat', 'Quang Trung', 'Lap Huynh']",
+    "genres": "['Family', 'Comedy']",
+    "poster": "posters\\Lô_Tô.jpg"
+  },
+  {
+    "title": "Ma Nữ Báo Thù",
+    "overview": "Sau một thời gian yêu nhau, luật sư Huy theo bạn gái về quê giới thiệu gia đình cô. Tuy nhiên, chuyến đi không hề yên bình như Huy nghĩ. Kể từ khi về ở trong căn biệt thự cổ của nhà họ Lân, Huy luôn mơ thấy một cô gái trẻ đến tìm mình...",
+    "release_date": "03/06/2016",
+    "director": "Vinh Khuong",
+    "stars": "['Hoang Phuc', 'Truong Nam Thanh', 'Trinh Kim Chi']",
+    "genres": "['Horror']",
+    "poster": "posters\\Ma_Nữ_Báo_Thù.jpg"
+  },
+  {
+    "title": "Face Off",
+    "overview": "Sau khi khai quật được những viên kim cương ở vùng hoang dã, một người đàn ông bị một băng đảng giết người săn lùng và phải chạy trốn chúng nhờ sự giúp đỡ của một người bạn mới quen.",
+    "release_date": "11/03/2015",
+    "director": "Ly Hai",
+    "stars": "['Truong Giang', 'Nam Thu', 'Kim Xuan', 'Cat Phuong']",
+    "genres": "['Comedy']",
+    "poster": "posters\\Lật_Mặt.jpg"
+  },
+  {
+    "title": "Little Teo",
+    "overview": "Bộ phim hài đường phố không khuyến khích khán giả dưới 16 tuổi kể về Ti Anh (Johnny Trí Nguyễn thủ vai) và Tèo Em (Thái Hoà thủ vai) – hai anh em cùng cha khác mẹ với tính cách trái ngược nhau. Phim kể về chuyến phiêu lưu của họ khi đến thị trấn Sa Đéc để cứu vãn mối tình của Ti Anh.",
+    "release_date": "20/12/2013",
+    "director": "Charlie Nguyen",
+    "stars": "['Thai Hoa', 'Johnny Tri Nguyen', 'Ninh Duong Lan Ngoc']",
+    "genres": "['Comedy']",
+    "poster": "posters\\Tèo_Em.jpg"
+  },
+  {
+    "title": "Summer in Closed Eyes",
+    "overview": "Nhắm Mắt Mùa Hè là cuộc hành trình của cô gái tên Hà (Mùa Hè) do Phương Anh Đào thủ vai. Câu chuyện bắt đầu khi Hà đến thị trấn Higashikawa, Hokkaido, Nhật Bản để tìm cha cô (Công Ninh). Cô khám phá vùng phủ đầy tuyết vào mùa hè, nơi cha cô đã sống lâu năm và tại đây cô đã gặp chàng trai người Nhật – Akira (Takafumi Akutsu)",
+    "release_date": "06/04/2018",
+    "director": "Cao Thuy Nhi",
+    "stars": "['Phuong Anh Dao', 'Takafumi Akutsu', 'Cong Ninh Nguyen']",
+    "genres": "['Drama', 'Romance']",
+    "poster": "posters\\Nhắm_Mắt_Thấy_Mùa_Hè.jpg"
+  },
+  {
+    "title": "Never Trust a Stranger",
+    "overview": "Nam, 22 tuổi, trốn vào Sài Gòn vì tội giết người. Trong một lần tình cờ, Nam lọt vào tầm ngắm của Huy, 25 tuổi, một nhân vật bí ẩn hoàn toàn xa lạ. Biết Nam cần tiền để tồn tại nên Huy hứa với Nam sẽ trả 200 triệu để được sở hữu Nam trong 20 giờ. Còn Nam thì phải làm mọi thứ trừ những việc trái pháp luật. Nam được bí mật đưa về dinh thự bí ẩn của Huy, và từ đây Nam phải đối mặt với trò chơi nguy hiểm và sự điên rồ của gã này. Trong ngôi nhà này, Nam không chỉ có một mình như Huy kể trước đó mà còn có một cô gái trẻ bị đâm chết và 1 ngôi mộ. Và khi Nam muốn thoát khỏi ngôi nhà ma thì phát hiện ra Huy cũng bị đâm chết. Kẻ sát nhân đang ở đâu đó trong nhà? Cô ấy là ai? Mối quan hệ của Huy với cô gái như thế nào? Nam có thể an toàn trốn thoát với 200 triệu hay không?",
+    "release_date": "22/10/2015",
+    "director": "Ngoc Dang Vu",
+    "stars": "['La Quoc Hung', 'Ho Vinh Khoa', 'Minh Hang']",
+    "genres": "['Horror']",
+    "poster": "posters\\Con_Ma_Nhà_Họ_Vương.jpg"
+  },
+  {
+    "title": "Quynh",
+    "overview": "Tại vùng quê Hà Nội xinh đẹp, cô nàng tomboy thượng lưu Hương gặp cô nàng Quỳnh xa lạ đang bỏ nhà đi. Trải qua khoảng thời gian tươi đẹp bên nhau, hai cô gái trẻ phát hiện ra họ có nhiều điều để cùng nhau khám phá. Cho đến một ngày, người yêu Hương quay về.",
+    "release_date": "09/09/2005",
+    "director": "Linh Nga",
+    "stars": "['Quoc Cuong', 'Le Hang', 'Thi Khanh']",
+    "genres": "['Drama']",
+    "poster": ""
+  },
+  {
+    "title": "The Pacification of the Wu",
+    "overview": "Đây là câu chuyện kể về trận chiến lịch sử Tốt Động - Chúc Động, giữa phiến quân Lam Sơn do Lê Lợi chỉ huy và quân Minh do Vương Tông chỉ huy năm 1426. Năm 1407, Hoàng đế Hồ Quý Ly cùng các con trai bị bắt, nhà Hồ sụp đổ . Quân Minh nhanh chóng chiếm Đại Việt. Một mặt, Zhang Fu đàn áp một cách tàn nhẫn những sự phản kháng. Mặt khác, Hoàng Phúc tiến hành đồng hóa văn hóa, dạy người Giao Chỉ đàn áp người Giao Sử. Dưới thời Zhang Fu và Huang Fu, người Jiaoshi chỉ có hai lựa chọn: khuất phục hoặc chết. Tuy nhiên, sau khi Zhang Fu và Huang Fu lần lượt trở về Trung Quốc, lực lượng đồn trú của nhà Minh bắt đầu xảy ra mâu thuẫn nội bộ, tạo cơ hội cho các nhà cách mạng Lam Sơn lật ngược tình thế có lợi cho họ. Sau khi bao vây, cô lập nhiều thành phố từ Thuận Hóa đến Thanh Hóa, Lê Lợi tiến quân ra Bắc, được chỉ huy bởi một trong những tướng giỏi nhất Lam Sơn. Có bộ ba Lý Triển, Đinh Lễ và Nguyễn Xí.",
+    "release_date": "22/12/2020",
+    "director": "Ky The Vinh",
+    "stars": "['Thanh Loc']",
+    "genres": "['Animation']",
+    "poster": ""
+  },
+  {
+    "title": "Pearls of the Far East",
+    "overview": "Bảy câu chuyện về người phụ nữ Việt trải qua nhiều thế hệ khác nhau, khám phá đời sống nội tâm và những tình yêu bị cấm đoán.",
+    "release_date": "08/03/2012",
+    "director": "Cuong Ngo",
+    "stars": "['Truong Ngoc Anh', 'Kieu Chinh', 'Kris Duangphung']",
+    "genres": "['Romance', 'Drama']",
+    "poster": "posters\\Ngọc_Viễn_Đông.jpg"
+  },
+  {
+    "title": "Face Off 7: One Wish",
+    "overview": "Tác phẩm thứ 7 trong loạt phim Đối Mặt do Lý Hải viết kịch bản và đạo diễn",
+    "release_date": "26/04/2024",
+    "director": "Ly Hai",
+    "stars": "['Tram Anh','Tran Kim Hai', 'Thanh Hien', 'Truong Minh Cuong', 'Dinh Y Nhung']",
+    "genres": "['Family', 'Drama']",
+    "poster": "posters\\Lật_Mặt_7_Một_Điều_Ước.jpg"
+  },
+  {
+    "title": "Dreamy Eyes",
+    "overview": "Mắt Biếc (Mắt biếc) kể về mối tình đơn phương của Ngân dành cho Hạ Lan - người bạn thời thơ ấu của anh.",
+    "release_date": "20/12/2019",
+    "director": "Victor Vu",
+    "stars": "['Trúc Anh', 'Tran Nghia', 'Tran Phong']",
+    "genres": "['Drama', 'Romance']",
+    "poster": "posters\\Mắt_Biếc.jpg"
+  }
+]
