@@ -1,157 +1,3 @@
-# from fastapi import APIRouter, HTTPException, Request
-# from fastapi.responses import JSONResponse
-# import httpx
-# import os
-# import re
-# import logging
-# import traceback
-# from dotenv import load_dotenv
-# from app.services.search_service import query_by_text, query_by_text_chatbot
-
-# # =====================================================
-# #  Cấu hình
-# # =====================================================
-# load_dotenv()
-
-# router = APIRouter(prefix="/chat", tags=["chatbot"])
-
-# logger = logging.getLogger("chatbot")
-# logging.basicConfig(level=logging.INFO)
-
-# GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-# GEMINI_ENDPOINT = (
-#     "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent"
-# )
-
-# if not GEMINI_API_KEY:
-#     raise RuntimeError(" Missing GEMINI_API_KEY in .env")
-
-# # =====================================================
-# #  Bộ nhận dạng mục đích câu hỏi
-# # =====================================================
-# def detect_intent(prompt: str):
-#     p = prompt.lower()
-#     if any(k in p for k in ["diễn viên", "đóng trong", "vai", "ai đóng"]):
-#         return "actor"
-#     if any(k in p for k in ["đạo diễn", "chỉ đạo", "làm phim", "của ai"]):
-#         return "director"
-#     if any(k in p for k in ["tóm tắt", "nội dung", "kể về"]):
-#         return "summary"
-#     if any(k in p for k in ["gợi ý", "giống", "tương tự"]):
-#         return "similar"
-#     return "general"
-
-# # =====================================================
-# #  Multi-turn Chat
-# # =====================================================
-# @router.post("")
-# async def chat_with_gemini(request: Request):
-#     """
-#     Nhận body dạng:
-#     {
-#         "messages": [{ "role": "user"|"assistant", "content": "..." }],
-#         "prompt": "tin nhắn mới"
-#     }
-#     """
-#     try:
-#         data = await request.json()
-#         messages = data.get("messages", [])
-#         prompt = data.get("prompt", "").strip()
-
-#         if not prompt:
-#             raise HTTPException(status_code=400, detail="Prompt is empty.")
-
-#         # Thêm tin nhắn người dùng
-#         messages.append({"role": "user", "content": prompt})
-
-#         #  Nhận dạng mục đích
-#         intent = detect_intent(prompt)
-
-#         #  RAG: lấy phim liên quan
-#         rag_results = query_by_text_chatbot(prompt, top_k=5) or []
-#         context = "\n".join([
-#             f"- {r.get('original_title', r.get('title'))} "
-#             f"({r.get('release_date','N/A')}) – {r.get('genres','')} – "
-#             f"Đạo diễn: {r.get('director','?')}, Diễn viên: {r.get('stars','')}"
-#             for r in rag_results if isinstance(r, dict)
-#         ]) or "Không có phim liên quan trong cơ sở dữ liệu."
-
-#         #  Ghép lịch sử hội thoại gần nhất
-#         history = "\n".join([
-#             f"{'Người dùng' if m['role']=='user' else 'Trợ lý'}: {m['content']}"
-#             for m in messages[-5:]
-#         ])
-        
-#         if not rag_results:
-#             if intent == "actor":
-#                 reply = f"Mình không thấy diễn viên {prompt} trong danh sách phim. Bạn có muốn tìm người khác không?"
-#                 return JSONResponse({"reply": reply, "messages": messages, "related_movies": []})
-#             elif intent == "director":
-#                 reply = f"Mình không thấy đạo diễn {prompt} trong cơ sở dữ liệu. Bạn muốn mình gợi ý phim khác không?"
-#                 return JSONResponse({"reply": reply, "messages": messages, "related_movies": []})
-
-
-
-#         #  Prompt gửi lên Gemini
-#         role_prompt = f"""
-#         Bạn là trợ lý phim AI thân thiện, nói tiếng Việt tự nhiên.
-#         Dưới đây là dữ liệu phim và hội thoại gần nhất, hãy phản hồi ngắn gọn, tự nhiên, không dùng dấu ** **.
-
-#         🎬 Thông tin phim:
-#         {context}
-
-#         💬 Hội thoại gần đây:
-#         {history}
-
-#         Câu hỏi hiện tại: {prompt}
-#         """
-
-#         payload = {"contents": [{"parts": [{"text": role_prompt}]}]}
-
-#         #  Gọi Gemini API
-#         async with httpx.AsyncClient(timeout=40.0) as client:
-#             res = await client.post(
-#                 f"{GEMINI_ENDPOINT}?key={GEMINI_API_KEY}",
-#                 json=payload
-#             )
-
-#         if res.status_code != 200:
-#             logger.error(f"[Gemini API] {res.status_code} {res.text}")
-#             raise HTTPException(status_code=502, detail=f"Gemini upstream error ({res.status_code})")
-
-#         data = res.json()
-#         reply = (
-#             data.get("candidates", [{}])[0]
-#             .get("content", {})
-#             .get("parts", [{}])[0]
-#             .get("text", "")
-#         ) or "🤖 Xin lỗi, mình chưa có câu trả lời phù hợp."
-
-       
-#         reply = re.sub(r"\*\*(.*?)\*\*", r"\1", reply)
-
-        
-#         for movie in rag_results:
-#             title = movie.get("title", "")
-#             original = movie.get("original_title", "")
-#             if title and original and title in reply:
-#                 reply = reply.replace(title, original)
-
-#         # Thêm tin nhắn phản hồi
-#         messages.append({"role": "assistant", "content": reply})
-
-#         return JSONResponse({
-#             "reply": reply,
-#             "intent": intent,
-#             "messages": messages,
-#             "related_movies": rag_results
-#         })
-
-#     except Exception as e:
-#         logger.error("[chat_with_gemini] %s", traceback.format_exc())
-#         raise HTTPException(status_code=500, detail="Internal server error")
-
-
 from fastapi import APIRouter, Request, HTTPException
 from fastapi.responses import JSONResponse
 import httpx
@@ -159,6 +5,7 @@ import os
 import re
 import logging
 import traceback
+import unicodedata
 
 # Import helper từ search_service (bạn cần có các hàm/biến này trong app.services.search_service)
 # - query_by_text_chatbot(prompt, top_k): trả về list phim (dict) có fields: title, original_title, overview, release_date, director, stars, genres, poster, similarity
@@ -176,9 +23,9 @@ router = APIRouter(prefix="/chat", tags=["chatbot"])
 logger = logging.getLogger("chatbot")
 logging.basicConfig(level=logging.INFO)
 
-# Load API key from env (ensure you call load_dotenv() in main.py)
+
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-# Use a model available to your key (adjust if needed based on models_list.json)
+
 GEMINI_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent"
 
 if not GEMINI_API_KEY:
@@ -186,19 +33,94 @@ if not GEMINI_API_KEY:
     raise RuntimeError("Missing GEMINI_API_KEY in environment")
 
 # ---------- Intent detection ----------
-def detect_intent(prompt: str):
-    p = prompt.lower()
-    if any(k in p for k in ["phim hay", "gợi ý", "xem gì", "đề xuất", "recommend", "gợi ý phim"]):
-        return "recommend"
-    if any(k in p for k in ["diễn viên", "đóng trong", "ai đóng", "ai diễn"]):
-        return "actor"
-    if any(k in p for k in ["đạo diễn", "chỉ đạo", "được đạo diễn bởi", "directed by"]):
-        return "director"
-    if any(k in p for k in ["tóm tắt", "nội dung", "kể về", "summary"]):
+
+def detect_intent(prompt: str) -> str:
+    """Nhận diện ý định cơ bản từ prompt, có hỗ trợ không dấu."""
+    p_norm = normalize_text(prompt)
+    if any(k in p_norm for k in ["tom tat", "noi dung", "gioi thieu phim", "review", "danh gia"]):
         return "summary"
-    if any(k in p for k in ["so sánh", "khác", "giống nhau", "compare"]):
-        return "compare"
+    if any(k in p_norm for k in ["dien vien", "phim cua", "phim co", "ai dong vai"]):
+        return "actor"
+    if any(k in p_norm for k in ["dao dien", "lam phim", "bo phim cua"]):
+        return "director"
+    if any(k in p_norm for k in ["goi y", "de xuat", "nen xem gi", "phim hay"]):
+        return "recommend"
     return "general"
+
+# def detect_intent(prompt: str):
+#     p = prompt.lower()
+#     if any(k in p for k in ["phim hay", "gợi ý", "xem gì", "đề xuất", "recommend", "gợi ý phim"]):
+#         return "recommend"
+#     if any(k in p for k in ["diễn viên", "đóng trong", "ai đóng", "ai diễn"]):
+#         return "actor"
+#     if any(k in p for k in ["đạo diễn", "chỉ đạo", "được đạo diễn bởi", "directed by"]):
+#         return "director"
+#     if any(k in p for k in ["tóm tắt", "nội dung", "kể về", "summary"]):
+#         return "summary"
+#     if any(k in p for k in ["so sánh", "khác", "giống nhau", "compare"]):
+#         return "compare"
+#     return "general"
+
+def normalize_text(text: str) -> str:
+    """Chuẩn hóa tiếng Việt không dấu, chữ thường, bỏ ký tự đặc biệt."""
+    if not text:
+        return ""
+    text = text.lower().strip()
+    # chuyển ký tự có dấu thành không dấu
+    text = unicodedata.normalize("NFD", text)
+    text = "".join([c for c in text if unicodedata.category(c) != "Mn"])
+    # loại bỏ ký tự không phải chữ/số/dấu cách
+    text = re.sub(r"[^a-z0-9\s]", " ", text)
+    text = re.sub(r"\s+", " ", text).strip()
+    return text
+
+def extract_movie_name(prompt: str, movie_df) -> str | None:
+    """
+    Cố gắng trích tên phim từ câu hỏi như:
+    - "Tóm tắt phim Bố Già"
+    - "Cho mình biết nội dung phim mai"
+    - "Bo Gia movie"
+    """
+    norm_prompt = normalize_text(prompt)
+
+    # tìm cụm "phim <tên>"
+    match = re.search(r"phim\s+([a-zA-Z0-9\s:]+)", norm_prompt)
+    if match:
+        candidate = match.group(1).strip()
+
+        # so sánh không dấu với dữ liệu phim
+        for _, row in movie_df.iterrows():
+            title_norm = normalize_text(str(row.get("Title", "")))
+            orig_norm = normalize_text(str(row.get("Original Title", "")))
+            if candidate in title_norm or candidate in orig_norm:
+                return row.get("Original Title") or row.get("Title")
+
+    # fallback: tìm phim có tên xuất hiện trong toàn câu hỏi
+    for _, row in movie_df.iterrows():
+        title_norm = normalize_text(str(row.get("Title", "")))
+        if title_norm and title_norm in norm_prompt:
+            return row.get("Original Title") or row.get("Title")
+
+    return None
+
+
+def find_actor_or_director_in_df(df, query, column="Stars"):
+    """
+    Tìm tên tương ứng trong cột Stars hoặc Director bằng so khớp không dấu.
+    Trả về tên gốc (có dấu) nếu tìm thấy.
+    """
+    query_norm = normalize_text(query)
+    for _, row in df.iterrows():
+        names_raw = str(row.get(column, "")).split(",")
+        for name in names_raw:
+            name_clean = name.strip()
+            if not name_clean:
+                continue
+            if query_norm in normalize_text(name_clean):
+                return name_clean  # tên gốc có dấu
+    return None
+
+
 
 # ---------- Helper: clean markdown and swap Title -> Original Title ----------
 _md_strip_re = re.compile(r"\*\*(.*?)\*\*")
@@ -220,35 +142,21 @@ def clean_reply_text(text: str, rag_results: list):
 def lookup_by_actor(name: str, top_k: int = 10):
     """Tìm phim chứa tên diễn viên (case-insensitive substring)."""
     try:
-        if MOVIE_DF is None:
+        if MOVIE_DF is None or MOVIE_DF.empty:
             return []
-        mask = MOVIE_DF["Stars"].astype(str).str.lower().str.contains(name.lower(), na=False)
-        dfm = MOVIE_DF[mask]
-        results = []
-        for _, r in dfm.head(top_k).iterrows():
-            poster = r.get("PosterFile", "")
-            poster_url = f"{STATIC_URL_PREFIX}{poster}" if poster else None
-            results.append({
-                "title": r.get("Title", ""),
-                "original_title": r.get("Original Title", ""),
-                "overview": r.get("Overview", ""),
-                "release_date": r.get("Release Date", ""),
-                "director": r.get("Director", ""),
-                "stars": r.get("Stars", ""),
-                "genres": r.get("Genres", ""),
-                "poster": poster_url,
-                "similarity": 1.0,
-            })
-        return results
-    except Exception as e:
-        logger.exception("lookup_by_actor failed")
-        return []
 
-def lookup_by_director(name: str, top_k: int = 10):
-    try:
-        if MOVIE_DF is None:
+        # đảm bảo name là chuỗi, xử lý trường hợp nhận list hoặc None
+        if isinstance(name, (list, tuple)):
+            name = " ".join(map(str, name))
+        name = "" if name is None else str(name)
+
+        # chuẩn hoá tìm kiếm: lowercase và strip
+        query_norm = name.lower().strip()
+        if not query_norm:
             return []
-        mask = MOVIE_DF["Director"].astype(str).str.lower().str.contains(name.lower(), na=False)
+
+        # dùng regex=False để tránh lỗi khi query chứa ký tự regex đặc biệt
+        mask = MOVIE_DF["Stars"].astype(str).str.lower().str.contains(query_norm, na=False, regex=False)
         dfm = MOVIE_DF[mask]
         results = []
         for _, r in dfm.head(top_k).iterrows():
@@ -267,8 +175,43 @@ def lookup_by_director(name: str, top_k: int = 10):
             })
         return results
     except Exception:
-        logger.exception("lookup_by_director failed")
+        logger.exception("lookup_by_actor failed")
         return []
+
+def lookup_by_director(name: str, top_k: int = 10):
+    """Tìm phim theo tên đạo diễn (tự động bỏ dấu, hỗ trợ gõ không dấu)."""
+    if MOVIE_DF is None or MOVIE_DF.empty:
+        return []
+
+    results = []
+    query_norm = normalize_text(name)
+
+    for _, row in MOVIE_DF.iterrows():
+        director = str(row.get("Director", "")).strip()
+        director_norm = normalize_text(director)
+        if query_norm and query_norm in director_norm:
+            results.append({
+                "title": row.get("Title", ""),
+                "original_title": row.get("Original Title", ""),
+                "overview": row.get("Overview", ""),
+                "release_date": row.get("Release Date", ""),
+                "director": director,
+                "stars": row.get("Stars", ""),
+                "genres": r.get("Genres", ""),
+                "poster": f"{STATIC_URL_PREFIX}{row.get('PosterFile')}" if row.get("PosterFile") else None
+            })
+
+    # Xóa trùng
+    seen = set()
+    unique_results = []
+    for r in results:
+        key = r.get("original_title", r.get("title"))
+        if key not in seen:
+            seen.add(key)
+            unique_results.append(r)
+
+    return unique_results[:top_k]
+
 
 # ---------- Main POST route: multi-turn + hybrid logic ----------
 @router.post("")
@@ -286,6 +229,15 @@ async def chat_with_gemini(request: Request):
         prompt = (payload_body.get("prompt") or "").strip()
         if not prompt:
             raise HTTPException(status_code=400, detail="Prompt is empty.")
+
+        # replacements map: ascii_without_diacritics -> original_name_with_diacritics
+        replacements = {}
+
+        # helper to remove diacritics (keeps spaces/letters)
+        def remove_diacritics(s: str) -> str:
+            if not s:
+                return ""
+            return "".join([c for c in unicodedata.normalize("NFD", str(s)) if unicodedata.category(c) != "Mn"])
 
         # append user message
         messages.append({"role": "user", "content": prompt})
@@ -310,90 +262,146 @@ async def chat_with_gemini(request: Request):
 
         # ---- Handle actor / director intents via direct lookup first ----
         if intent == "actor":
-            # try direct lookup by actor name in prompt (extract name heuristically)
-            # simplest: use whole prompt (user likely typed 'phim Trấn Thành' or 'Trấn Thành')
-            actor_name = prompt
-            direct = lookup_by_actor(actor_name, top_k=10)
-            if direct:
-                # respond listing found movies (use original_title)
-                titles = ", ".join([m.get("original_title") or m.get("title") for m in direct[:5]])
-                reply = f"Mình tìm thấy {len(direct)} phim có diễn viên {actor_name}. Ví dụ: {titles}. Bạn muốn tóm tắt phim nào?"
-                messages.append({"role": "assistant", "content": reply})
-                return JSONResponse({"reply": reply, "intent": intent, "messages": messages, "related_movies": direct})
-            # if none, ask clarifying question
-            reply = f"Mình không thấy {actor_name} trong danh sách diễn viên của dữ liệu. Bạn muốn mình tìm diễn viên khác không?"
-            messages.append({"role": "assistant", "content": reply})
-            return JSONResponse({"reply": reply, "intent": intent, "messages": messages, "related_movies": []})
+            raw_query = prompt.strip()
+            m = re.search(r"(?:các\s+phim\s+của|phim\s+của|phim\s+của\s+diễn viên|các\s+phim\s+của|của)\s+(.+)$", raw_query, flags=re.IGNORECASE)
+            name_candidate = m.group(1).strip() if m else raw_query
 
+            matched_name = None
+            if MOVIE_DF is not None:
+                matched_name = find_actor_or_director_in_df(MOVIE_DF, name_candidate, column="Stars")
+
+            display_name = matched_name or name_candidate
+
+            # if we found canonical name with diacritics, register replacement
+            if matched_name:
+                ascii_name = remove_diacritics(matched_name)
+                # also register lowercased ascii -> original for safety
+                replacements[ascii_name] = matched_name
+                replacements[ascii_name.lower()] = matched_name
+
+            direct = lookup_by_actor(display_name, top_k=10)
+
+            if direct:
+                titles = ", ".join([
+                    f"{m.get('original_title') or m.get('title')} ({m.get('release_date','N/A')})"
+                    for m in direct[:5]
+                ])
+                reply = (
+                    f"À, mình tìm thấy {display_name} tham gia các phim sau: {titles}.\n"
+                    "Bạn muốn mình tóm tắt phim nào không?"
+                )
+                # ensure reply uses display_name (already does)
+                messages.append({"role": "assistant", "content": reply})
+                return JSONResponse({
+                    "reply": reply,
+                    "intent": intent,
+                    "messages": messages,
+                    "related_movies": direct
+                })
+
+            # không tìm thấy phim tương ứng
+            reply = (
+                f"Tiếc quá, mình chưa thấy phim của {display_name} trong danh sách hiện có. "
+            )
+            messages.append({"role": "assistant", "content": reply})
+            return JSONResponse({
+                "reply": reply,
+                "intent": intent,
+                "messages": messages,
+                "related_movies": []
+            })
+
+        # director branch: register replacements similarly if matched
         if intent == "director":
-            director_name = prompt
-            direct = lookup_by_director(director_name, top_k=10)
-            if direct:
-                titles = ", ".join([m.get("original_title") or m.get("title") for m in direct[:5]])
-                reply = f"Mình tìm thấy {len(direct)} phim đạo diễn bởi {director_name}. Ví dụ: {titles}. Bạn muốn tóm tắt phim nào?"
-                messages.append({"role": "assistant", "content": reply})
-                return JSONResponse({"reply": reply, "intent": intent, "messages": messages, "related_movies": direct})
-            reply = f"Mình không thấy đạo diễn {director_name} trong cơ sở dữ liệu. Bạn muốn tìm đạo diễn khác không?"
-            messages.append({"role": "assistant", "content": reply})
-            return JSONResponse({"reply": reply, "intent": intent, "messages": messages, "related_movies": []})
+            raw_query = prompt.strip()
+            display_name = raw_query
+            query_norm = normalize_text(raw_query)
+            matched_name = None
+            if MOVIE_DF is not None:
+                for _, row in MOVIE_DF.iterrows():
+                    director = str(row.get("Director", "")).strip()
+                    if not director:
+                        continue
+                    if query_norm in normalize_text(director):
+                        matched_name = director
+                        break
+            if matched_name:
+                display_name = matched_name
+                ascii_name = remove_diacritics(matched_name)
+                replacements[ascii_name] = matched_name
+                replacements[ascii_name.lower()] = matched_name
 
-        # ---- For summary / compare / general: use RAG first ----
-        rag_results = []
+            direct = lookup_by_director(display_name, top_k=10)
+
+            if direct:
+                titles = ", ".join([
+                    f"{m.get('original_title') or m.get('title')} ({m.get('release_date','N/A')})"
+                    for m in direct[:5]
+                ])
+                reply = (
+                    f"🎬 {display_name} là đạo diễn của các phim như: {titles}.\n"
+                    "Bạn muốn mình tóm tắt phim nào không?"
+                )
+                messages.append({"role": "assistant", "content": reply})
+                return JSONResponse({
+                    "reply": reply,
+                    "intent": intent,
+                    "messages": messages,
+                    "related_movies": direct
+                })
+
+            reply = (
+                f"Mình chưa tìm thấy phim do {display_name} đạo diễn. "
+                "Bạn muốn mình tìm đạo diễn khác hay thể loại phim khác không?"
+            )
+            messages.append({"role": "assistant", "content": reply})
+            return JSONResponse({
+                "reply": reply,
+                "intent": intent,
+                "messages": messages,
+                "related_movies": []
+            })
+        
         try:
             rag_results = query_by_text_chatbot(prompt, top_k=5) or []
         except Exception:
             logger.exception("query_by_text_chatbot failed")
             rag_results = []
 
-        # If user asked summary for a specific title, try to find exact match first:
+
         if intent == "summary":
-            # try to match original_title or title in dataset
-            exact_matches = []
-            try:
-                if MOVIE_DF is not None:
-                    q = prompt.lower()
-                    # try exact original title / title substring match
-                    mask = MOVIE_DF["Original Title"].astype(str).str.lower() == q
-                    if mask.sum() == 0:
-                        mask = MOVIE_DF["Original Title"].astype(str).str.lower().str.contains(q, na=False) | \
-                               MOVIE_DF["Title"].astype(str).str.lower().str.contains(q, na=False)
-                    exact_matches = MOVIE_DF[mask]
-            except Exception:
-                logger.debug("Exact title match failed", exc_info=True)
+            movie_name = extract_movie_name(prompt, MOVIE_DF) if MOVIE_DF is not None else None
 
-            if not exact_matches.empty:
-                row = exact_matches.iloc[0]
-                poster = row.get("PosterFile", "")
-                poster_url = f"{STATIC_URL_PREFIX}{poster}" if poster else None
-                reply = f"{row.get('Original Title') or row.get('Title')} ({row.get('Release Date','N/A')}): {row.get('Overview','Không có mô tả')}"
-                messages.append({"role": "assistant", "content": reply})
-                return JSONResponse({
-                    "reply": reply,
-                    "intent": intent,
-                    "messages": messages,
-                    "related_movies": [{
-                        "title": row.get("Title",""),
-                        "original_title": row.get("Original Title",""),
-                        "overview": row.get("Overview",""),
-                        "release_date": row.get("Release Date",""),
-                        "director": row.get("Director",""),
-                        "stars": row.get("Stars",""),
-                        "genres": row.get("Genres",""),
-                        "poster": poster_url
-                    }]
-                })
+            # Nếu nhận diện được tên phim
+            if movie_name:
+                logger.info(f" Detected movie name: {movie_name}")
+                row = MOVIE_DF[MOVIE_DF["Original Title"].astype(str).str.lower() == movie_name.lower()]
+                if row.empty:
+                    row = MOVIE_DF[MOVIE_DF["Title"].astype(str).str.lower() == movie_name.lower()]
 
-            # else if rag_results available, use first match overview to answer shortly (avoid calling Gemini)
-            if rag_results:
-                top = rag_results[0]
-                reply = f"{top.get('original_title') or top.get('title')} ({top.get('release_date','N/A')}): {top.get('overview','Không có mô tả')} "
-                messages.append({"role": "assistant", "content": reply})
-                return JSONResponse({"reply": reply, "intent": intent, "messages": messages, "related_movies": rag_results})
+                if not row.empty:
+                    r = row.iloc[0]
+                    poster = r.get("PosterFile", "")
+                    poster_url = f"{STATIC_URL_PREFIX}{poster}" if poster else None
+                    reply = f"{r.get('Original Title') or r.get('Title')} ({r.get('Release Date','N/A')}): {r.get('Overview','Không có mô tả')}"
+                    messages.append({"role": "assistant", "content": reply})
+                    return JSONResponse({
+                        "reply": reply,
+                        "intent": intent,
+                        "messages": messages,
+                        "related_movies": [{
+                            "title": r.get("Title",""),
+                            "original_title": r.get("Original Title",""),
+                            "overview": r.get("Overview",""),
+                            "release_date": r.get("Release Date",""),
+                            "director": r.get("Director",""),
+                            "stars": r.get("Stars",""),
+                            "genres": r.get("Genres",""),
+                            "poster": poster_url
+                        }]
+                    })
 
-            # if still nothing, ask user
-            reply = "Mình không có thông tin về phim đó trong danh sách. Bạn có muốn hỏi phim khác không?"
-            messages.append({"role": "assistant", "content": reply})
-            return JSONResponse({"reply": reply, "intent": intent, "messages": messages, "related_movies": []})
+
 
         # For compare/general: if rag_results empty, fallback suggestions
         if not rag_results:
@@ -459,8 +467,19 @@ Trả lời tóm tắt, rõ ràng, có thể gợi ý 2-3 phim liên quan.
 
         # Clean and replace titles with original_title if needed
         reply_text = clean_reply_text(reply_text, rag_results)
+
+        # --- NEW: apply replacements so ascii mentions become original with diacritics ---
+        if replacements:
+            for k, v in replacements.items():
+                try:
+                    if not k:
+                        continue
+                    # replace case-insensitive occurrences of the ascii form with the original name
+                    reply_text = re.sub(re.escape(k), v, reply_text, flags=re.IGNORECASE)
+                except Exception:
+                    logger.debug("replacement failed for %s -> %s", k, v, exc_info=True)
+
         if not reply_text:
-            # fallback to simple summary from RAG
             top = rag_results[0]
             reply_text = f"{top.get('original_title') or top.get('title')} ({top.get('release_date','N/A')}): {top.get('overview','Không có mô tả')}"
 
