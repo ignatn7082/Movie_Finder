@@ -7,14 +7,15 @@ from fastapi import FastAPI
 from app.api import search, movies, upload,chatbot
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-
 from fastapi.responses import JSONResponse
-
-
 from app.services import search_service
+from app.api import movies,auth  # import router
+from app.db import engine, Base
+from app.api import admin
 
-from app.api import movies  # import router
 
+
+Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Film Character Search API")
 
@@ -24,8 +25,9 @@ app.include_router(chatbot.router, prefix="/api", tags=["chatbot"])
 app.include_router(search.router)  # hoặc include_router(search.router, prefix="")
 app.include_router(movies.router, prefix="/api", tags=["movies"])
 app.include_router(upload.router, prefix="/api", tags=["upload"])
+app.include_router(auth.router)
 app.include_router(movies.router)
-
+app.include_router(admin.router)
 
 # CORS cho phép FE truy cập
 app.add_middleware(

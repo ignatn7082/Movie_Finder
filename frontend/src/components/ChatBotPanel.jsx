@@ -397,36 +397,37 @@ export default function ChatBotPanel({ onClose }) {
               {m.text}
             </div>
 
-            {/* Gợi ý phim */}
-            {m.relatedMovies?.length > 0 && (
-              <div className="mt-2 bg-gray-50 dark:bg-gray-800 rounded-lg p-2 w-full">
-                <p className="text-xs text-gray-500 mb-1 italic">
-                  🎬 Gợi ý từ hệ thống ({m.intent})
-                </p>
-                <div className="grid grid-cols-2 gap-2">
-                  {m.relatedMovies.map((movie, idx) => (
-                    <div
-                      key={idx}
-                      className="flex items-center gap-2 bg-gray-100 dark:bg-gray-900 rounded-md p-2 hover:shadow-sm transition"
-                    >
-                      {movie.poster ? (
-                        <img
-                          src={movie.poster}
-                          alt={movie.title}
-                          className="w-10 h-14 rounded-md object-cover"
-                        />
-                      ) : (
-                        <div className="w-10 h-14 bg-gray-300 rounded-md" />
-                      )}
-                      <div>
-                        <p className="text-xs font-semibold">{movie.title}</p>
-                        <p className="text-xs text-gray-500">{movie.release_date}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
+{/* Gợi ý phim */}
+{["recommend", "fallback_suggest"].includes(m.intent) && m.relatedMovies?.length > 0 && (
+  <div className="mt-2 bg-gray-50 dark:bg-gray-800 rounded-lg p-2 w-full">
+    <p className="text-xs text-gray-500 mb-1 italic">
+      🎬 Gợi ý từ hệ thống ({m.intent})
+    </p>
+    <div className="grid grid-cols-2 gap-2">
+      {m.relatedMovies.map((movie, idx) => (
+        <div
+          key={idx}
+          className="flex items-center gap-2 bg-gray-100 dark:bg-gray-900 rounded-md p-2 hover:shadow-sm transition"
+        >
+          {movie.poster ? (
+            <img
+              src={movie.poster}
+              alt={movie.title}
+              className="w-10 h-14 rounded-md object-cover"
+            />
+          ) : (
+            <div className="w-10 h-14 bg-gray-300 rounded-md" />
+          )}
+          <div>
+            <p className="text-xs font-semibold">{movie.title}</p>
+            <p className="text-xs text-gray-500">{movie.release_date}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+)}
+
           </div>
         ))}
 

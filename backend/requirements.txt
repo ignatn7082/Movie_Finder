@@ -1,5 +1,10 @@
 fastapi
+pydantic[email]
+email-validator
 uvicorn
+sqlalchemy
+passlib[bcrypt]
+python-jose[cryptography]
 python-multipart
 pillow
 pandas
@@ -14,6 +19,7 @@ h11
 starlette
 pydantic
 pydantic_core
+pydantic_settings
 typing_inspection
 git+https://github.com/openai/CLIP.git
 annotated_types
@@ -29,7 +35,7 @@ wcwidth
 regex
 scikit-learn
 sentence_transformers
-huggingface_hub
+huggingface_hub==0.36.0
 # yaml
 PyYAML
 safetensors
@@ -42,3 +48,4 @@ transformers==4.44.0
 httpx
 httpcore
 annotated_doc
+ecdsa

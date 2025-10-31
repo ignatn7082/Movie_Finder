@@ -207,7 +207,7 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="py-6 text-center text-sm text-gray-500 dark:text-gray-400 border-t border-gray-200 dark:border-gray-700">
-        © 2025 Film Character Search | Built with 💙 CLIP + Gemini AI
+        
       </footer>
     </div>
   );

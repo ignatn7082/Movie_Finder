@@ -1,5 +1,10 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from fastapi.responses import JSONResponse
+from sqlalchemy.orm import Session
+from app.db import get_db
+from app.core.roles import require_role, get_current_user
+
+
 import pandas as pd
 import os
 
@@ -87,3 +92,20 @@ async def get_movie_list():
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error reading CSV: {e}")
+
+
+
+@router.get("/public")
+def public_movies():
+    return {"items": ["Little Teo", "Bố Già", "Trạng Quỳnh"]}
+
+# protected: user/editor/admin
+@router.get("/", dependencies=[Depends(require_role(["user", "editor", "admin"]))])
+def list_movies(db: Session = Depends(get_db)):
+    # here you would query real movie table; demo only
+    return {"items": ["Little Teo", "Bố Già", "Trạng Quỳnh"]}
+
+# admin only
+@router.delete("/{movie_id}", dependencies=[Depends(require_role(["admin"]))])
+def delete_movie(movie_id: int):
+    return {"msg": f"deleted {movie_id}"}
