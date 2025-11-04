@@ -10,17 +10,16 @@ import MoviesList from "./pages/MoviesList";
 import ChatBotButton from "./components/ChatBotButton";
 import ChatBotPanel from "./components/ChatBotPanel";
 import ProtectedRoute from "./components/ProtectedRoute";
-import AdminPanel from "./pages/AdminPanel";
-import Login from "./pages/Login";
+import AdminDashboard from "./pages/admin/DashboardHome";
 import LoginAdmin from "./pages/LoginAdmin";
 import LoginUser from "./pages/LoginUser";
 import Register from "./pages/Register";
 import Forbidden from "./pages/Forbidden";
 import { ChatBotProvider, useChatBot } from "./context/ChatBotContext";
 
+
 function GlobalChat() {
   const { isOpen, toggleChat, closeChat } = useChatBot();
-
   return (
     <>
       <ChatBotButton onClick={toggleChat} />
@@ -29,23 +28,30 @@ function GlobalChat() {
   );
 }
 
-//  Layout chỉ hiện Navbar + Footer khi đã đăng nhập
+/**
+ * Layout hiển thị Navbar + Footer chỉ khi user/admin đã đăng nhập
+ */
+//  Layout chỉ hiện Navbar + Footer khi đã đăng nhập và KHÔNG phải admin
 function LayoutWithNavbar({ children }) {
-  const isLoggedIn =
-    localStorage.getItem("user_token") || localStorage.getItem("admin_token");
+  const userToken = localStorage.getItem("user_token");
+  const adminToken = localStorage.getItem("admin_token");
 
-  if (!isLoggedIn) {
-    //  Nếu chưa đăng nhập, điều hướng về trang đăng nhập user
+  // Nếu là admin → không hiển thị Navbar, chỉ hiển thị nội dung
+  if (adminToken) {
+    return <div className="min-h-screen flex flex-col">{children}</div>;
+  }
+
+  // Nếu chưa đăng nhập → chuyển hướng về login user
+  if (!userToken) {
     return <Navigate to="/login/user" replace />;
   }
 
+  // Nếu là user → hiển thị Navbar + Footer như bình thường
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
       <div className="h-16" />
-
       <main className="flex-1 container mx-auto px-4 py-6">{children}</main>
-
       <Footer />
     </div>
   );
@@ -100,14 +106,16 @@ export default function App() {
             }
           />
 
-          {/*  Chỉ admin mới vào được */}
+          {/* ========================= */}
+          {/* Khu vực chỉ dành cho Admin */}
+          {/* ========================= */}
           <Route
             path="/admin"
             element={
               <ProtectedRoute roles={["admin"]}>
-                <LayoutWithNavbar>
-                  <AdminPanel />
-                </LayoutWithNavbar>
+              
+                  <AdminDashboard />
+               
               </ProtectedRoute>
             }
           />
@@ -115,17 +123,18 @@ export default function App() {
           {/* ========================= */}
           {/* Các trang KHÔNG có Navbar */}
           {/* ========================= */}
-          {/* <Route path="/login" element={<Login />} /> */}
           <Route path="/login/admin" element={<LoginAdmin />} />
           <Route path="/login/user" element={<LoginUser />} />
           <Route path="/register" element={<Register />} />
           <Route path="/403" element={<Forbidden />} />
 
-          {/* Mặc định điều hướng về trang chủ */}
+          {/* ========================= */}
+          {/* Fallback */}
+          {/* ========================= */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
 
-        {/* Chatbot luôn hiển thị (dù login hay chưa) */}
+        {/* Chatbot luôn hiển thị */}
         <GlobalChat />
       </Router>
     </ChatBotProvider>

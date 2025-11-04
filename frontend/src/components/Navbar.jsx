@@ -81,10 +81,7 @@ function Navbar() {
               {role === "admin" ? "🛡️ Admin" : "👤 User"}: <b>{username}</b>
             </span>
             <button
-              onClick={() => {
-                localStorage.clear();
-                navigate("/login/user");
-              }}
+              onClick={() => handleLogout(role)}
               className="text-red-500 hover:underline text-sm"
             >
               Đăng xuất
