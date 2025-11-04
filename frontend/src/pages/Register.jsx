@@ -34,7 +34,7 @@ export default function Register() {
       }
 
       setSuccess("Đăng ký thành công! Bạn có thể đăng nhập ngay.");
-      setTimeout(() => navigate("/login"), 1500);
+      setTimeout(() => navigate("/login/user"), 1500);
     } catch (err) {
       setError(err.message);
     }

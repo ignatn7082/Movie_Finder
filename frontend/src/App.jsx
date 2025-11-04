@@ -15,6 +15,7 @@ import LoginAdmin from "./pages/LoginAdmin";
 import LoginUser from "./pages/LoginUser";
 import Register from "./pages/Register";
 import Forbidden from "./pages/Forbidden";
+import MoviesPanel from "./pages/admin/MoviePanel";
 import { ChatBotProvider, useChatBot } from "./context/ChatBotContext";
 
 
@@ -123,6 +124,7 @@ export default function App() {
           {/* ========================= */}
           {/* Các trang KHÔNG có Navbar */}
           {/* ========================= */}
+          <Route index element={<MoviesPanel />} />
           <Route path="/login/admin" element={<LoginAdmin />} />
           <Route path="/login/user" element={<LoginUser />} />
           <Route path="/register" element={<Register />} />

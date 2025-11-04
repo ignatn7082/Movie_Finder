@@ -17,7 +17,7 @@ def register(body: schema.RegisterIn, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="Email đã được đăng ký")
 
     hashed = get_password_hash(body.password)
-    user = User(username=body.username, email=body.email, hashed_password=hashed, role="user")
+    user = User(username=body.username, email=body.email,password=hashed, role="user")
     db.add(user)
     db.commit()
     db.refresh(user)
@@ -26,7 +26,7 @@ def register(body: schema.RegisterIn, db: Session = Depends(get_db)):
 @router.post("/login", response_model=schema.TokenOut)
 def login(body: schema.LoginIn, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.username == body.username).first()
-    if not user or not verify_password(body.password, user.hashed_password):
+    if not user or not verify_password(body.password, user.password):
         raise HTTPException(status_code=401, detail="Sai username hoặc password")
     token = create_access_token(subject=user.username, role=user.role)
     return {"access_token": token, "token_type": "bearer", "role": user.role, "username": user.username}

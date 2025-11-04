@@ -46,7 +46,7 @@ def toggle_active(
     # Lấy trạng thái mới từ body (default = True nếu không truyền)
     new_status = body.get("is_active", True)
     user.is_active = new_status
-
+    
     db.commit()
     db.refresh(user)  
 

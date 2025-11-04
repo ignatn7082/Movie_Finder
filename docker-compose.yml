@@ -7,14 +7,36 @@ services:
       - ./backend/.env
     ports:
       - "8000:8000"
-    
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/moviedb
+      PYTHONPATH: /app
+    volumes:
+      - ./backend:/app
+    working_dir: /app
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+
   frontend:
     build: ./frontend
     env_file:
       - ./frontend/.env
     ports:
       - "3000:3000"
-    # volumes:
-    #   - ./frontend:/app
     working_dir: /app
     command: ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
+
+  db:
+    image: postgres:16
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: moviedb
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:

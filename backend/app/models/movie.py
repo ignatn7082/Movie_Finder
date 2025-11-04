@@ -1,17 +1,11 @@
-from fastapi import APIRouter, Depends
-from app.core.roles import require_role
-from app.models.user import User
+from sqlalchemy import Column, Integer, String, DateTime, func
+from app.db import Base
 
-router = APIRouter(prefix="/api/movies", tags=["Movies"])
+class Movie(Base):
+    __tablename__ = "movies"
 
-@router.get("/", dependencies=[Depends(require_role(["user", "editor", "admin"]))])
-def get_movies():
-    return {"movies": ["Bố Già", "Mai", "Lật Mặt 7"]}
-
-@router.post("/", dependencies=[Depends(require_role(["editor", "admin"]))])
-def add_movie(movie_name: str):
-    return {"msg": f"Đã thêm phim {movie_name}"}
-
-@router.delete("/{movie_id}", dependencies=[Depends(require_role(["admin"]))])
-def delete_movie(movie_id: int):
-    return {"msg": f"Phim có ID {movie_id} đã bị xóa"}
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String(200), nullable=False)
+    description = Column(String(2000), nullable=True)
+    poster = Column(String(255), nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
