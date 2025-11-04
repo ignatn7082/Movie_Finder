@@ -3,22 +3,39 @@ import { Navigate } from "react-router-dom";
 
 /**
  * ProtectedRoute kiểm tra quyền người dùng trước khi hiển thị trang.
- * - roles: mảng các quyền được phép (["admin"], ["user","editor"], ...)
- * - Lưu ý: role của user được lấy từ localStorage (ví dụ "user","editor","admin")
+ * - roles: mảng quyền được phép (["admin"], ["user"])
+ * - Hỗ trợ 2 loại token riêng biệt: admin_token & user_token
  */
-export default function ProtectedRoute({ roles, children }) {
-  const token = localStorage.getItem("token");
-  const userRole = localStorage.getItem("role"); // 🧠 giá trị được lưu khi đăng nhập
+export default function ProtectedRoute({ roles = [], children }) {
+  // Lấy token và role hiện tại từ localStorage
+  const userToken = localStorage.getItem("user_token");
+  const adminToken = localStorage.getItem("admin_token");
 
-  if (!token) {
-    // chưa đăng nhập
-    return <Navigate to="/login" replace />;
+  let currentRole = null;
+  let token = null;
+
+  if (adminToken) {
+    currentRole = "admin";
+    token = adminToken;
+  } else if (userToken) {
+    currentRole = "user";
+    token = userToken;
   }
 
-  if (roles && !roles.includes(userRole)) {
-    // không đủ quyền
+  //  Chưa đăng nhập
+  if (!token) {
+    // Nếu route yêu cầu admin → chuyển về login admin, ngược lại về login user
+    const redirectPath = roles.includes("admin")
+      ? "/login/admin"
+      : "/login/user";
+    return <Navigate to={redirectPath} replace />;
+  }
+
+  //  Nếu role hiện tại không nằm trong roles cho phép
+  if (roles.length > 0 && !roles.includes(currentRole)) {
     return <Navigate to="/403" replace />;
   }
 
+  //  Có quyền, render nội dung con
   return children;
 }
