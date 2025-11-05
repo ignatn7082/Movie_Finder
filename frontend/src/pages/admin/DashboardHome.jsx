@@ -1,32 +1,65 @@
-import React, { useState } from "react";
-import AdminSidebar from "./AdminSidebar";
-import AdminHeader from "./AdminHeader";
-import AdminPanel from "./AdminPanel";
+// src/pages/admin/DashboardHome.jsx
+import React from "react";
+import { NavLink, Outlet } from "react-router-dom";
+import { Users, Film, Settings, LogOut } from "lucide-react";
 
 export default function AdminDashboard() {
-  const [darkMode, setDarkMode] = useState(true);
+  const linkClass = ({ isActive }) =>
+    `flex items-center gap-2 px-4 py-2 rounded-md text-sm transition-all duration-200 ${
+      isActive
+        ? "bg-blue-600 text-white"
+        : "text-gray-400 hover:bg-gray-800 hover:text-white"
+    }`;
 
-  const toggleDarkMode = () => {
-    const newMode = !darkMode;
-    setDarkMode(newMode);
-    document.documentElement.classList.toggle("dark", newMode);
+  const handleLogout = () => {
+    localStorage.removeItem("admin_token");
+    localStorage.removeItem("admin_username");
+    window.location.href = "/login/admin";
   };
 
   return (
-    <div className="flex bg-[#0f172a] text-gray-100 min-h-screen">
-      {/* Sidebar trái */}
-      <AdminSidebar />
+    <div className="flex min-h-screen bg-gray-900 text-gray-100">
+      {/* Sidebar */}
+      <aside className="w-64 bg-gray-800 p-4 flex flex-col border-r border-gray-700">
+        <h2 className="text-xl font-semibold mb-6 text-blue-400">
+          🎬 Admin Panel
+        </h2>
 
-      {/* Vùng nội dung */}
-      <div className="flex flex-col flex-1 min-h-screen">
-        {/* Header cố định */}
-        <AdminHeader darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
+        <nav className="space-y-2 flex-1">
+          <NavLink to="/admin" end className={linkClass}>
+            <Users size={18} /> Quản lý người dùng
+          </NavLink>
+          <NavLink to="/admin/movies" className={linkClass}>
+            <Film size={18} /> Quản lý phim
+          </NavLink>
+          <NavLink to="/admin/settings" className={linkClass}>
+            <Settings size={18} /> Cài đặt
+          </NavLink>
+        </nav>
 
-        {/* Nội dung chính */}
-        <main className="flex-1 bg-[#111827] p-8 overflow-y-auto">
-          <div className="max-w-5xl mx-auto">
-            <AdminPanel />
-          </div>
+        <button
+          onClick={handleLogout}
+          className="mt-auto flex items-center gap-2 px-4 py-2 rounded-md bg-red-600 hover:bg-red-700 text-white text-sm"
+        >
+          <LogOut size={16} /> Đăng xuất
+        </button>
+      </aside>
+
+      {/* Nội dung chính */}
+      <div className="flex-1 flex flex-col">
+        {/* Header */}
+        <header className="bg-gray-800 px-6 py-3 flex items-center justify-between border-b border-gray-700">
+          <h1 className="text-lg font-semibold text-gray-100">
+            Bảng điều khiển quản trị
+          </h1>
+          <span className="text-gray-400 text-sm">
+            {localStorage.getItem("admin_username")}
+          </span>
+        </header>
+
+        {/*  Đây là nơi các trang con sẽ hiển thị */}
+        <main className="flex-1 p-6 overflow-y-auto">
+          <Outlet />
         </main>
       </div>
     </div>

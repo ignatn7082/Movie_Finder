@@ -12,6 +12,7 @@ from app.services import search_service
 from app.api import movies,auth  # import router
 from app.db import engine, Base
 from app.api import admin
+from app.models import user, movie  # Đảm bảo các model được import để tạo bảng
 
 
 
@@ -28,6 +29,7 @@ app.include_router(upload.router, prefix="/api", tags=["upload"])
 app.include_router(auth.router)
 app.include_router(movies.router)
 app.include_router(admin.router)
+
 
 # CORS cho phép FE truy cập
 app.add_middleware(

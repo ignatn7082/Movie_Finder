@@ -15,7 +15,7 @@ export default function MoviesPanel() {
     fetchMovies();
   }, []);
 
-  // 🔹 Lấy danh sách phim
+  //  Lấy danh sách phim
   const fetchMovies = async () => {
     try {
       const res = await fetch("http://localhost:8000/api/movies", {
@@ -31,7 +31,7 @@ export default function MoviesPanel() {
     }
   };
 
-  // 🔹 Upload phim mới
+  //  Upload phim mới
   const handleAddMovie = async (e) => {
     e.preventDefault();
     try {
@@ -56,7 +56,7 @@ export default function MoviesPanel() {
     }
   };
 
-  // 🔹 Xoá phim
+  //  Xoá phim
   const handleDelete = async (id) => {
     if (!window.confirm("Xác nhận xoá phim này?")) return;
     try {
