@@ -24,9 +24,9 @@ def get_movies(db: Session = Depends(get_db)):
         {
             "id": m.id,
             "title": m.title,
-            "description": m.description,
+            "description": m.overview,
             "poster": f"http://localhost:8000/static/{m.poster}" if m.poster else None,
-            "created_at": m.created_at,
+            "created_at": m.release_date,
         }
         for m in movies
     ]
@@ -50,7 +50,7 @@ async def upload_movie(
         with open(path, "wb") as f:
             shutil.copyfileobj(poster.file, f)
 
-    movie = Movie(title=title, description=description, poster=filename)
+    movie = Movie(original_title=title, overview=description, poster=filename)
     db.add(movie)
     db.commit()
     db.refresh(movie)
@@ -77,3 +77,52 @@ def delete_movie(movie_id: int, db: Session = Depends(get_db)):
     db.delete(movie)
     db.commit()
     return {"msg": f"Movie id={movie_id} deleted"}
+
+
+#  Endpoint: Lấy danh sách phim trực tiếp từ PostgreSQL
+@router.get("/from-db", dependencies=[Depends(require_role(["user", "editor", "admin"]))])
+def get_movies_from_db(db: Session = Depends(get_db)):
+    try:
+        movies = db.query(Movie).all()
+        if not movies:
+            raise HTTPException(status_code=404, detail="Không có phim nào trong CSDL")
+
+        data = [
+            {
+                "id": m.id,
+                "title": m.title,
+                "original_title": m.original_title,
+                "release_date": m.release_date,
+                "director": m.director,
+                "stars": m.stars,
+                "genres": m.genres,
+                "overview": m.overview[:250] + "..." if m.overview else "",
+                "poster": f"http://localhost:8000/static/{m.poster}"
+                if m.poster
+                else None,
+            }
+            for m in movies
+        ]
+
+        return {"movies": data, "total": len(data)}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Lỗi truy vấn database: {e}")
+
+
+#  Endpoint: Lấy chi tiết 1 phim theo ID
+@router.get("/from-db/{movie_id}", dependencies=[Depends(require_role(["user", "editor", "admin"]))])
+def get_movie_detail(movie_id: int, db: Session = Depends(get_db)):
+    movie = db.query(Movie).filter(Movie.id == movie_id).first()
+    if not movie:
+        raise HTTPException(status_code=404, detail="Không tìm thấy phim")
+    return {
+        "id": movie.id,
+        "title": movie.title,
+        "original_title": movie.original_title,
+        "release_date": movie.release_date,
+        "director": movie.director,
+        "stars": movie.stars,
+        "genres": movie.genres,
+        "overview": movie.overview,
+        "poster": f"http://localhost:8000/static/{movie.poster}" if movie.poster else None,
+    }

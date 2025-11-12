@@ -31,10 +31,16 @@ app.include_router(movies.router)
 app.include_router(admin.router)
 
 
+origins = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://frontend:3000",   # nếu container frontend có tên này
+    "*",  # (chỉ dùng tạm thời để debug)
+]
 # CORS cho phép FE truy cập
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

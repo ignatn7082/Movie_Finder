@@ -25,4 +25,6 @@ RUN pip install --no-cache-dir --no-deps --timeout 120 -r requirements.txt
 
 COPY . .
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+
+CMD ["bash", "-c", "python -u app/scripts/init_db.py && uvicorn app.main:app --host 0.0.0.0 --port 8000"]
