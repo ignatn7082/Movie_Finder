@@ -1,5 +1,6 @@
 {
   "Tro tàn rực rỡ": {
+    "movie_id": 2,
     "Lê Công Hoàng": "Dương",
     "Juliet Bảo Ngọc Doling": "Hậu",
     "Phương Anh Đào": "Nhàn",
@@ -12,6 +13,7 @@
     "Hoang Thi Thuy": "Neighbor #2"
   },
   "Gái Già Lắm Chiêu V: Những Cuộc Đời Vương Giả": {
+    "movie_id": 5,
     "Hồng Vân": "Lý Lệ Hồng",
     "Kaity Nguyễn": "Lý Linh",
     "Khương Lê": "Jonathan Vĩnh Thụy",
@@ -24,6 +26,7 @@
     "Lê Khanh": "Lý Lệ Hà"
   },
   "Em và Trịnh": {
+    "movie_id": 6,
     "Lương Anh Vũ": "Trịnh Công Sơn (young)",
     "Phạm Nguyễn Lan Thy": "Bích Diễm",
     "Hoàng Hà": "Dao Ánh (young)",
@@ -40,6 +43,7 @@
     "Bảo Long": "Văn Đỗ"
   },
   "Thanh Sói: Cúc Dại Trong Đêm": {
+    "movie_id": 7,
     "Dong Anh Quynh": "Bi",
     "Toc Tien": "Thanh",
     "Rima Thanh Vy": "Hong",
@@ -52,6 +56,7 @@
     "Thanh Hoa": "Thanh Sói"
   },
   "Dòng Máu Anh Hùng": {
+    "movie_id": 10,
     "Johnny Trí Nguyễn": "Cuong",
     "Ngô Thanh Vân": "Thuy",
     "Chánh Tín Nguyễn": "Cuong's Father",
@@ -86,6 +91,7 @@
     "Sauriw Frarcoisxauier": "French Soldier"
   },
   "Bẫy Rồng": {
+    "movie_id": 11,
     "Johnny Trí Nguyễn": "Quan",
     "Ngô Thanh Vân": "Trinh",
     "Hiếu Hiền": "Phong",
@@ -93,13 +99,14 @@
     "Lâm Minh Thắng": "Cang"
   },
   "Lôi Báo": {
+    "movie_id": 13,
     "Cường Seven": "Tâm",
     "Nhã Phương": "Linh",
     "Simba A Pù": "khỉnh Pù",
     "Hoàng Sơn": "Mã"
   },
-
   "Em Là Bà Nội Của Anh": {
+    "movie_id": 16,
     "Miu Lê": "Thanh Nga",
     "Ngô Kiến Huy": "Tùng",
     "Hứa Vĩ Văn": "Mạnh Đức",
@@ -126,6 +133,7 @@
     "Trọng Hiếu Idol": "ông Bé lúc trẻ"
   },
   "Hai Phượng": {
+    "movie_id": 17,
     "Ngô Thanh Vân": "Hai Phượng (Mẹ Mai)",
     "Phan Thanh Nhien": "Lương (Cảnh sát hình sự)",
     "Phạm Anh Khoa": "Trúc (Giang hồ)",
@@ -134,6 +142,7 @@
     "Le Trang": "Cô Y Tá"
   },
   "Tấm Cám Chuyện Chưa Kể": {
+    "movie_id": 18,
     "Ngô Thanh Vân": "Mẹ Cám",
     "Hạ Vi": "Tấm",
     "Ninh Dương Lan Ngọc": "Cám",
@@ -149,9 +158,11 @@
     "Hữu Vi": "Trịnh Thắng"
   },
   "Vô Diện Sát Nhân": {
+    "movie_id": 19,
     "Phương Anh Đào": "Phương Anh"
   },
   "Thiên Mệnh Anh Hùng": {
+    "movie_id": 21,
     "Huỳnh Đông": "Nguyen Vu",
     "Midu": "Hoa Xuan",
     "Khương Ngọc": "Tran Tong Quan",
@@ -163,8 +174,8 @@
     "Phi Thanh Vân": "Gai Lau Xanh",
     "Maï Anh Le": "Co Gai Dien"
   },
-
   "Trạng Quỳnh": {
+    "movie_id": 24,
     "Quốc Anh": "Quỳnh",
     "Nhã Phương": "Điềm",
     "Trấn Thành": "Xẩm",
@@ -184,6 +195,7 @@
     "Công Dương": "Bá"
   },
   "Gái Già Lắm Chiêu 3": {
+    "movie_id": 27,
     "Ninh Dương Lan Ngọc": "Ms. Q / Quyen",
     "Lê Xuân Tiền": "Jack",
     "Thùy Anh": "Kiki Ngo",
@@ -194,6 +206,7 @@
     "Lê Khanh": "Thai Tuyet Mai"
   },
   "Bẫy Ngọt Ngào": {
+    "movie_id": 28,
     "Bảo Anh": "Camy",
     "Minh Hằng": "Quỳnh Lam",
     "Diệu Nhi": "Linh Đan",
@@ -201,6 +214,7 @@
     "Quốc Trường": "Đăng Minh"
   },
   "Cho Em Gần Anh Thêm Chút Nữa": {
+    "movie_id": 30,
     "Jun Vũ": "Rin",
     "Võ Đình Hiếu": "Kai",
     "Kiều Minh Tuấn": "Phú",
@@ -210,6 +224,7 @@
     "Hồng Đào": "Rin's Mother"
   },
   "Em Chưa 18": {
+    "movie_id": 31,
     "Kaity Nguyễn": "Linh Đan",
     "Kiều Minh Tuấn": "Uông Việt Hoàng",
     "Will": "Tony",
@@ -228,12 +243,13 @@
     "Kim Anh": "bạn Yến"
   },
   "Lật Mặt 3: Ba Chàng Khuyết": {
+    "movie_id": 32,
     "Song Luân": "Tâm",
     "Huy Khánh": "Đức",
     "Kiều Minh Tuấn": "Lộc"
   },
-
   "Cô Gái Đến Từ Hôm Qua": {
+    "movie_id": 36,
     "Miu Lê": "Việt An",
     "Ngô Kiến Huy": "Thư",
     "Jun Phạm": "Hải",
@@ -250,14 +266,14 @@
     "Tú Vi": "Tiểu Li's Mother"
   },
   "Lô Tô": {
+    "movie_id": 39,
     "Hữu Châu": "Lệ Liễu Tần Tảo",
     "Huỳnh Lập": "Lệ Phi Bộc Trực",
     "Hải Triều": "Lệ Sa Sa đầm thắm",
     "Minh Dũng": "Lệ Tú Đanh Đá"
   },
-
-  
   "Nhắm Mắt Thấy Mùa Hè": {
+    "movie_id": 43,
     "Phương Anh Đào": "Hạ",
     "Takafumi Akutsu": "Akira",
     "Công Ninh": "Nhất Minh",
@@ -269,6 +285,7 @@
     "Akira Hatsusegawa": "Kata"
   },
   "Ngọc Viễn Đông": {
+    "movie_id": 47,
     "Trương Ngọc Ánh": "Sac",
     "Kiều Chinh": "Kieu",
     "Kris Duangphung": "Brother",
@@ -284,6 +301,7 @@
     "Minh Ngoc Nguyen": "Mi"
   },
   "Lật Mặt 7: Một Điều Ước": {
+    "movie_id": 48,
     "Thanh Hiền": "Bà Hai",
     "Oanh Kiều": "Bà Hai lúc trẻ",
     "Trương Minh Cường": "Hai Khôn",
@@ -304,6 +322,7 @@
     "Tú Trinh": "Bà Thanh"
   },
   "Mắt Biếc": {
+    "movie_id": 49,
     "Trúc Anh": "Hà Lan",
     "Trần Nghĩa": "Ngạn",
     "Đỗ Khánh Vân": "Trà Long",
@@ -311,6 +330,7 @@
     "Nguyễn Lâm Thảo Tâm": "Hồng"
   },
   "Mai": {
+    "movie_id": 3,
     "Phương Anh Đào": "Mai",
     "Tuấn Trần": "Dương (Sâu)",
     "Trấn Thành": "Ông Hoàng",
@@ -336,6 +356,7 @@
     "Ngân Hòa": "Jelly"
   },
   "Mười": {
+    "movie_id": 4,
     "Jo An": "Yoon-hee",
     "Cha Ye-ryeon": "Seo-yeon",
     "Anh Thư": "Mười",
@@ -352,8 +373,8 @@
     "Phi Điểu": "Bà già",
     "Nhật Kim Anh": "Cô gái trong đoạn phim"
   },
-
   "Lật Mặt 5: 48H": {
+    "movie_id": 8,
     "Võ Thành Tâm": "Hiền",
     "Ốc Thanh Vân": "Nga",
     "Huỳnh Đông": "A Dìn",
@@ -367,6 +388,7 @@
     "Hùng ChilHyun": "Long Gà"
   },
   "Đất Rừng Phương Nam": {
+    "movie_id": 9,
     "Huỳnh Hạo Khang": "An",
     "Bùi Lý Bảo Ngọc": "Xinh",
     "Đỗ Kỳ Phong": "Cò",
@@ -383,6 +405,7 @@
     "Hồng Ánh": "Mẹ của An"
   },
   "Nhà Bà Nữ": {
+    "movie_id": 12,
     "Lê Giang": "Ngọc Nữ",
     "Uyển Ân": "Ngọc Nhi",
     "Song Luân": "John",
@@ -397,6 +420,7 @@
     "Ngân Quỳnh": "Mẹ của John"
   },
   "Vợ ba": {
+    "movie_id": 15,
     "Nguyễn Hồng Chương": "Cụ Bá",
     "Lê Vũ Long": "Hùng",
     "Trần Nữ Yên Khê": "Hà",
@@ -411,6 +435,7 @@
     "NSND Trung Anh": "Ông Văn"
   },
   "Để Mai Tính 2: Để Hội Tính": {
+    "movie_id": 20,
     "Thái Hòa": "Phạm Hương Hội",
     "Quang Sự": "Nam",
     "Diễm My 9x": "Thư Lê",
@@ -436,6 +461,7 @@
     "David Phạm": "Người tù đẹp trai"
   },
   "Mười: Lời Nguyền Trở Lại": {
+    "movie_id": 22,
     "Chi Pu": "Linh",
     "Rima Thanh Vy": "Hằng",
     "Anh Thư": "Mười",
@@ -446,6 +472,7 @@
     "Khôi Trần": "Lê Chánh"
   },
   "Bố Già": {
+    "movie_id": 23,
     "Trấn Thành": "Ông Ba Sang",
     "Tuấn Trần": "Quắn",
     "Ngân Chi": "Bù Tọt",
@@ -460,6 +487,7 @@
     "Bảo Phúc": "Tủn"
   },
   "Đào, Phở và Piano": {
+    "movie_id": 25,
     "Doãn Quốc Đam": "Văn Dân",
     "Cao Thị Thùy Linh": "Thục Hương",
     "Trần Lực": "Ông họa sĩ",
@@ -480,6 +508,7 @@
     "Nguyễn Diệu Thúy": "Ả đào (áo tím)"
   },
   "Thiên Thần Hộ Mệnh": {
+    "movie_id": 26,
     "Trúc Anh": "Mai Ly",
     "Amee": "Huyền",
     "Salim": "Lam Phương",
@@ -487,8 +516,8 @@
     "NSND Trọng Trinh": "Bố của Lam Phương",
     "Thanh Thủy": "Mẹ của Lam Phương"
   },
-
   "Lật Mặt 4: Nhà Có Khách": {
+    "movie_id": 33,
     "Võ Thành Tâm": "Hiền",
     "Ốc Thanh Vân": "Nga",
     "Huỳnh Đông": "A Dìn",
@@ -502,6 +531,7 @@
     "Hùng ChilHyun": "Long Gà"
   },
   "Bẫy Cấp 3": {
+    "movie_id": 34,
     "Trương Nam Thành": "Minh",
     "Mi Minh": "Hằng",
     "Saetti Baggio": "Chấn",
@@ -512,6 +542,7 @@
     "Hồng Sáp": "Bà già"
   },
   "Giải Phóng Sài Gòn": {
+    "movie_id": 37,
     "NSƯT Hà Văn Trọng": "Lê Duẩn",
     "NSƯT Khương Đức Thuận": "Võ Nguyên Giáp",
     "NSND Hoàng Quân Tạo": "Phạm Hùng",
@@ -540,6 +571,7 @@
     "NSƯT Hai Nhất": "Trung tá Ngụy"
   },
   "Lật Mặt 2: Phim Trường": {
+    "movie_id": 38,
     "Lý Hải": "Trung",
     "Hứa Minh Đạt": "Thành",
     "Quốc Thuận": "Ông Thuận",
@@ -556,6 +588,7 @@
     "Ngô Minh Hiền": "Nhân viên makeup"
   },
   "Lật Mặt": {
+    "movie_id": 41,
     "Lý Hải": "Khải",
     "Trường Giang": "Toàn",
     "Võ Thành Tâm": "Đức",
@@ -572,6 +605,7 @@
     "Việt Anh": "Ông Phương"
   },
   "Tèo Em": {
+    "movie_id": 42,
     "Johnny Trí Nguyễn": "Tí",
     "Thái Hòa": "Tèo",
     "Ninh Dương Lan Ngọc": "Minh Minh",
@@ -588,5 +622,4 @@
     "Hồng Sáp": "Mẹ của ông Ba",
     "Tuyền Mập": "Quản lý khách sạn"
   }
-
 }

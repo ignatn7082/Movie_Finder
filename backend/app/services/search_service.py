@@ -10,12 +10,16 @@ from sklearn.metrics.pairwise import cosine_similarity
 from app.core.clip_loader import clip_model, preprocess, DEVICE, tokenize_text
 from app.core.faiss_index import index as image_index, train_labels as image_labels
 from app.utils.data_utils import load_movie_metadata
-
+from app.db import SessionLocal
+from app.models.role import Role
+from app.models.movie import Movie
 
 # =========================
 # CONFIG
 # =========================
 movie_df = load_movie_metadata()
+
+
 
 
 
@@ -34,6 +38,22 @@ META_PATH = os.path.join(DATA_DIR, "movie_metadata.json")
 index = faiss.read_index(INDEX_PATH)
 labels = np.load(LABELS_PATH)
 metadata = json.load(open(META_PATH, "r", encoding="utf-8"))
+
+
+
+# =========================
+# Load thêm roles (diễn viên - vai diễn)
+# =========================
+ROLES_PATH = os.path.join(DATA_DIR, "roles_updated.json")
+roles_data = {}
+
+if os.path.exists(ROLES_PATH):
+    with open(ROLES_PATH, "r", encoding="utf-8") as f:
+        roles_data = json.load(f)
+    print(f"[INFO] Loaded {len(roles_data)} movies with role info")
+else:
+    print("[WARN] roles_updated.json not found → skipping actor-role search")
+
 
 # =========================
 # Load SentenceTransformer + FAISS text index
@@ -100,6 +120,25 @@ def get_movie_info(title_or_label: str):
         "poster": None,
     }
 
+
+def search_by_actor_or_role_db(keyword: str):
+    """Tìm phim qua bảng roles trong database"""
+    db = SessionLocal()
+    keyword_lower = f"%{keyword.lower()}%"
+    roles = db.query(Role).join(Movie).filter(
+        Role.actor_name.ilike(keyword_lower) | Role.role_name.ilike(keyword_lower)
+    ).all()
+
+    results = []
+    for r in roles:
+        info = get_movie_info(r.movie.title)
+        info["matched_actor"] = r.actor_name
+        info["matched_role"] = r.role_name
+        info["similarity"] = 1.0
+        results.append(info)
+
+    db.close()
+    return results
 
 
 
@@ -176,8 +215,8 @@ def query_by_text(description: str, top_k: int = 5, threshold: float = 0.25):
 
 def query_by_text_chatbot(prompt: str, top_k: int = 5):
     """
-    Tìm phim theo tên, mô tả, đạo diễn hoặc diễn viên.
-    Kết hợp search trực tiếp + FAISS (RAG fallback).
+    Tìm phim theo tên, mô tả, đạo diễn, diễn viên hoặc vai diễn.
+    Kết hợp dữ liệu JSON và FAISS fallback.
     """
     if not prompt or not prompt.strip():
         return []
@@ -185,7 +224,13 @@ def query_by_text_chatbot(prompt: str, top_k: int = 5):
     prompt_lower = prompt.lower()
     results = []
 
-    #  Tìm trực tiếp trong CSV (đạo diễn hoặc diễn viên)
+    #  Tìm trong roles_updated.json (ưu tiên)
+    role_matches = search_by_actor_or_role_db(prompt)
+    if role_matches:
+        print(f"[MATCH] Found {len(role_matches)} role-based results")
+        return role_matches
+
+    #  Tìm trong CSV (đạo diễn hoặc diễn viên)
     direct_matches = movie_df[
         movie_df["Director"].str.lower().str.contains(prompt_lower, na=False)
         | movie_df["Stars"].str.lower().str.contains(prompt_lower, na=False)
@@ -206,7 +251,7 @@ def query_by_text_chatbot(prompt: str, top_k: int = 5):
             })
         return results
 
-    #  2. Nếu không có, fallback dùng FAISS text index
+    #  Nếu không có → fallback FAISS (semantic search)
     try:
         vec = text_model.encode([prompt], convert_to_numpy=True, normalize_embeddings=True)
         D, I = text_index.search(vec.astype("float32"), top_k)
@@ -227,6 +272,8 @@ def query_by_text_chatbot(prompt: str, top_k: int = 5):
         print("[ERROR][query_by_text_chatbot]", e)
 
     return results
+
+
 
 
 def suggest_popular_movies(n=5):

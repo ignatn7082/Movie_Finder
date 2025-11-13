@@ -3,6 +3,7 @@ from app.db import Base
 
 # app/models/movie.py
 from sqlalchemy import Column, Integer, String, Text
+from sqlalchemy.orm import relationship
 from app.db import Base
 
 class Movie(Base):
@@ -17,3 +18,5 @@ class Movie(Base):
     genres = Column(Text)
     overview = Column(Text)
     poster = Column(String(255))
+
+    roles = relationship("Role", back_populates="movie", cascade="all, delete-orphan")
