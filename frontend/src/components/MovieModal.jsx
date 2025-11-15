@@ -11,13 +11,33 @@ export default function MovieModal({ movie, onClose }) {
         </button>
 
         <img
-          src={
-                       movie.poster 
-                         ? BaseURL + movie.poster 
-                         : BaseURL + "posters/default_poster.jpg"}
-          alt={movie.title}
-          className="w-full rounded-lg mb-4 object-contain"
-        />
+  src={BaseURL + item.poster}
+  alt={item.original_title}
+  className="w-full h-64 object-cover rounded-lg shadow-md group-hover:scale-105 transition-transform duration-300"
+  onError={(e) => {
+    console.warn("Ảnh bị lỗi, thử lấy poster từ original_title…");
+
+    // Tạo filename từ original_title
+    const fallbackName = item.original_title
+      .normalize("NFD")                     // bỏ dấu tiếng Việt
+      .replace(/[\u0300-\u036f]/g, "")      // remove accents
+      .toLowerCase()
+      .replace(/\s+/g, "_")                 // dấu cách → _
+      + ".jpg";
+
+    const newPoster = "posters/" + fallbackName;
+
+    console.log("Thử fallback:", BaseURL + newPoster);
+
+    // Thử load ảnh từ /static/posters/
+    e.target.src = BaseURL + newPoster;
+
+    // Nếu fallback cũng sai → fallback cuối
+    e.target.onerror = () => {
+      e.target.src = BaseURL + "posters/default_poster.jpg";
+    };
+  }}
+/>
         <h2 className="text-2xl font-bold text-blue-600 mb-2">
           {movie.title}
         </h2>
