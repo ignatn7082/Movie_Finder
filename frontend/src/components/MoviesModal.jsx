@@ -1,6 +1,7 @@
 import { X } from "lucide-react";
 
 export default function MovieModal({ movie, onClose }) {
+  const BaseURL = "http://localhost:8000/static/";
   if (!movie) return null;
 
   return (
@@ -18,9 +19,12 @@ export default function MovieModal({ movie, onClose }) {
         <div className="flex flex-col md:flex-row gap-6">
           {/* Poster */}
           <img
-            src={movie.poster}
+              src={  movie.poster 
+                         ? BaseURL + movie.poster 
+                         : BaseURL + "posters/default_poster.jpg"
+}
             alt={movie.title}
-            onError={(e) => (e.target.src = "/static/default_poster.jpg")}
+            onError={(e) => (e.target.src = "http://localhost:8000/static/posters/default_poster.jpg")}
             className="w-full md:w-1/3 h-72 object-cover rounded-lg shadow-md"
           />
 

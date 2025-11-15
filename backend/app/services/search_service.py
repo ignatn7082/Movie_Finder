@@ -13,6 +13,7 @@ from app.utils.data_utils import load_movie_metadata
 from app.db import SessionLocal
 from app.models.role import Role
 from app.models.movie import Movie
+from sqlalchemy import or_
 
 # =========================
 # CONFIG
@@ -296,3 +297,65 @@ def suggest_popular_movies(n=5):
     except Exception as e:
         print("[WARN] suggest_popular_movies():", e)
         return []
+
+
+def query_by_keyword(keyword: str, top_k: int = 5):
+    """
+    Tìm kiếm phim theo từ khóa (tên phim, diễn viên, nhân vật, đạo diễn, thể loại)
+    """
+    db = SessionLocal()
+    keyword = keyword.strip().lower()
+    results = []
+
+    try:
+        #  Tìm phim khớp trực tiếp trong Movie
+        movie_matches = db.query(Movie).filter(
+            or_(
+                Movie.title.ilike(f"%{keyword}%"),
+                Movie.original_title.ilike(f"%{keyword}%"),
+                Movie.director.ilike(f"%{keyword}%"),
+                Movie.stars.ilike(f"%{keyword}%"),
+                Movie.genres.ilike(f"%{keyword}%"),
+                Movie.overview.ilike(f"%{keyword}%"),
+            )
+        ).limit(top_k).all()
+
+        for m in movie_matches:
+            results.append({
+                "title": m.title,
+                "original_title": m.original_title,
+                "overview": m.overview,
+                "release_date": m.release_date,
+                "director": m.director,
+                "stars": m.stars,
+                "genres": m.genres,
+                "poster": f"http://localhost:8000/static/{m.poster}" if m.poster else None,
+                "match_type": "movie",
+            })
+
+        # 2 Tìm trong bảng Role (actor_name hoặc role_name)
+        role_matches = db.query(Role).filter(
+            or_(
+                Role.actor_name.ilike(f"%{keyword}%"),
+                Role.role_name.ilike(f"%{keyword}%")
+            )
+        ).limit(top_k * 2).all()
+
+        for r in role_matches:
+            movie = db.query(Movie).filter(Movie.id == r.movie_id).first()
+            if movie:
+                results.append({
+                    "title": movie.title,
+                    "original_title": movie.original_title,
+                    "actor": r.actor_name,
+                    "role": r.role_name,
+                    "poster": f"http://localhost:8000/static/{movie.poster}" if movie.poster else None,
+                    "match_type": "role",
+                })
+
+    finally:
+        db.close()
+
+    #  Gộp kết quả & loại trùng
+    unique = {f"{r.get('title')}-{r.get('match_type')}": r for r in results}
+    return list(unique.values())[:top_k]

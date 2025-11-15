@@ -10,6 +10,7 @@ function Search() {
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selected, setSelected] = useState(null);
+  const BaseURL = "http://localhost:8000/static/";
 
   const handleFileChange = (e) => {
     const selected = e.target.files[0];
@@ -55,6 +56,7 @@ function Search() {
       setLoading(false);
     }
   };
+  
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-200 dark:from-gray-900 dark:to-gray-950 text-gray-900 dark:text-gray-200">
@@ -180,11 +182,16 @@ function Search() {
                   className="relative group cursor-pointer"
                   onClick={() => setSelected(item)}
                 >
+                  
                   <img
-                    src={item.poster}
+                    src={    item.poster
+      ? BaseURL + item.poster
+      : BaseURL + "posters/default_poster.jpg"
+ }
                     alt={item.title}
                     className="w-full h-64 object-cover rounded-lg shadow-md group-hover:scale-105 transition-transform duration-300"
                   />
+                  
                   <div className="absolute bottom-0 bg-black/60 text-white text-sm w-full px-2 py-1 rounded-b-lg opacity-0 group-hover:opacity-100 transition">
                     {item.title}
                   </div>
@@ -207,7 +214,11 @@ function Search() {
             </button>
 
             <img
-              src={selected.poster}
+              // src={selected.poster}
+              src={
+                       selected.poster 
+                         ? BaseURL + selected.poster 
+                         : BaseURL + "posters/default_poster.jpg"}
               alt={selected.title}
               className="w-full rounded-lg mb-4 object-contain"
             />

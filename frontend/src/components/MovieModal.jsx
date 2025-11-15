@@ -1,4 +1,5 @@
 export default function MovieModal({ movie, onClose }) {
+  const BaseURL = "http://localhost:8000/static/";
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
       <div className="bg-white dark:bg-gray-900 rounded-xl shadow-xl w-[600px] max-h-[90vh] overflow-y-auto p-6 relative">
@@ -10,7 +11,10 @@ export default function MovieModal({ movie, onClose }) {
         </button>
 
         <img
-          src={movie.poster}
+          src={
+                       movie.poster 
+                         ? BaseURL + movie.poster 
+                         : BaseURL + "posters/default_poster.jpg"}
           alt={movie.title}
           className="w-full rounded-lg mb-4 object-contain"
         />

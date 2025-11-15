@@ -56,17 +56,17 @@ export default function Home() {
   const featuredMovies = [
     {
       title: "Bố Già",
-      img: getPosterUrl("posters/Bo_Gia.jpg"), 
+      img: getPosterUrl("posters/bo_gia.jpg"), 
       desc: "Câu chuyện cảm động về tình cha con giữa cuộc sống hiện đại.",
     },
     {
       title: "Trạng Quỳnh",
-      img: getPosterUrl("posters/Trang_Quynh.jpg"),
+      img: getPosterUrl("posters/trang_quynh.jpg"),
       desc: "Phiêu lưu, hài hước và thông minh của chàng Trạng nổi tiếng Việt Nam.",
     },
     {
       title: "The Ideal Squad",
-      img: getPosterUrl("posters/Biet_Doi_Rat_On.jpg"),
+      img: getPosterUrl("posters/biet_doi_rat_on.jpg"),
       desc: "Bộ phim hài hành động về nhóm bạn lập dị và phi vụ bất đắc dĩ.",
     },
   ];
@@ -74,7 +74,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-blue-50 via-white to-indigo-100 dark:from-gray-900 dark:to-gray-800 text-gray-800 dark:text-gray-100">
-      {/* 🌟 Hero Section */}
+      {/*  Hero Section */}
       <div className="relative h-[75vh] flex flex-col items-center justify-center text-center overflow-hidden">
         <img
           src={getPosterUrl("hero_bg.jpg")}
@@ -125,7 +125,7 @@ export default function Home() {
         </motion.div>
       </div>
 
-      {/* 🎞️ Carousel “Phim nổi bật” */}
+      {/*  Carousel “Phim nổi bật” */}
       <motion.section
         initial={{ opacity: 0, y: 40 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -158,7 +158,7 @@ export default function Home() {
         </div>
       </motion.section>
 
-      {/* 📊 Biểu đồ thống kê */}
+      {/*  Biểu đồ thống kê */}
       <motion.section
         initial={{ opacity: 0, y: 40 }}
         whileInView={{ opacity: 1, y: 0 }}

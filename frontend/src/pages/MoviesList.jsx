@@ -29,12 +29,15 @@ export default function MoviesList() {
     }
   };
 
+  const BaseURL = "http://localhost:8000/static/";
+
   // Tìm kiếm phim
   const handleSearch = (e) => {
     const q = e.target.value.toLowerCase();
     setQuery(q);
     const filteredList = movies.filter(
       (m) =>
+        m.original_title.toLowerCase().includes(q) ||
         m.title.toLowerCase().includes(q) ||
         m.director.toLowerCase().includes(q) ||
         m.genres.toLowerCase().includes(q)
@@ -64,7 +67,7 @@ export default function MoviesList() {
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between mb-6 gap-3">
         <h1 className="text-3xl font-bold text-blue-600 flex items-center gap-2">
-          <Film className="w-8 h-8" /> Danh sách phim trong CSDL
+          <Film className="w-8 h-8" /> Danh sách phim 
         </h1>
         <div className="flex items-center gap-2">
           <div className="flex items-center border rounded-lg px-3 py-1 bg-white dark:bg-gray-800">
@@ -99,15 +102,20 @@ export default function MoviesList() {
               className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300"
             >
               <img
-                src={movie.poster ? movie.poster : "http://localhost:8000/static/posters/default_poster.jpg"}
-                alt={movie.title}
+                // src={`http://localhost:8000/static/${movie.poster}` ? movie.poster : "http://localhost:8000/static/posters/default_poster.jpg"}
+                src={
+                       movie.poster 
+                         ? BaseURL + movie.poster 
+                         : BaseURL + "posters/default_poster.jpg"
+}
+                alt={movie.original_title}
                 
                 className="w-full h-64 object-cover"
                 onError={(e) => (e.target.src = "http://localhost:8000/static/posters/default_poster.jpg")}
               />
               <div className="p-4">
                 <h2 className="font-semibold text-lg text-blue-600 truncate">
-                  {movie.title}
+                  {movie.original_title}
                 </h2>
                 <p className="text-sm text-gray-500 mb-1">{movie.release_date}</p>
                 <p className="text-sm">
@@ -115,7 +123,7 @@ export default function MoviesList() {
                 </p>
                 <p className="text-xs italic text-gray-500">{movie.genres}</p>
                 <p className="text-sm mt-2 text-gray-700 dark:text-gray-300">
-                  {movie.overview}
+                  {/* {movie.overview} */}
                 </p>
               </div>
             </div>

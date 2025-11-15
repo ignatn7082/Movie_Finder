@@ -1,11 +1,14 @@
 export default function SearchResultCard({ item, onClick }) {
+  const BaseURL = "http://localhost:8000/static/";
   return (
     <div
       onClick={onClick}
       className="relative group cursor-pointer"
     >
       <img
-        src={item.poster}
+        src={  movie.poster 
+                         ? BaseURL + movie.poster 
+                         : BaseURL + "posters/default_poster.jpg"}
         alt={item.title}
         className="w-full h-64 object-contain rounded-lg shadow-md group-hover:scale-105 transition-transform duration-300"
       />
