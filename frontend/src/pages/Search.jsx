@@ -237,6 +237,7 @@ function Search() {
   src={BaseURL + selected.poster}
   alt={selected.original_title}
   className="w-full h-64 object-cover rounded-lg shadow-md group-hover:scale-105 transition-transform duration-300"
+  style={{ width: "auto", height: "auto", maxWidth: "100%", maxHeight: "80vh" }}
   onError={(e) => {
     console.warn("Ảnh bị lỗi, thử lấy poster từ original_title…");
 

@@ -59,6 +59,33 @@ def list_movies(
         raise HTTPException(status_code=500, detail="Failed to fetch movies")
 
 
+
+
+@router.get("", summary="Danh sách phim (compat: /api/movies)")
+def list_movies(
+    db: Session = Depends(get_db),
+    page: int = Query(1, ge=1),
+    per_page: int = Query(20, ge=1, le=200),
+    q: str | None = Query(None, description="Từ khoá tìm kiếm theo tiêu đề"),
+):
+    try:
+        query = db.query(Movie)
+        if q:
+            like_q = f"%{q.lower()}%"
+            # dùng lower/title to support simple case-insensitive search
+            query = query.filter(func.lower(getattr(Movie, "title")).like(like_q))
+        total = query.count()
+        movies = query.offset((page - 1) * per_page).limit(per_page).all()
+        return JSONResponse(content={
+            "movies": [movie_to_dict(m) for m in movies],
+            "total": total,
+            "page": page,
+            "per_page": per_page
+        })
+    except Exception:
+        raise HTTPException(status_code=500, detail="Failed to fetch movies")
+
+
 # ==================================
 #  Thêm phim mới (admin only)
 # ==================================
