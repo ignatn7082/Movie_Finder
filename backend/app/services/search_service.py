@@ -14,14 +14,14 @@ from app.db import SessionLocal
 from app.models.role import Role
 from app.models.movie import Movie
 from sqlalchemy import or_
+from facenet_pytorch import MTCNN
+from PIL import ImageFile
 
+mtcnn = MTCNN(keep_all=True, device=DEVICE)
 # =========================
 # CONFIG
 # =========================
 movie_df = load_movie_metadata()
-
-
-
 
 
 
@@ -35,6 +35,56 @@ TEXT_LABELS_PATH = os.path.join(DATA_DIR, "text_labels.npy")
 INDEX_PATH = os.path.join(DATA_DIR, "movie_text.index")
 LABELS_PATH = os.path.join(DATA_DIR, "movie_labels.npy")
 META_PATH = os.path.join(DATA_DIR, "movie_metadata.json")
+
+ACTOR_INDEX_PATH = os.path.join(DATA_DIR, "actor_index.index")
+ACTOR_LABELS_JSON = os.path.join(DATA_DIR, "actor_labels.json")
+
+actor_index = faiss.read_index(ACTOR_INDEX_PATH)
+
+with open(ACTOR_LABELS_JSON, "r", encoding="utf-8") as f:
+    raw_labels = json.load(f)
+
+# Loại bỏ .npy.tmp, .npy, .tmp
+actor_labels = [
+    lbl.replace(".npy.tmp", "").replace(".npy", "").replace(".tmp", "")
+    for lbl in raw_labels
+]
+
+
+ImageFile.LOAD_TRUNCATED_IMAGES = True
+MAX_SIZE = 1024
+
+
+
+def safe_load_image(path):
+    try:
+        img = Image.open(path).convert("RGB")
+    except Exception:
+        return None
+
+    w, h = img.size
+    if max(w, h) > MAX_SIZE:
+        scale = MAX_SIZE / max(w, h)
+        img = img.resize((int(w * scale), int(h * scale)), Image.LANCZOS)
+
+    return img
+
+
+# Load index
+if os.path.exists(ACTOR_INDEX_PATH):
+    print("[ACTOR] Loading actor index...")
+    actor_index = faiss.read_index(ACTOR_INDEX_PATH)
+else:
+    print(" Không tìm thấy actor_clip.index")
+
+# Load labels từ JSON
+if os.path.exists(ACTOR_LABELS_JSON):
+    print("[ACTOR] Loading actor label JSON...")
+    with open(ACTOR_LABELS_JSON, "r", encoding="utf-8") as f:
+        actor_labels = json.load(f)  # MUST be list
+else:
+    print(" Không tìm thấy actor_labels.json")
+
 
 index = faiss.read_index(INDEX_PATH)
 labels = np.load(LABELS_PATH)
@@ -143,6 +193,48 @@ def search_by_actor_or_role_db(keyword: str):
 
 
 
+def get_actor_movies(actor_name: str):
+    """Lấy tất cả phim + vai diễn của diễn viên từ DB."""
+    db = SessionLocal()
+    rows = (
+        db.query(Role, Movie)
+        .join(Movie, Role.movie_id == Movie.id)
+        .filter(Role.actor_name.ilike(actor_name))
+        .all()
+    )
+    db.close()
+
+    return [
+        {
+            "movie_id": movie.id,
+            "title": movie.title,
+            "role_name": role.role_name,
+            "poster": movie.poster,
+            "release_date": movie.release_date,
+        }
+        for role, movie in rows
+    ]
+
+
+
+def identify_actor(img_path: str, threshold=0.25):
+    """Nhận diện diễn viên dựa vào ảnh."""
+    if actor_index is None:
+        return None, 0
+
+    feat = normalize(extract_feature(img_path).reshape(1, -1).astype("float32"))
+    D, I = actor_index.search(feat, 1)
+
+    sim = float(D[0][0])
+    idx = I[0][0]
+
+    if sim < threshold:
+        return None, sim
+
+    return actor_labels[idx], sim
+
+
+
 
 # =========================
 # Chuẩn hoá vector
@@ -155,28 +247,117 @@ def normalize(vecs: np.ndarray):
 # =========================
 # 1️ TRUY VẤN ẢNH (CLIP)
 # =========================
-def extract_feature(img_path: str):
-    image = preprocess(Image.open(img_path)).unsqueeze(0).to(DEVICE)
+def extract_feature(pil_img):
+    """
+    Nhận ảnh PIL và trả về vector CLIP (numpy).
+    """
+    image = preprocess(pil_img).unsqueeze(0).to(DEVICE)
     with torch.no_grad():
         feat = clip_model.encode_image(image)
     return feat.cpu().numpy().flatten()
 
+def detect_face(img_path):
+    """
+    Trả về ảnh crop khuôn mặt (PIL.Image) hoặc None nếu không phát hiện mặt.
+    """
+    img = safe_load_image(img_path)
+    if img is None:
+        return None
 
-def query_by_image(img_path: str, top_k: int = 3, threshold: float = 0.25):
-    """Tìm phim qua ảnh nhân vật (CLIP)."""
-    feat = normalize(extract_feature(img_path).reshape(1, -1).astype("float32"))
-    D, I = image_index.search(feat, top_k)
+    boxes, probs = mtcnn.detect(img)
+    if boxes is None or len(boxes) == 0:
+        return None
 
-    results = []
-    for sim, idx in zip(D[0], I[0]):
-        if sim >= threshold:
-            info = get_movie_info(image_labels[idx])
-            info["similarity"] = float(sim)
-            results.append(info)
+    # Lấy mặt có xác suất cao nhất
+    best_idx = np.argmax(probs)
+    x1, y1, x2, y2 = boxes[best_idx]
 
-    if not results:
-        return [{"title": "Không tìm thấy phim phù hợp", "poster": None, "similarity": None}]
-    return results
+    face = img.crop((x1, y1, x2, y2))
+    return face
+    
+
+
+# def query_by_image(img_path: str, top_k: int = 5, threshold: float = 0.25):
+#     """
+#     Upload ảnh diễn viên → trả về:
+#     {
+#         "actor": "Tên diễn viên",
+#         "similarity": 0.81,
+#         "movies": [
+#             {"movie_id": 2, "title": "...", "role_name": "...", "poster": "..."},
+#             ...
+#         ]
+#     }
+#     """
+
+#     if actor_index is None or actor_labels is None:
+#         return {
+#             "actor": None,
+#             "movies": [],
+#             "message": "Actor index chưa được tải"
+#         }
+    
+#     # Extract feature
+#     feat = normalize(extract_feature(img_path).reshape(1, -1).astype("float32"))
+#     D, I = actor_index.search(feat, top_k)
+    
+#     best_actor = None
+#     best_sim = 0
+    
+#     for sim, idx in zip(D[0], I[0]):
+#         if sim >= threshold:
+#             actor_name = actor_labels[idx]  # lấy từ JSON list
+    
+#             if sim > best_sim:
+#                 best_sim = sim
+#                 best_actor = actor_name
+    
+#     if not best_actor:
+#         return {
+#             "actor": None,
+#             "movies": [],
+#             "message": "Không nhận diện được diễn viên"
+#         }
+    
+#     movies = get_actor_movies(best_actor)
+    
+#     return {
+#         "actor": best_actor,
+#         "similarity": float(best_sim),
+#         "movies": movies
+#     }
+
+
+def query_by_image(img_path, top_k=5, threshold=0.25):
+    
+    face = detect_face(img_path)
+    if face is None:
+        return {"actor": None, "movies": [], "message": "Không thấy mặt người"}
+
+    feat = extract_feature(face).astype("float32")
+    feat = feat.reshape(1, -1)
+    faiss.normalize_L2(feat)
+
+    D, I = actor_index.search(feat, top_k)
+
+    best_sim = float(D[0][0])
+    best_actor = actor_labels[I[0][0]]
+    best_actor = (
+        best_actor.replace(".npy.tmp", "")
+                  .replace(".npy", "")
+                  .replace(".tmp", "")
+    )
+
+    if best_sim < threshold:
+        return {"actor": None, "movies": [], "message": "Không nhận diện được"}
+
+    movies = get_actor_movies(best_actor)
+
+    return {
+        "actor": best_actor,
+        "similarity": best_sim,
+        "movies": movies
+    }
 
 
 # =========================
