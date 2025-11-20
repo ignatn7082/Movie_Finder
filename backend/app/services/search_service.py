@@ -16,9 +16,6 @@ from app.models.movie import Movie
 from sqlalchemy import or_
 from facenet_pytorch import MTCNN
 from PIL import ImageFile
-from insightface.app import FaceAnalysis
-# from mtcnn import MTCNN
-import cv2
 
 mtcnn = MTCNN(keep_all=True, device=DEVICE)
 # =========================
@@ -41,9 +38,6 @@ META_PATH = os.path.join(DATA_DIR, "movie_metadata.json")
 
 ACTOR_INDEX_PATH = os.path.join(DATA_DIR, "actor_index.index")
 ACTOR_LABELS_JSON = os.path.join(DATA_DIR, "actor_labels.json")
-
-ACTOR_ARCFACE_INDEX_PATH = os.path.join(DATA_DIR, "actor_arcface.index")
-ACTOR_ARCFACE_LABELS_JSON = os.path.join(DATA_DIR, "actor_arcface_labels.json")
 
 actor_index = faiss.read_index(ACTOR_INDEX_PATH)
 
@@ -91,16 +85,6 @@ if os.path.exists(ACTOR_LABELS_JSON):
 else:
     print(" Không tìm thấy actor_labels.json")
 
-# Load ArcFace index
-if os.path.exists(ACTOR_ARCFACE_INDEX_PATH):
-    print("[ARC] Loading ArcFace actor index...")
-    actor_arcface_index = faiss.read_index(ACTOR_ARCFACE_INDEX_PATH)
-
-# Load ArcFace labels từ JSON
-if os.path.exists(ACTOR_ARCFACE_LABELS_JSON):
-    print("[ARC] Loading ArcFace actor label JSON...")
-    with open(ACTOR_ARCFACE_LABELS_JSON, "r", encoding="utf-8") as f:
-        actor_arcface_labels = json.load(f)  # MUST be list
 
 index = faiss.read_index(INDEX_PATH)
 labels = np.load(LABELS_PATH)
@@ -259,112 +243,6 @@ def normalize(vecs: np.ndarray):
     norms = np.linalg.norm(vecs, axis=1, keepdims=True)
     return vecs / (norms + 1e-8)
 
-ARC_MODEL = None
-FACE_DET = None
-
-def load_arcface():
-    global ARC_MODEL, FACE_DET
-    if ARC_MODEL is None:
-        print("[ARC] Loading ArcFace (buffalo_l)...")
-        ARC_MODEL = FaceAnalysis(name="buffalo_l")
-        ARC_MODEL.prepare(ctx_id=0, det_size=(640, 640))  # ctx_id=-1 nếu chạy CPU
-    
-    if FACE_DET is None:
-        print("[ARC] Loading MTCNN detector...")
-        FACE_DET = MTCNN()
-
-load_arcface()  # load khi khởi động API
-
-
-def detect_face_arcface(img_path):
-    """Detect face bằng MTCNN và trả về ảnh mặt đã crop"""
-    image = cv2.imread(img_path)
-    if image is None:
-        return None
-    
-    faces = FACE_DET.detect_faces(image)
-    if not faces:
-        return None
-    
-    best = max(faces, key=lambda x: x["confidence"])
-    x, y, w, h = best["box"]
-    x, y = max(0, x), max(0, y)
-
-    return image[y:y+h, x:x+w]
-
-
-def extract_arcface_embedding(face_crop):
-    """Extract embedding mặt người bằng ArcFace"""
-    if face_crop is None:
-        return None
-
-    rgb = cv2.cvtColor(face_crop, cv2.COLOR_BGR2RGB)
-    faces = ARC_MODEL.get(rgb)
-
-    if len(faces) == 0:
-        return None
-
-    emb = faces[0].embedding
-    emb = emb / np.linalg.norm(emb)
-    return emb.astype("float32")
-
-
-def query_by_image_arcface(img_path, top_k=3, threshold=0.35):
-    """
-    Nhận diện diễn viên qua ArcFace.
-    Trả về toàn bộ phim họ đóng.
-    """
-
-    # Detect face
-    face_crop = detect_face_arcface(img_path)
-    if face_crop is None:
-        return {
-            "actor": None,
-            "movies": [],
-            "message": "Không tìm thấy khuôn mặt"
-        }
-
-    # Convert to vector
-    feat = extract_arcface_embedding(face_crop)
-    if feat is None:
-        return {
-            "actor": None,
-            "movies": [],
-            "message": "ArcFace không nhận diện được"
-        }
-
-    # reshape vector
-    feat = feat.reshape(1, -1)
-
-    # Search in FAISS
-    D, I = actor_arcface_index.search(feat, top_k)
-    sim = float(D[0][0])
-    best_actor = actor_arcface_labels[I[0][0]]
-
-    if sim < threshold:
-        return {"actor": None, "movies": [], "message": "Không nhận diện được"}
-
-    # Lấy danh sách phim của diễn viên
-    movies = get_actor_movies(best_actor)
-
-    return {
-        "actor": best_actor,
-        "similarity": sim,
-        "movies": movies
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 # =========================
 # 1️ TRUY VẤN ẢNH (CLIP)
@@ -376,46 +254,82 @@ def extract_feature(pil_img):
     image = preprocess(pil_img).unsqueeze(0).to(DEVICE)
     with torch.no_grad():
         feat = clip_model.encode_image(image)
-        feat = feat / feat.norm(dim=-1, keepdim=True)
     return feat.cpu().numpy().flatten()
 
 def detect_face(img_path):
-    """Detect face, trả về ảnh khuôn mặt chuẩn hoá."""
+    """
+    Trả về ảnh crop khuôn mặt (PIL.Image) hoặc None nếu không phát hiện mặt.
+    """
     img = safe_load_image(img_path)
     if img is None:
         return None
 
-    try:
-        boxes, probs = mtcnn.detect(img)
-        if boxes is None or len(boxes) == 0:
-            return None
-
-        # Lấy face có xác suất cao nhất
-        best_idx = np.argmax(probs)
-        if probs[best_idx] < 0.90:
-            return None  # quá mờ → bỏ
-
-        x1, y1, x2, y2 = map(int, boxes[best_idx])
-        face = img.crop((x1, y1, x2, y2))
-        return face
-
-    except Exception:
+    boxes, probs = mtcnn.detect(img)
+    if boxes is None or len(boxes) == 0:
         return None
 
+    # Lấy mặt có xác suất cao nhất
+    best_idx = np.argmax(probs)
+    x1, y1, x2, y2 = boxes[best_idx]
+
+    face = img.crop((x1, y1, x2, y2))
+    return face
+    
 
 
-def query_by_image(img_path, model="clip", top_k=5):
-    """
-    model = "clip"  -> dùng CLIP
-    model = "arcface" -> dùng ArcFace
-    """
+# def query_by_image(img_path: str, top_k: int = 5, threshold: float = 0.25):
+#     """
+#     Upload ảnh diễn viên → trả về:
+#     {
+#         "actor": "Tên diễn viên",
+#         "similarity": 0.81,
+#         "movies": [
+#             {"movie_id": 2, "title": "...", "role_name": "...", "poster": "..."},
+#             ...
+#         ]
+#     }
+#     """
 
-    if model == "arcface":
-        return query_by_image_arcface(img_path, top_k=top_k)
+#     if actor_index is None or actor_labels is None:
+#         return {
+#             "actor": None,
+#             "movies": [],
+#             "message": "Actor index chưa được tải"
+#         }
+    
+#     # Extract feature
+#     feat = normalize(extract_feature(img_path).reshape(1, -1).astype("float32"))
+#     D, I = actor_index.search(feat, top_k)
+    
+#     best_actor = None
+#     best_sim = 0
+    
+#     for sim, idx in zip(D[0], I[0]):
+#         if sim >= threshold:
+#             actor_name = actor_labels[idx]  # lấy từ JSON list
+    
+#             if sim > best_sim:
+#                 best_sim = sim
+#                 best_actor = actor_name
+    
+#     if not best_actor:
+#         return {
+#             "actor": None,
+#             "movies": [],
+#             "message": "Không nhận diện được diễn viên"
+#         }
+    
+#     movies = get_actor_movies(best_actor)
+    
+#     return {
+#         "actor": best_actor,
+#         "similarity": float(best_sim),
+#         "movies": movies
+#     }
 
-    # -------------------------
-    # ⬇ CLIP (giữ nguyên hàm cũ)
-    # -------------------------
+
+def query_by_image(img_path, top_k=5, threshold=0.25):
+    
     face = detect_face(img_path)
     if face is None:
         return {"actor": None, "movies": [], "message": "Không thấy mặt người"}
@@ -426,19 +340,26 @@ def query_by_image(img_path, model="clip", top_k=5):
 
     D, I = actor_index.search(feat, top_k)
 
-    best_sim = D[0][0]
+    best_sim = float(D[0][0])
     best_actor = actor_labels[I[0][0]]
+    best_actor = (
+        best_actor.replace(".npy.tmp", "")
+                  .replace(".npy", "")
+                  .replace(".tmp", "")
+    )
 
-    if best_sim < 0.25:
+    if best_sim < threshold:
         return {"actor": None, "movies": [], "message": "Không nhận diện được"}
 
     movies = get_actor_movies(best_actor)
 
     return {
         "actor": best_actor,
-        "similarity": float(best_sim),
+        "similarity": best_sim,
         "movies": movies
     }
+
+
 # =========================
 # 2️ TRUY VẤN TEXT (SentenceTransformer)
 # =========================

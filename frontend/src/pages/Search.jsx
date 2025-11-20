@@ -34,9 +34,9 @@ function Search() {
       if (tab === "image" && file) {
         const formData = new FormData();
         formData.append("file", file);
-        res = await fetch(`http://localhost:8000/search/image?model=${model}`, {
+        res = await fetch("http://localhost:8000/search/image", {
           method: "POST",
-          body: formData
+          body: formData,
         });
       } else if (tab === "text" && query.trim()) {
         res = await fetch(
@@ -115,10 +115,6 @@ function Search() {
           {/* === KHỐI TÌM KIẾM ẢNH === */}
           {tab === "image" && (
             <div className="flex flex-col items-center w-full">
-            <select onChange={(e) => setModel(e.target.value)} value={model}>
-  <option value="clip">CLIP (tổng quát)</option>
-  <option value="arcface">ArcFace (nhận diện mặt)</option>
-</select>
               <input
                 type="file"
                 accept="image/*"

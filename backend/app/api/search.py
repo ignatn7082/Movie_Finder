@@ -19,7 +19,7 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 # 1️ --- Tìm kiếm bằng ảnh (POST) ---
 @router.post("/image")
-async def search_character(model: str = "clip", file: UploadFile = File(...)):
+async def search_character(file: UploadFile = File(...)):
     try:
         logger.info("Incoming search/image request filename=%s content_type=%s", getattr(file, "filename", None), getattr(file, "content_type", None))
 
@@ -32,7 +32,7 @@ async def search_character(model: str = "clip", file: UploadFile = File(...)):
         logger.info("Saved uploaded file to %s", temp_path)
 
         # call service
-        results = query_by_image(temp_path, model=model)
+        results = query_by_image(temp_path)
 
         # safety: ensure keys exist
         actor = results.get("actor") if isinstance(results, dict) else None
