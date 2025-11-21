@@ -5,7 +5,9 @@ import uuid
 import shutil
 import logging
 
-from app.services.search_service import query_by_image, query_by_text
+# from app.services.search_service import query_by_image, query_by_text
+from app.services.main_search_service import query_by_image
+from app.services.text_search_service import query_by_text
 
 logger = logging.getLogger("app.search")
 if not logger.handlers:
@@ -19,7 +21,8 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 # 1️ --- Tìm kiếm bằng ảnh (POST) ---
 @router.post("/image")
-async def search_character(file: UploadFile = File(...)):
+async def search_character(model: str = "clip", file: UploadFile = File(...)):
+
     try:
         logger.info("Incoming search/image request filename=%s content_type=%s", getattr(file, "filename", None), getattr(file, "content_type", None))
 
@@ -32,7 +35,7 @@ async def search_character(file: UploadFile = File(...)):
         logger.info("Saved uploaded file to %s", temp_path)
 
         # call service
-        results = query_by_image(temp_path)
+        results = query_by_image(temp_path, model=model)
 
         # safety: ensure keys exist
         actor = results.get("actor") if isinstance(results, dict) else None

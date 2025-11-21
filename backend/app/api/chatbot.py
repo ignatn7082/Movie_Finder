@@ -12,12 +12,8 @@ import unicodedata
 # - suggest_popular_movies(n): trả về list phim tương tự structure bên trên
 # - MOVIE_DF (pandas.DataFrame) -- optional, để tìm bằng tên director/actor trực tiếp
 # - STATIC_URL_PREFIX (chuỗi) -- prefix cho poster URL
-from app.services.search_service import (
-    query_by_text_chatbot,
-    suggest_popular_movies,
-    movie_df as MOVIE_DF,
-    STATIC_URL_PREFIX,
-)
+from app.services.text_search_service import  query_by_text_chatbot,suggest_popular_movies
+from app.services.base_service import movie_df as MOVIE_DF , STATIC_URL_PREFIX
 
 router = APIRouter(prefix="/chat", tags=["chatbot"])
 logger = logging.getLogger("chatbot")
