@@ -34,41 +34,71 @@ def safe_load_image(path):
         img = img.resize((int(w * scale), int(h * scale)), Image.LANCZOS)
     return img
 
-def get_movie_info(title_or_label: str):
-    """Tìm thông tin chi tiết phim từ movie_df."""
-    # (Giữ nguyên logic get_movie_info từ search_service.py cũ)
-    # ...
-    try:
-        key = title_or_label.split("_by_")[0].replace("_", " ").strip().lower()
-        row = movie_df[movie_df["Original Title"].str.lower() == key]
 
-        if not row.empty:
-            record = row.iloc[0]
+def get_movie_info(title: str):
+    """
+    Lấy thông tin chi tiết phim từ CSDL PostgreSQL qua SQLAlchemy.
+    Truy vấn theo title hoặc original_title (ilike).
+    """
 
-            poster_file = record.get("PosterFile", "")
-            if isinstance(poster_file, float) or not poster_file:
-                poster_url = None
-            else:
-                raw_path = poster_file.replace("\\", "/")
-                abs_path = os.path.join(DATA_DIR, raw_path)
-                poster_url = f"{STATIC_URL_PREFIX}{raw_path}" if os.path.exists(abs_path) else None
+    search_key = title.strip().lower()
 
-            return {
-                "title": record.get("Title", ""),
-                "original_title": record.get("Original Title", ""),
-                "overview": record.get("Overview", ""),
-                "release_date": record.get("Release Date", ""),
-                "director": record.get("Director", ""),
-                "stars": record.get("Stars", ""),
-                "genres_vn": record.get("genres_vn", ""),
-                "poster": poster_url,
-            }
+    with SessionLocal() as db:
+        try:
+            # Truy vấn giống cách gọi search_by_actor_or_role_db
+            movie_record = db.query(Movie).filter(
+                (Movie.title.ilike(search_key)) |
+                (Movie.original_title.ilike(search_key))
+            ).first()
 
-    except Exception as e:
-        print(f"[WARN] Lookup lỗi cho '{title_or_label}': {e}")
-        
+            if movie_record:
+                # Chuyển object ORM thành dict
+                movie_data = {
+                    "movie_id": movie_record.id,
+                    "title": movie_record.title,
+                    "original_title": movie_record.original_title,
+                    "overview": movie_record.overview,
+                    "release_date": movie_record.release_date,
+                    "director": movie_record.director,
+                    "stars": movie_record.stars,
+                    "genres_vn": movie_record.genres_vn,
+                    "poster": movie_record.poster
+                }
+
+                # Xử lý poster
+                poster = movie_data.get("poster")
+
+                if isinstance(poster, (float, type(None))) or not poster:
+                    poster_url = None
+                else:
+                    raw_path = poster.replace("\\", "/")
+                    abs_path = os.path.join(DATA_DIR, raw_path)
+
+                    poster_url = (
+                        f"{STATIC_URL_PREFIX}{raw_path}"
+                        if os.path.exists(abs_path)
+                        else None
+                    )
+
+                # Kết quả cuối cùng
+                return {
+                    "movie_id": movie_data["movie_id"],
+                    "title": movie_data["title"],
+                    "original_title": movie_data["original_title"],
+                    "overview": movie_data["overview"],
+                    "release_date": movie_data["release_date"],
+                    "director": movie_data["director"],
+                    "stars": movie_data["stars"],
+                    "genres_vn": movie_data["genres_vn"],
+                    "poster": poster,
+                }
+
+        except Exception as e:
+            print(f"[WARN] Lỗi get_movie_info('{title}') → {e}")
+
+    # Không tìm thấy → trả về rỗng
     return {
-        "title": title_or_label,
+        "title": title,
         "original_title": None,
         "overview": None,
         "release_date": None,
@@ -77,6 +107,7 @@ def get_movie_info(title_or_label: str):
         "genres_vn": None,
         "poster": None,
     }
+
 
 
 def search_by_actor_or_role_db(keyword: str):
@@ -132,6 +163,11 @@ def get_actor_movies(actor_name: str):
             "role_name": role.role_name,
             "poster": movie.poster,
             "release_date": movie.release_date,
+            "director": movie.director,
+            "stars": movie.stars,
+            "genres_vn": movie.genres_vn,
+            "overview": movie.overview,
+            "original_title": movie.original_title,
         }
         for role, movie in rows
     ]

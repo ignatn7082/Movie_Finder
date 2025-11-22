@@ -7,7 +7,7 @@ import json
 import traceback
 import random
 from sentence_transformers import SentenceTransformer
-from app.services.base_service import DATA_DIR, get_movie_info, search_by_actor_or_role_db, STATIC_URL_PREFIX
+from app.services.base_service import DATA_DIR,  search_by_actor_or_role_db, STATIC_URL_PREFIX, get_movie_info
 from app.db import SessionLocal
 from app.models.movie import Movie
 from sqlalchemy import or_, func
@@ -135,8 +135,8 @@ def query_by_text(description: str, top_k: int = 5, threshold: float = 0.25):
                             "director": getattr(m_obj, "director", "") or getattr(m_obj, "Director", ""),
                             "stars": getattr(m_obj, "stars", "") or getattr(m_obj, "Stars", ""),
                             "genres_vn": getattr(m_obj, "genres_vn", "") or getattr(m_obj, "Genres", "") or "",
-                            "poster": (f"{STATIC_URL_PREFIX}{getattr(m_obj, 'poster')}"
-                                       if getattr(m_obj, 'poster', None) else None),
+                            "poster": (f"{STATIC_URL_PREFIX}{getattr(m_obj, 'poster')}" if getattr(m_obj, 'poster', None) else None),
+                            
                         }
                     else:
                         # fallback to get_movie_info (if it still exists) or skip
