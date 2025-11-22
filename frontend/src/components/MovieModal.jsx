@@ -45,7 +45,7 @@ export default function MovieModal({ movie, onClose }) {
         <p><b>Ngày công chiếu:</b> {movie.release_date}</p>
         <p><b>Đạo diễn:</b> {movie.director}</p>
         <p><b>Diễn viên:</b> {movie.stars}</p>
-        <p><b>Thể loại:</b> {movie.genres}</p>
+        <p><b>Thể loại:</b> {movie.genres_vn}</p>
         <p className="mt-3 text-gray-700 dark:text-gray-400 italic">
           {movie.overview}
         </p>

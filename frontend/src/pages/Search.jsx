@@ -317,7 +317,7 @@ function Search() {
             <p><b>Ngày công chiếu:</b> {selected.release_date}</p>
             <p><b>Đạo diễn:</b> {selected.director}</p>
             <p><b>Diễn viên:</b> {selected.stars}</p>
-            <p><b>Thể loại:</b> {selected.genres}</p>
+            <p><b>Thể loại:</b> {selected.genres_vn}</p>
             <p className="mt-3 italic">{selected.overview}</p>
           </div>
         </div>

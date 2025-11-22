@@ -18,5 +18,6 @@ class Movie(Base):
     genres = Column(Text)
     overview = Column(Text)
     poster = Column(String(255))
+    genres_vn = Column(Text)
 
     roles = relationship("Role", back_populates="movie", cascade="all, delete-orphan")

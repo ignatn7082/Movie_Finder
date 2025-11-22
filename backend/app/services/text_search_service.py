@@ -5,8 +5,9 @@ import faiss
 import numpy as np
 import json
 import traceback
+import random
 from sentence_transformers import SentenceTransformer
-from app.services.base_service import DATA_DIR, movie_df, get_movie_info, search_by_actor_or_role_db, STATIC_URL_PREFIX
+from app.services.base_service import DATA_DIR, get_movie_info, search_by_actor_or_role_db, STATIC_URL_PREFIX
 from app.db import SessionLocal
 from app.models.movie import Movie
 from sqlalchemy import or_, func
@@ -67,7 +68,7 @@ def query_by_text(description: str, top_k: int = 5, threshold: float = 0.25):
                 release = getattr(m, "release_date", "") or getattr(m, "Release Date", "") or ""
                 director = getattr(m, "director", "") or getattr(m, "Director", "") or ""
                 stars = getattr(m, "stars", "") or getattr(m, "Stars", "") or ""
-                genres = getattr(m, "genres", "") or getattr(m, "Genres", "") or ""
+                genres_vn = getattr(m, "genres_vn", "") or getattr(m, "Genres", "") or ""
                 poster_field = getattr(m, "poster", "") or getattr(m, "PosterFile", "") or None
                 poster = f"{STATIC_URL_PREFIX}{poster_field}" if isinstance(poster_field, str) and poster_field else None
 
@@ -79,7 +80,7 @@ def query_by_text(description: str, top_k: int = 5, threshold: float = 0.25):
                     "release_date": release,
                     "director": director,
                     "stars": stars,
-                    "genres": genres,
+                    "genres_vn": genres_vn,
                     "poster": poster,
                     "similarity": 1.0,
                 })
@@ -116,13 +117,44 @@ def query_by_text(description: str, top_k: int = 5, threshold: float = 0.25):
         for sim, idx in zip(D[0], I[0]):
             # Kiểm tra ngưỡng tương đồng
             if sim >= threshold:
-                info = get_movie_info(text_labels[idx])
-                info["similarity"] = float(sim)
-                results.append(info)
-                # Debug: Hiển thị kết quả sau khi lọc theo ngưỡng
+                # Try to fetch movie metadata from Postgres by label (assume label is movie id)
+                try:
+                    session = SessionLocal()
+                    m_id = text_labels[idx]
+                    try:
+                        m_obj = session.get(Movie, int(m_id))
+                    except Exception:
+                        m_obj = None
+                    if m_obj:
+                        info = {
+                            "id": getattr(m_obj, "id", None),
+                            "title": getattr(m_obj, "title", "") or getattr(m_obj, "Title", ""),
+                            "original_title": getattr(m_obj, "original_title", "") or getattr(m_obj, "Original Title", ""),
+                            "overview": getattr(m_obj, "overview", "") or getattr(m_obj, "Overview", ""),
+                            "release_date": getattr(m_obj, "release_date", "") or getattr(m_obj, "Release Date", ""),
+                            "director": getattr(m_obj, "director", "") or getattr(m_obj, "Director", ""),
+                            "stars": getattr(m_obj, "stars", "") or getattr(m_obj, "Stars", ""),
+                            "genres_vn": getattr(m_obj, "genres_vn", "") or getattr(m_obj, "Genres", "") or "",
+                            "poster": (f"{STATIC_URL_PREFIX}{getattr(m_obj, 'poster')}"
+                                       if getattr(m_obj, 'poster', None) else None),
+                        }
+                    else:
+                        # fallback to get_movie_info (if it still exists) or skip
+                        try:
+                            info = get_movie_info(text_labels[idx])
+                        except Exception:
+                            info = {"title": "Unknown", "poster": None}
+                    info["similarity"] = float(sim)
+                    results.append(info)
+                finally:
+                    try:
+                        session.close()
+                    except Exception:
+                        pass
+                 # Debug: Hiển thị kết quả sau khi lọc theo ngưỡng
                 print(f"[DEBUG-FAISS] ACCEPTED: ID {text_labels[idx]} with Similarity {sim:.4f} >= Threshold {threshold}.")
             else:
-                # Debug: Lọc kết quả
+                 # Debug: Lọc kết quả
                 print(f"[DEBUG-FAISS] REJECTED: ID {text_labels[idx]} with Similarity {sim:.4f} < Threshold {threshold}.")
         
         if not results:
@@ -153,28 +185,40 @@ def query_by_text_chatbot(prompt: str, top_k: int = 5):
         print(f"[MATCH] Found {len(role_matches)} role-based results")
         return role_matches
 
-    # 2. Tìm trong CSV (đạo diễn hoặc diễn viên)
-    direct_matches = movie_df[
-        movie_df["Director"].str.lower().str.contains(prompt_lower, na=False)
-        | movie_df["Stars"].str.lower().str.contains(prompt_lower, na=False)
-    ]
+    # 2. Tìm trong Postgres (đạo diễn hoặc diễn viên)
+    try:
+        session = SessionLocal()
+        db_rows = session.query(Movie).filter(
+            or_(
+                func.lower(getattr(Movie, "director", "")).contains(prompt_lower),
+                func.lower(getattr(Movie, "stars", "")).contains(prompt_lower)
+            )
+        ).limit(top_k).all()
 
-    if not direct_matches.empty:
-        # (Giữ nguyên logic chuyển đổi kết quả thành dict)
-        results = []
-        for _, row in direct_matches.iterrows():
-            results.append({
-                "title": row.get("Title", ""),
-                "original_title": row.get("Original Title", ""),
-                "overview": row.get("Overview", ""),
-                "release_date": row.get("Release Date", ""),
-                "director": row.get("Director", ""),
-                "stars": row.get("Stars", ""),
-                "genres": row.get("Genres", ""),
-                "poster": f"{STATIC_URL_PREFIX}{row['PosterFile']}" if isinstance(row["PosterFile"], str) else None,
-                "similarity": 1.0,
-            })
-        return results
+        if db_rows:
+            results = []
+            for m in db_rows:
+                results.append({
+                    "id": getattr(m, "id", None),
+                    "title": getattr(m, "title", "") or getattr(m, "Title", ""),
+                    "original_title": getattr(m, "original_title", "") or getattr(m, "Original Title", ""),
+                    "overview": getattr(m, "overview", "") or getattr(m, "Overview", ""),
+                    "release_date": getattr(m, "release_date", "") or getattr(m, "Release Date", ""),
+                    "director": getattr(m, "director", "") or getattr(m, "Director", ""),
+                    "stars": getattr(m, "stars", "") or getattr(m, "Stars", ""),
+                    "genres_vn": getattr(m, "genres_vn", "") or getattr(m, "Genres", "") or "",
+                    "poster": (f"{STATIC_URL_PREFIX}{getattr(m, 'poster')}"
+                               if getattr(m, 'poster', None) else None),
+                    "similarity": 1.0,
+                })
+            session.close()
+            return results
+    except Exception as e:
+        print(f"[DEBUG-CHATBOT] DB search failed: {e}")
+        try:
+            session.close()
+        except Exception:
+            pass
 
     # 3. Fallback FAISS (semantic search)
     return query_by_text(prompt, top_k=top_k)
@@ -183,20 +227,35 @@ def query_by_text_chatbot(prompt: str, top_k: int = 5):
 def suggest_popular_movies(n=5):
     """Gợi ý ngẫu nhiên vài phim nổi bật"""
     try:
-        top_movies = movie_df.sort_values(by="Vote Average", ascending=False).head(20)
-        sample = top_movies.sample(min(n, len(top_movies)))
+        session = SessionLocal()
+        # attempt to order by vote_average (best-effort); fallback to id
+        try:
+            rows = session.query(Movie).order_by(getattr(Movie, "vote_average").desc()).limit(100).all()
+        except Exception:
+            rows = session.query(Movie).limit(100).all()
 
+        if not rows:
+            session.close()
+            return []
+
+        sample_rows = random.sample(rows, min(n, len(rows)))
         suggestions = []
-        for _, row in sample.iterrows():
+        for m in sample_rows:
             suggestions.append({
-                "title": row.get("Title", ""),
-                "original_title": row.get("Original Title", ""),
-                "overview": row.get("Overview", "")[:120] + "...",
-                "genres": row.get("Genres", ""),
-                "director": row.get("Director", ""),
-                "poster": f"{STATIC_URL_PREFIX}{row['PosterFile']}" if isinstance(row["PosterFile"], str) else None,
+                "id": getattr(m, "id", None),
+                "title": getattr(m, "title", "") or getattr(m, "Title", ""),
+                "original_title": getattr(m, "original_title", "") or getattr(m, "Original Title", ""),
+                "overview": (getattr(m, "overview", "") or getattr(m, "Overview", ""))[:120] + "...",
+                "genres_vn": getattr(m, "genres_vn", "") or getattr(m, "Genres", "") or "",
+                "director": getattr(m, "director", "") or getattr(m, "Director", ""),
+                "poster": (f"{STATIC_URL_PREFIX}{getattr(m, 'poster')}" if getattr(m, 'poster', None) else None),
             })
+        session.close()
         return suggestions
     except Exception as e:
         print("[WARN] suggest_popular_movies():", e)
+        try:
+            session.close()
+        except Exception:
+            pass
         return []

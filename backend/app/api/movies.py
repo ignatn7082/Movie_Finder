@@ -25,7 +25,7 @@ def movie_to_dict(m: Movie) -> Dict[str, Any]:
         "release_date": getattr(m, "release_date", "") or getattr(m, "Release Date", ""),
         "director": getattr(m, "director", "") or getattr(m, "Director", ""),
         "stars": getattr(m, "stars", "") or getattr(m, "Stars", ""),
-        "genres": getattr(m, "genres", "") or getattr(m, "Genres", ""),
+        "genres_vn": getattr(m, "genres_vn", "") or getattr(m, "genres_vn", ""),
         "poster": getattr(m, "poster", "") or getattr(m, "PosterFile", ""),
     }
 
@@ -149,7 +149,7 @@ def get_movies_from_db(db: Session = Depends(get_db)):
                 "release_date": m.release_date,
                 "director": m.director,
                 "stars": m.stars,
-                "genres": m.genres,
+                "genres_vn": m.genres_vn,
                 "overview": m.overview[:250] + "..." if m.overview else "",
                 "poster": f"http://localhost:8000/static/{m.poster}"
                 if m.poster
@@ -176,7 +176,7 @@ def get_movie_detail(movie_id: int, db: Session = Depends(get_db)):
         "release_date": movie.release_date,
         "director": movie.director,
         "stars": movie.stars,
-        "genres": movie.genres,
+        "genres_vn": movie.genres_vn,
         "overview": movie.overview,
         "poster": f"http://localhost:8000/static/{movie.poster}" if movie.poster else None,
     }
@@ -192,14 +192,14 @@ def movies_stats(db: Session = Depends(get_db)):
         except Exception:
             distinct_directors = 0
 
-        # top genres & top stars (simple aggregation in python)
+        # top genres_vn & top stars (simple aggregation in python)
         movies = db.query(Movie).all()
         genre_counts: dict = {}
         star_counts: dict = {}
 
         for m in movies:
-            genres_field = getattr(m, "genres", "") or getattr(m, "Genres", "") or ""
-            for g in str(genres_field).split(","):
+            genres_vn_field = getattr(m, "genres_vn", "") or getattr(m, "genres_vn", "") or ""
+            for g in str(genres_vn_field).split(","):
                 g = g.strip()
                 if not g:
                     continue
@@ -212,13 +212,13 @@ def movies_stats(db: Session = Depends(get_db)):
                     continue
                 star_counts[s] = star_counts.get(s, 0) + 1
 
-        top_genres = sorted([{"name": k, "value": v} for k, v in genre_counts.items()], key=lambda x: -x["value"])[:10]
+        top_genres_vn = sorted([{"name": k, "value": v} for k, v in genre_counts.items()], key=lambda x: -x["value"])[:10]
         top_stars = [k for k, _ in sorted(star_counts.items(), key=lambda x: -x[1])[:10]]
 
         return JSONResponse(content={
             "total_movies": int(total_movies),
             "directors": int(distinct_directors),
-            "top_genres": top_genres,
+            "top_genres_vn": top_genres_vn,
             "top_stars": top_stars
         })
     except Exception:

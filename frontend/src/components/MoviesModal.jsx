@@ -1,6 +1,6 @@
 import { X } from "lucide-react";
 
-export default function MovieModal({ movie, onClose }) {
+export default function MoviesModals({ movie, onClose }) {
   const BaseURL = "http://localhost:8000/static/";
   if (!movie) return null;
 
@@ -32,7 +32,7 @@ export default function MovieModal({ movie, onClose }) {
           <div className="flex-1">
             <h2 className="text-2xl font-bold text-blue-600 mb-2">{movie.title}</h2>
             <p className="text-gray-500 text-sm mb-4">
-              {movie.release_date} · {movie.genres}
+              {movie.release_date} · {movie.genres_vn}
             </p>
 
             <p className="text-gray-700 dark:text-gray-300 mb-2">
@@ -40,16 +40,16 @@ export default function MovieModal({ movie, onClose }) {
             </p>
 
             <p className="text-gray-700 dark:text-gray-300 mb-2">
-              🌎 <b>Quốc gia:</b> {movie.production_countries || "—"}
+              🌎 <b>Quốc gia:</b> {movie.production_countries || "Việt Nam"}
             </p>
 
             <p className="text-gray-700 dark:text-gray-300 mb-2">
-              🕒 <b>Thời lượng:</b> {movie.runtime ? `${movie.runtime} phút` : "—"}
+              🕒 <b>Thời lượng:</b> {movie.runtime ? `${movie.runtime} phút` : "Đang cập nhật"}
             </p>
 
-            <p className="text-gray-700 dark:text-gray-300 mb-2">
+            {/* <p className="text-gray-700 dark:text-gray-300 mb-2">
               ⭐ <b>Điểm đánh giá:</b> {movie.vote_average || "—"} ({movie.vote_count || 0} bình chọn)
-            </p>
+            </p> */}
 
             <p className="text-gray-700 dark:text-gray-300 mb-4">
               🌟 <b>Diễn viên:</b> {movie.stars || "—"}

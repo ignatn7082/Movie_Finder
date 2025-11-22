@@ -8,7 +8,7 @@ import traceback
 import unicodedata
 
 # Import helper từ search_service (bạn cần có các hàm/biến này trong app.services.search_service)
-# - query_by_text_chatbot(prompt, top_k): trả về list phim (dict) có fields: title, original_title, overview, release_date, director, stars, genres, poster, similarity
+# - query_by_text_chatbot(prompt, top_k): trả về list phim (dict) có fields: title, original_title, overview, release_date, director, stars, genres_vn, poster, similarity
 # - suggest_popular_movies(n): trả về list phim tương tự structure bên trên
 # - MOVIE_DF (pandas.DataFrame) -- optional, để tìm bằng tên director/actor trực tiếp
 # - STATIC_URL_PREFIX (chuỗi) -- prefix cho poster URL
@@ -165,7 +165,7 @@ def lookup_by_actor(name: str, top_k: int = 10):
                 "release_date": r.get("Release Date", ""),
                 "director": r.get("Director", ""),
                 "stars": r.get("Stars", ""),
-                "genres": r.get("Genres", ""),
+                "genres_vn": r.get("genres_vn", ""),
                 "poster": poster_url,
                 "similarity": 1.0,
             })
@@ -193,7 +193,7 @@ def lookup_by_director(name: str, top_k: int = 10):
                 "release_date": row.get("Release Date", ""),
                 "director": director,
                 "stars": row.get("Stars", ""),
-                "genres": r.get("Genres", ""),
+                "genres_vn": r.get("genres_vn", ""),
                 "poster": f"{STATIC_URL_PREFIX}{row.get('PosterFile')}" if row.get("PosterFile") else None
             })
 
@@ -392,7 +392,7 @@ async def chat_with_gemini(request: Request):
                             "release_date": r.get("Release Date",""),
                             "director": r.get("Director",""),
                             "stars": r.get("Stars",""),
-                            "genres": r.get("Genres",""),
+                            "genres_vn": r.get("genres_vn",""),
                             "poster": poster_url
                         }]
                     })
@@ -423,7 +423,7 @@ async def chat_with_gemini(request: Request):
         for r in rag_results[:5]:
             title_display = r.get("original_title") or r.get("title")
             context_lines.append(
-                f"{title_display} ({r.get('release_date','N/A')}) — {r.get('genres','')} — Đạo diễn: {r.get('director','')}. Diễn viên: {r.get('stars','')}"
+                f"{title_display} ({r.get('release_date','N/A')}) — {r.get('genres_vn','')} — Đạo diễn: {r.get('director','')}. Diễn viên: {r.get('stars','')}"
             )
         context_text = "\n".join(context_lines)
 

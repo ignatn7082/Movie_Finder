@@ -60,7 +60,7 @@ def get_movie_info(title_or_label: str):
                 "release_date": record.get("Release Date", ""),
                 "director": record.get("Director", ""),
                 "stars": record.get("Stars", ""),
-                "genres": record.get("Genres", ""),
+                "genres_vn": record.get("genres_vn", ""),
                 "poster": poster_url,
             }
 
@@ -74,7 +74,7 @@ def get_movie_info(title_or_label: str):
         "release_date": None,
         "director": None,
         "stars": None,
-        "genres": None,
+        "genres_vn": None,
         "poster": None,
     }
 
@@ -158,7 +158,7 @@ def query_by_keyword(keyword: str, top_k: int = 5):
                 Movie.original_title.ilike(f"%{keyword}%"),
                 Movie.director.ilike(f"%{keyword}%"),
                 Movie.stars.ilike(f"%{keyword}%"),
-                Movie.genres.ilike(f"%{keyword}%"),
+                Movie.genres_vn.ilike(f"%{keyword}%"),
                 Movie.overview.ilike(f"%{keyword}%"),
             )
         ).limit(top_k).all()
@@ -171,7 +171,7 @@ def query_by_keyword(keyword: str, top_k: int = 5):
                 "release_date": m.release_date,
                 "director": m.director,
                 "stars": m.stars,
-                "genres": m.genres,
+                "genres_vn": m.genres_vn,
                 "poster": f"http://localhost:8000/static/{m.poster}" if m.poster else None,
                 "match_type": "movie",
             })

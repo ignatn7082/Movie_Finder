@@ -48,7 +48,7 @@ def init_db():
                 release_date=row.get("Release Date", ""),
                 director=row.get("Director", ""),
                 stars=row.get("Stars", ""),
-                genres=row.get("Genres", ""),
+                genres_vn=row.get("genres_vn", ""),
                 overview=row.get("Overview", ""),
                 poster=row.get("PosterFile", ""),
             )

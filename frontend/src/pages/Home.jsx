@@ -9,12 +9,12 @@ export default function Home() {
   const [stats, setStats] = useState({
     total_movies: 0,
     directors: 0,
-    genres: [],
+    genres_vn: [],
     top_stars: [],
   });
 
   // state riêng cho dữ liệu thể loại (dùng trong Pie)
-  const [genreData, setGenreData] = useState(stats.genres);
+  const [genreData, setGenreData] = useState(stats.genres_vn);
   
   useEffect(() => {
     const fetchStats = async () => {
@@ -32,7 +32,7 @@ export default function Home() {
             directors: data.directors ?? prev.directors,
             top_stars: Array.isArray(data.top_stars) ? data.top_stars : prev.top_stars,
           }));
-          setGenreData(Array.isArray(data.top_genres) ? data.top_genres : []);
+          setGenreData(Array.isArray(data.top_genres_vn) ? data.top_genres_vn : []);
         } else {
           setGenreData([]);
         }
