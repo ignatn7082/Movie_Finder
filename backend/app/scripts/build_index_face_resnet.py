@@ -2,9 +2,10 @@ import os
 import numpy as np
 import faiss
 import json
-from tensorflow.keras.models import load_model, Model
-from tensorflow.keras.applications.resnet50 import preprocess_input
-from tensorflow.keras.preprocessing import image
+import keras
+from keras.models import load_model, Model
+from keras.applications.resnet50 import preprocess_input
+from keras.preprocessing import image
 from PIL import Image
 
 # =========================

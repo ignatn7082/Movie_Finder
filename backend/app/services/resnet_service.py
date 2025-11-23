@@ -2,20 +2,20 @@
 
 import os
 import faiss
+import json
 import numpy as np
 from PIL import Image
 import keras
 from keras.utils import load_img, img_to_array 
 from keras.models import load_model, Model
 from keras.applications.resnet50 import preprocess_input
-# Sửa lỗi Pylance/TensorFlow: Sử dụng load_img và img_to_array từ keras.utils
-# from tensorflow.keras.utils import load_img, img_to_array
-# from tensorflow.keras.models import load_model, Model
-# from tensorflow.keras.applications.resnet50 import preprocess_input
 
-# Import các hàm dùng chung (Cần đảm bảo get_movie_info và DATA_DIR được định nghĩa)
-# Giả định các hàm này được định nghĩa trong app/services/base_service.py hoặc file tương đương
-from app.services.base_service import DATA_DIR, get_movie_info 
+from app.services.base_service import DATA_DIR, get_actor_movies
+import logging
+
+logger = logging.getLogger("app.resnet")
+
+
 # Nếu không có base_service, bạn cần định nghĩa lại get_movie_info và DATA_DIR ở đây.
 
 
@@ -23,15 +23,15 @@ from app.services.base_service import DATA_DIR, get_movie_info
 # CONFIG - MOVIE CONTENT SEARCH (FRAME RETRIEVAL)
 # =========================
 # Tên file model ResNet50 dùng cho trích xuất đặc trưng nội dung
-MODEL_FILENAME = "resnet50_feature_extractor_cosine.h5" 
-# MODEL_FILENAME = "resnet50_feature_extractor_2.h5"
+# MODEL_FILENAME = "resnet50_feature_extractor_cosine.h5" 
+MODEL_FILENAME = "resnet50_feature_extractor_2.h5"
 
 # File Index và Labels riêng cho đặc trưng NỘI DUNG (FRAME)
-CONTENT_INDEX_FILENAME = "movie_resnet50_content.index" 
-CONTENT_LABELS_FILENAME = "movie_resnet50_content_labels.npy"
+# CONTENT_INDEX_FILENAME = "movie_resnet50_content.index" 
+# CONTENT_LABELS_FILENAME = "movie_resnet50_content_labels.npy"
 
-# CONTENT_INDEX_FILENAME = "actor_resnet50_face.index" 
-# CONTENT_LABELS_FILENAME = "actor_resnet50_face_labels.npy"
+CONTENT_INDEX_FILENAME = "actor_resnet50_face.index" 
+CONTENT_LABELS_FILENAME = "actor_resnet50_face_labels.npy"
 
 RESNET_MODEL_PATH = os.path.join(DATA_DIR, MODEL_FILENAME)
 CONTENT_INDEX_PATH = os.path.join(DATA_DIR, CONTENT_INDEX_FILENAME)
@@ -55,6 +55,7 @@ def load_resnet50_content_resources():
         try:
             print("[RESNET_CONTENT] Loading Keras ResNet50 model...")
             RESNET_MODEL = load_model(RESNET_MODEL_PATH, compile=False) 
+            
         except Exception as e:
             print(f"[ERROR] Cannot load Keras model from {RESNET_MODEL_PATH}: {e}")
             RESNET_MODEL = None
@@ -84,107 +85,131 @@ load_resnet50_content_resources()
 # 2. Hàm Trích xuất Đặc trưng Nội dung
 # =========================
 
-def extract_resnet50_feature(pil_img: Image.Image, target_size=(224, 224)):
-    """Trích xuất vector 2048 chiều từ ảnh PIL nội dung phim."""
-    if RESNET_MODEL is None:
+# Định nghĩa đường dẫn file
+MODEL_PATH = os.path.join(DATA_DIR, MODEL_FILENAME)
+CONTENT_INDEX_PATH = os.path.join(DATA_DIR, CONTENT_INDEX_FILENAME)
+# Cần dùng đường dẫn .npy mới
+CONTENT_LABELS_NPY = os.path.join(DATA_DIR, CONTENT_LABELS_FILENAME)
+
+
+# Tải và định nghĩa mô hình FEATURE_EXTRACTOR_MODEL
+try:
+    base_model = load_model(MODEL_PATH)
+    
+    feature_extractor_model = Model(inputs=base_model.input, outputs=base_model.layers[-2].output)
+    logger.info("[ResNet] Feature Extractor Model Loaded.")
+except Exception as e:
+    logger.error(f"[ERROR] Could not load ResNet feature extractor model from {MODEL_PATH}: {e}")
+    feature_extractor_model = None
+
+
+# Tải Index và Labels
+CONTENT_INDEX = None
+CONTENT_LABELS = []
+try:
+    if os.path.exists(CONTENT_INDEX_PATH):
+        CONTENT_INDEX = faiss.read_index(CONTENT_INDEX_PATH)
+        
+        # --- LOGIC TẢI FILE LABELS (.NPY) ---
+        if CONTENT_LABELS_FILENAME.endswith('.npy'):
+             # Tải file labels NumPy
+             CONTENT_LABELS = np.load(CONTENT_LABELS_NPY) 
+        elif CONTENT_LABELS_FILENAME.endswith('.json'):
+             # Logic cũ (giữ lại nếu cần cho mục đích debug)
+             with open(CONTENT_LABELS_NPY, "r", encoding="utf-8") as f:
+                 CONTENT_LABELS = json.load(f)
+        
+        logger.info(f"[ResNet] Actor Index Loaded with {CONTENT_INDEX.ntotal} vectors and {len(CONTENT_LABELS)} labels.")
+    else:
+        logger.warning(f"[ResNet] Actor Index file not found at {CONTENT_INDEX_PATH}")
+
+except Exception as e:
+    logger.error(f"[ERROR] Could not load ResNet actor index: {e}")
+    CONTENT_INDEX = None
+    CONTENT_LABELS = []
+
+
+# =========================
+# HÀM TRÍCH XUẤT VÀ TRUY VẤN
+# =========================
+
+def extract_resnet_feature(img_path):
+    """Trích xuất vector đặc trưng từ ảnh đầu vào bằng ResNet50."""
+    
+    if feature_extractor_model is None:
+        logger.error("feature_extractor_model is not loaded.")
         return None
-        
+
     try:
-        # Resize và chuyển sang NumPy array
-        img_resized = pil_img.resize(target_size, Image.LANCZOS)
-        x = img_to_array(img_resized)
-        x = np.expand_dims(x, axis=0)
+        # 1. Tiền xử lý ảnh (Ảnh phải là 224x224)
+        img = load_img(img_path, target_size=(224, 224)) 
+        img_array = img_to_array(img)
+        img_array = np.expand_dims(img_array, axis=0)
+        img_array = preprocess_input(img_array)
+
+        # 2. Trích xuất bản đồ đặc trưng (Feature Map)
+        # Kết quả có shape là (1, 7, 7, 2048)
+        feat_map = feature_extractor_model.predict(img_array, verbose=0)[0] 
         
-        # Tiền xử lý chuẩn ResNet50
-        x = preprocess_input(x)
-        
-        # Dự đoán
-        feat = RESNET_MODEL.predict(x, verbose=0)
-        feat = feat.flatten().astype("float32").reshape(1, -1)
-        
-        # Chuẩn hóa L2 (cho Cosine Similarity)
-        faiss.normalize_L2(feat)
-        
-        return feat[0]
-        
+        # 3. ÁP DỤNG GLOBAL AVERAGE POOLING (Fix Lỗi Assertion)
+        # Tính giá trị trung bình trên trục chiều cao (axis 0) và chiều rộng (axis 1)
+        # để chuyển tensor (7, 7, 2048) thành vector (2048,)
+        feat = np.mean(feat_map, axis=(0, 1)) 
+
+        # Vector đặc trưng cuối cùng là 2048D
+        return feat
+
     except Exception as e:
-        print(f"[ERROR] Failed to extract ResNet50 CONTENT feature: {e}")
-        return None
-        
-def safe_load_image(path):
-    """Tải ảnh an toàn, đảm bảo kích thước không quá lớn."""
-    MAX_SIZE = 1024
-    try:
-        img = Image.open(path).convert("RGB")
-    except Exception:
+        logger.error(f"Lỗi trích xuất đặc trưng ResNet50: {e}")
         return None
 
-    w, h = img.size
-    if max(w, h) > MAX_SIZE:
-        scale = MAX_SIZE / max(w, h)
-        img = img.resize((int(w * scale), int(h * scale)), Image.LANCZOS)
-
-    return img
-
-# =========================
-# 3. Hàm Truy vấn Nội dung (Frame Retrieval)
-# =========================
-
-def query_by_image_resnet50(img_path, top_k=5, threshold=0.65):
+def query_by_image_resnet50(img_path, top_k=5, threshold=0.30):
     """
-    Truy vấn phim bằng ảnh nội dung/frame, sử dụng ResNet50 Feature Extractor.
+    Truy vấn diễn viên bằng đặc trưng ResNet50 (Actor Recognition).
     """
-    if CONTENT_INDEX is None or not CONTENT_LABELS:
-        # Giả định CONTENT_INDEX, CONTENT_LABELS, safe_load_image, extract_resnet50_feature, 
-        # get_movie_info, v.v. đã được định nghĩa và import ở nơi khác.
-        return [{"title": "ResNet50 Content Index chưa sẵn sàng.", "poster": None, "similarity": 0.0}]
+    
+    if CONTENT_INDEX is None:
+        return {"actor": None, "movies": [], "message": "ResNet50 Actor Index chưa tải."}
 
-    # 1. Load ảnh
-    img = safe_load_image(img_path)
-    if img is None:
-        return [{"title": "Lỗi tải ảnh hoặc ảnh không hợp lệ.", "poster": None, "similarity": 0.0}]
-        
-    # 2. Trích xuất đặc trưng
-    feat = extract_resnet50_feature(img)
+    # 1. Trích xuất đặc trưng
+    feat = extract_resnet_feature(img_path)
     if feat is None:
-        return [{"title": "Lỗi trích xuất đặc trưng ResNet50.", "poster": None, "similarity": 0.0}]
+        return {"actor": None, "movies": [], "message": "Không thể trích xuất đặc trưng ResNet50."}
 
+    # Chuẩn bị vector cho FAISS
     feat = feat.reshape(1, -1)
-
-    # 3. Truy vấn FAISS
-    # Tăng số lượng truy vấn ban đầu để lọc tốt hơn
-    D, I = CONTENT_INDEX.search(feat, top_k * 5) 
+    faiss.normalize_L2(feat)
     
-    # 4. Xử lý và lọc kết quả trùng lặp (nhiều frame từ 1 phim)
-    results = {} 
+    # 3. Truy vấn FAISS (Chỉ tìm k=1 vì chỉ cần match 1 diễn viên)
+    D, I = CONTENT_INDEX.search(feat, 1) 
     
-    for sim, label_idx in zip(D[0], I[0]):
-        if sim < threshold:
-            continue
-            
-        # Lấy nhãn (tên file feature)
-        raw_label = str(CONTENT_LABELS[label_idx])
-        
-        # Nhãn frame là: "Tên Phim_FrameXX.npy.tmp". Cần làm sạch để lấy tên phim gốc.
-        # Xóa các phần mở rộng FAISS và frame index
-        cleaned_label = raw_label.replace(".npy.tmp", "").replace(".npy", "").replace(".tmp", "")
-
-        # Tên phim gốc: phần trước dấu _ đầu tiên
-        movie_title_raw = cleaned_label.split("_")[0]
-
-        if movie_title_raw not in results:
-            info = get_movie_info(movie_title_raw)
-            if info:
-                # Thêm độ tương đồng (similarity) vào thông tin phim
-                info["similarity"] = float(sim)
-                results[movie_title_raw] = info
-                
-            if len(results) >= top_k:
-                break
-                
-    final_results = list(results.values())
+    best_sim = D[0][0]
+    best_idx = I[0][0]
     
-    if not final_results:
-        return [{"title": f"Không tìm thấy phim (Độ tương đồng < {threshold})", "poster": None, "similarity": 0.0}]
+    # 4. Lọc kết quả theo ngưỡng
+    if best_sim < threshold:
+        logger.warning(
+            f"ResNet50 Actor search found 0 results. Max similarity: {best_sim:.4f}. Current threshold: {threshold}. "
+            f"Diễn viên không được nhận dạng hoặc ngưỡng quá cao."
+        )
+        return {"actor": None, "movies": [], "message": f"Không tìm thấy diễn viên nào (Độ tương đồng tối đa: {best_sim:.2f})"}
+    
+    # Lấy tên diễn viên từ labels
+    raw_actor_name = str(CONTENT_LABELS[best_idx])
+    actor_name = raw_actor_name.replace("_", " ")
+    
+    # 5. Lấy danh sách phim của diễn viên đó
+    # KHẮC PHỤC LỖI TYPEERROR: Gọi hàm mà không có tham số top_k
+    full_movie_list = get_actor_movies(actor_name)
+    
+    # Giới hạn số lượng kết quả bằng cách cắt lát (slicing)
+    movie_list = full_movie_list[:top_k]
 
-    return final_results
+    logger.info(f"ResNet50 recognized actor: {actor_name} with similarity: {best_sim:.4f}. Movies found: {len(movie_list)}")
+    
+    return {
+        "actor": actor_name, 
+        "movies": movie_list, # Trả về danh sách đã cắt lát
+        "similarity": float(best_sim), # Thêm độ tương đồng
+        "message": f"Diễn viên được nhận diện: {actor_name} (Độ tương đồng: {best_sim:.2f})"
+    }

@@ -3,8 +3,9 @@
 # Import các hàm từ các service 
 from app.services.clip_service import query_by_image_clip
 
-from app.services.text_search_service import query_by_text, query_by_text_chatbot
-from app.services.base_service import query_by_keyword
+# from app.services.text_search_service import query_by_text
+# from app.services.chatbot_service import query_by_text_chatbot
+# from app.services.base_service import query_by_keyword
 
 from app.services.resnet_service import query_by_image_resnet50 
 
