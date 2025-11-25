@@ -28,6 +28,10 @@ except Exception as e:
     actor_index = None
     actor_labels = []
 
+# Add explicit check/log for CLIP model availability
+if clip_model is None or preprocess is None:
+    print("[ERROR] CLIP model or preprocess is not loaded. Check [clip_loader.py](http://_vscodecontentref_/13) and model files.")
+
 def extract_clip_feature(pil_img: Image.Image):
     """Trích xuất vector CLIP 512D (chuẩn hóa L2)."""
     image = preprocess(pil_img).unsqueeze(0).to(DEVICE)

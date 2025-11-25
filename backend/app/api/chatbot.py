@@ -522,7 +522,7 @@ async def chat_with_gemini(request: Request, db: Session = Depends(get_db)): # D
                 ).first()
 
                 if movie:
-                    poster = f"{STATIC_URL_PREFIX}{movie.poster_file}" if movie.poster_file else None
+                    poster = f"{STATIC_URL_PREFIX}{movie.poster_file}" if movie.poster else None
                     reply = f"{movie.original_title or movie.title} ({movie.release_date or 'N/A'}): {movie.overview or 'Không có mô tả'}"
                     messages.append({"role": "assistant", "content": reply})
                     return JSONResponse({

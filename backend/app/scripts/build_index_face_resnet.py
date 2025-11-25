@@ -6,20 +6,19 @@ import keras
 from keras.models import load_model, Model
 from keras.applications.resnet50 import preprocess_input
 from keras.preprocessing import image
-from PIL import Image
+from PIL import Image, ImageEnhance
 
 # =========================
 # CONFIGURATION
 # =========================
 
 FACE_DATASET_DIR = r"F:\LV\actors_image" 
-MODEL_PATH = "data/resnet50_feature_extractor_cosine.h5" 
+MODEL_PATH = "data/resnet50_feature_extractor_3.h5" 
 
 # OUTPUT files
-FACE_INDEX_PATH = "data/actor_resnet50_face.index"
-FACE_LABELS_PATH = "data/actor_resnet50_face_labels.npy"
-# File lưu trữ tiến trình
-PROGRESS_FILE = "data/resnet_face_index_progress.json"
+FACE_INDEX_PATH = "data/actor_resnet50_face_3.index"
+FACE_LABELS_PATH = "data/actor_resnet50_face_labels_3.npy"
+PROGRESS_FILE = "data/resnet_face_index_progress_3.json"
 
 # =========================
 # Helper Functions
@@ -30,22 +29,67 @@ def normalize(vecs):
     norms = np.linalg.norm(vecs, axis=1, keepdims=True)
     return vecs / (norms + 1e-8)
 
-def extract_face_feature(img_path, model: Model, target_size=(224, 224)):
-    """Trích xuất đặc trưng 2048D từ ảnh khuôn mặt."""
+def _process_image_to_array(img: Image.Image, target_size=(224, 224)):
+    """Tiền xử lý PIL Image thành mảng NumPy sẵn sàng cho ResNet50."""
+    img = img.resize(target_size)
+    x = image.img_to_array(img)
+    x = np.expand_dims(x, axis=0)
+    x = preprocess_input(x)
+    return x
+
+def augment_image(pil_img: Image.Image):
+    """
+    Tạo các phiên bản tăng cường dữ liệu của ảnh gốc.
+    Trả về một danh sách các PIL Image đã được tăng cường.
+    """
+    augmented_images = [pil_img] # Ảnh gốc luôn được giữ lại
+    
+    # 1. Lật ngang (Horizontal Flip)
+    augmented_images.append(pil_img.transpose(Image.FLIP_LEFT_RIGHT))
+    
+    # 2. Thay đổi độ sáng/tương phản nhẹ (Brightness/Contrast Jitter)
+    # Tăng độ sáng nhẹ (Factor 1.1)
+    enhancer = ImageEnhance.Brightness(pil_img)
+    augmented_images.append(enhancer.enhance(1.1))
+    
+    # Giảm độ sáng nhẹ (Factor 0.9)
+    enhancer = ImageEnhance.Brightness(pil_img)
+    augmented_images.append(enhancer.enhance(0.9))
+    
+    # Tăng tương phản nhẹ (Factor 1.1)
+    enhancer = ImageEnhance.Contrast(pil_img)
+    augmented_images.append(enhancer.enhance(1.1))
+
+    # Giảm tương phản nhẹ (Factor 0.9)
+    enhancer = ImageEnhance.Contrast(pil_img)
+    augmented_images.append(enhancer.enhance(0.9))
+    
+    return augmented_images # Trả về 6 phiên bản
+
+def extract_face_feature_from_pil(pil_img: Image.Image, model: Model, target_size=(224, 224)):
+    """
+    Trích xuất đặc trưng 2048D từ ảnh khuôn mặt (PIL Image) đã được tiền xử lý.
+    """
     try:
-        img = image.load_img(img_path, target_size=target_size)
-        x = image.img_to_array(img)
-        x = np.expand_dims(x, axis=0)
-        x = preprocess_input(x)
-        feat = model.predict(x, verbose=0)
-        return feat.flatten()
+        x = _process_image_to_array(pil_img, target_size)
+        
+        # 1. Dự đoán (feat có shape (1, 7, 7, 2048))
+        # [0] để loại bỏ chiều batch: (7, 7, 2048)
+        feat = model.predict(x, verbose=0)[0] 
+        
+        # 2. ÁP DỤNG GLOBAL AVERAGE POOLING để giảm chiều (Fix)
+        # Chuyển tensor (7, 7, 2048) thành vector (2048,)
+        feat_2048d = np.mean(feat, axis=(0, 1))
+        
+        return feat_2048d.flatten() # Trả về vector 2048D
+        
     except Exception as e:
-        # Ghi lại lỗi nhưng không dừng script
-        print(f"[WARN] Lỗi khi trích xuất {img_path}: {e}")
+        print(f"[WARN] Lỗi khi trích xuất feature từ PIL Image: {e}")
         return None
 
 def save_progress(processed_files, features, labels):
     """Lưu trạng thái tiến trình hiện tại vào file JSON và NumPy."""
+    # ... (Hàm này giữ nguyên) ...
     with open(PROGRESS_FILE, 'w') as f:
         json.dump(processed_files, f)
     
@@ -59,6 +103,7 @@ def save_progress(processed_files, features, labels):
 
 def load_progress():
     """Tải trạng thái tiến trình và các đặc trưng tạm thời đã lưu."""
+    # ... (Hàm này giữ nguyên) ...
     processed_files = {}
     X_features, y_labels = [], []
     
@@ -71,7 +116,6 @@ def load_progress():
             print(f"[WARN] Lỗi khi tải progress file: {e}. Bắt đầu lại từ đầu.")
             processed_files = {}
 
-    # Tải đặc trưng tạm thời
     if os.path.exists(FACE_INDEX_PATH + ".tmp") and os.path.exists(FACE_LABELS_PATH + ".tmp"):
         try:
             X_features = np.load(FACE_INDEX_PATH + ".tmp", allow_pickle=True).tolist()
@@ -94,7 +138,9 @@ if __name__ == "__main__":
 
     print("[INFO] Loading ResNet50 feature extractor...")
     try:
-        model = load_model(MODEL_PATH, compile=False)
+        base_model = load_model(MODEL_PATH, compile=False)
+        # Lấy lớp Feature Map (Giả định lớp cuối cùng là Output Layer/Classification Layer)
+        model = Model(inputs=base_model.input, outputs=base_model.layers[-2].output)
     except Exception as e:
         print(f"[FATAL] Lỗi khi tải model. Đảm bảo TensorFlow được cài đặt: {e}")
         exit()
@@ -126,24 +172,44 @@ if __name__ == "__main__":
                 processed_files[full_path] = "SKIPPED"
                 continue
             
-            feat = extract_face_feature(full_path, model)
+            try:
+                # 2a. Tải ảnh gốc (PIL Image)
+                original_img = Image.open(full_path).convert("RGB")
+            except Exception as e:
+                print(f"[WARN] Lỗi tải ảnh {full_path}: {e}")
+                processed_files[full_path] = "FAILED_LOAD"
+                continue
+
+            # 2b. TĂNG CƯỜNG DỮ LIỆU
+            augmented_images = augment_image(original_img)
             
-            if feat is not None:
-                X_features.append(feat)
-                y_labels.append(actor_name)
-                processed_files[full_path] = "PROCESSED"
+            # 2c. Trích xuất đặc trưng cho TẤT CẢ các phiên bản
+            success = 0
+            for aug_img in augmented_images:
+                feat = extract_face_feature_from_pil(aug_img, model) # <--- Dùng hàm mới
+                
+                if feat is not None:
+                    X_features.append(feat)
+                    y_labels.append(actor_name)
+                    success += 1
+            
+            if success > 0:
+                # Đánh dấu ảnh gốc đã được xử lý (gồm cả các phiên bản tăng cường)
+                processed_files[full_path] = f"PROCESSED_{success}" 
             else:
-                processed_files[full_path] = "FAILED"
+                processed_files[full_path] = "FAILED_FEATURE_EXTRACTION"
             
-            # Lưu tiến trình định kỳ (sau mỗi 500 file)
-            if (len(X_features) - initial_count) % 500 == 0 and len(X_features) > initial_count:
-                save_progress(processed_files, X_features, y_labels)
-                initial_count = len(X_features) # Đặt lại điểm mốc
-            
+            # Lưu tiến trình định kỳ (sau mỗi 500 ảnh gốc đã xử lý)
+            if (len(processed_files) - len(processed_files.get("SKIPPED", [])) - len(processed_files.get("FAILED_LOAD", []))) % 500 == 0:
+                 if len(X_features) > initial_count:
+                    save_progress(processed_files, X_features, y_labels)
+                    initial_count = len(X_features) 
+                
     # Lưu lần cuối sau khi hoàn tất
     save_progress(processed_files, X_features, y_labels)
 
     # 3. Xây dựng Index FAISS cuối cùng
+    # ... (Phần này giữ nguyên) ...
     X_features = np.array(X_features)
     y_labels = np.array(y_labels)
 
