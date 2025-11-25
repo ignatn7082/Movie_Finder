@@ -10,7 +10,7 @@ from app.db import SessionLocal
 from app.models.role import Role
 from app.models.movie import Movie
 from sqlalchemy import or_
-
+import re   
 # Cấu hình chung
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(BASE_DIR, "../../data")
@@ -35,78 +35,156 @@ def safe_load_image(path):
     return img
 
 
+def normalize_vi_string(text: str) -> str:
+    """
+    Chuẩn hóa chuỗi tiếng Việt: chuyển về chữ thường, bỏ dấu, và loại bỏ khoảng trắng/ký tự đặc biệt (kể cả dấu gạch dưới).
+    Ví dụ: "Thiên Thần Hộ Mệnh" -> "thienthanhomenh"
+            "Thien_Than_Ho_Menh" -> "thienthanhomenh"
+    """
+    if not isinstance(text, str):
+        return ""
+
+    text = text.lower()
+    
+    # Bỏ dấu tiếng Việt (Cách đơn giản hóa, có thể dùng thư viện unidecode nếu được cài đặt)
+    # Mapping cho các chữ cái có dấu
+    text = text.replace('á', 'a').replace('à', 'a').replace('ả', 'a').replace('ã', 'a').replace('ạ', 'a')
+    text = text.replace('ă', 'a').replace('ắ', 'a').replace('ằ', 'a').replace('ẳ', 'a').replace('ẵ', 'a').replace('ặ', 'a')
+    text = text.replace('â', 'a').replace('ấ', 'a').replace('ầ', 'a').replace('ẩ', 'a').replace('ẫ', 'a').replace('ậ', 'a')
+    text = text.replace('é', 'e').replace('è', 'e').replace('ẻ', 'e').replace('ẽ', 'e').replace('ẹ', 'e')
+    text = text.replace('ê', 'e').replace('ế', 'e').replace('ề', 'e').replace('ể', 'e').replace('ễ', 'e').replace('ệ', 'e')
+    text = text.replace('í', 'i').replace('ì', 'i').replace('ỉ', 'i').replace('ĩ', 'i').replace('ị', 'i')
+    text = text.replace('ó', 'o').replace('ò', 'o').replace('ỏ', 'o').replace('õ', 'o').replace('ọ', 'o')
+    text = text.replace('ô', 'o').replace('ố', 'o').replace('ồ', 'o').replace('ổ', 'o').replace('ỗ', 'o').replace('ộ', 'o')
+    text = text.replace('ơ', 'o').replace('ớ', 'o').replace('ờ', 'o').replace('ở', 'o').replace('ỡ', 'o').replace('ợ', 'o')
+    text = text.replace('ú', 'u').replace('ù', 'u').replace('ủ', 'u').replace('ũ', 'u').replace('ụ', 'u')
+    text = text.replace('ư', 'u').replace('ứ', 'u').replace('ừ', 'u').replace('ử', 'u').replace('ữ', 'u').replace('ự', 'u')
+    text = text.replace('ý', 'y').replace('ỳ', 'y').replace('ỷ', 'y').replace('ỹ', 'y').replace('ỵ', 'y')
+    text = text.replace('đ', 'd')
+
+    # Loại bỏ các ký tự không phải chữ cái và số (bao gồm cả dấu gạch dưới và khoảng trắng)
+    return re.sub(r'[^a-z0-9]', '', text)
+
 def get_movie_info(title: str):
     """
     Lấy thông tin chi tiết phim từ CSDL PostgreSQL qua SQLAlchemy.
-    Truy vấn theo title hoặc original_title (ilike).
+    title (param) = key từ FAISS (ví dụ: Thien_Than_Ho_Menh)
     """
-
-    search_key = title.strip().lower()
+    
+    # 1. Chuẩn hóa khóa tìm kiếm từ FAISS
+    normalized_search_key = normalize_vi_string(title) # --> "thienthanhomenh"
 
     with SessionLocal() as db:
-        try:
-            # Truy vấn giống cách gọi search_by_actor_or_role_db
-            movie_record = db.query(Movie).filter(
-                (Movie.title.ilike(search_key)) |
-                (Movie.original_title.ilike(search_key))
-            ).first()
+        # Tải tất cả các bản ghi phim để so sánh chuẩn hóa (Cách này hoạt động, nhưng không tối ưu cho DB lớn)
+        all_movies = db.query(Movie).all()
+        
+        movie = None
+        for m in all_movies:
+            
+            # 2. Chuẩn hóa các trường so sánh trong CSDL
+            # DB.original_title: "Thiên Thần Hộ Mệnh" HOẶC "Thien_Than_Ho_Menh"
+            normalized_original_title = normalize_vi_string(m.original_title)
+            # DB.title: Tên tiếng Việt (Có thể đã bị rút gọn hoặc vẫn còn dấu gạch dưới)
+            normalized_title = normalize_vi_string(m.title)
+            
+            # 3. So sánh chuẩn hóa: Nếu khóa FAISS khớp với Original Title HOẶC Title đã chuẩn hóa
+            if normalized_search_key == normalized_original_title or normalized_search_key == normalized_title:
+                movie = m
+                break
+        
+        if not movie:
+            return None
+            
+        # Lấy tên hiển thị: Sử dụng trường movie.title
+        display_title = movie.title 
+        
+        # Đảm bảo tên hiển thị cho người dùng không có dấu gạch dưới (chuyển Thien_Than_Ho_Menh thành Thien Than Ho Menh nếu cần)
+        if isinstance(display_title, str):
+            display_title = display_title.replace('_', ' ')
+            
+        return {
+            "title": display_title, # Tên hiển thị đầy đủ, có dấu cách
+            "original_title": movie.original_title, # Key gốc từ CSDL (Thiên Thần Hộ Mệnh HOẶC Thien_Than_Ho_Menh)
+            "overview": movie.overview,
+            "director": movie.director,
+            "genres_vn": movie.genres_vn,
+            "stars": movie.stars,
+            "poster": f"http://localhost:8000/static/{movie.poster}" if movie.poster else None,
+            "release_date": str(movie.release_date) if movie.release_date else None,
+        }
 
-            if movie_record:
-                # Chuyển object ORM thành dict
-                movie_data = {
-                    "movie_id": movie_record.id,
-                    "title": movie_record.title,
-                    "original_title": movie_record.original_title,
-                    "overview": movie_record.overview,
-                    "release_date": movie_record.release_date,
-                    "director": movie_record.director,
-                    "stars": movie_record.stars,
-                    "genres_vn": movie_record.genres_vn,
-                    "poster": movie_record.poster
-                }
+# def get_movie_info(title: str):
+#     """
+#     Lấy thông tin chi tiết phim từ CSDL PostgreSQL qua SQLAlchemy.
+#     Truy vấn theo title hoặc original_title (ilike).
+#     """
 
-                # Xử lý poster
-                poster = movie_data.get("poster")
+#     search_key = title.strip().lower()
 
-                if isinstance(poster, (float, type(None))) or not poster:
-                    poster_url = None
-                else:
-                    raw_path = poster.replace("\\", "/")
-                    abs_path = os.path.join(DATA_DIR, raw_path)
+#     with SessionLocal() as db:
+#         try:
+#             # Truy vấn giống cách gọi search_by_actor_or_role_db
+#             movie_record = db.query(Movie).filter(
+#                 (Movie.title.ilike(search_key)) |
+#                 (Movie.original_title.ilike(search_key))
+#             ).first()
 
-                    poster_url = (
-                        f"{STATIC_URL_PREFIX}{raw_path}"
-                        if os.path.exists(abs_path)
-                        else None
-                    )
+#             if movie_record:
+#                 # Chuyển object ORM thành dict
+#                 movie_data = {
+#                     "movie_id": movie_record.id,
+#                     "title": movie_record.title,
+#                     "original_title": movie_record.original_title,
+#                     "overview": movie_record.overview,
+#                     "release_date": movie_record.release_date,
+#                     "director": movie_record.director,
+#                     "stars": movie_record.stars,
+#                     "genres_vn": movie_record.genres_vn,
+#                     "poster": movie_record.poster
+#                 }
 
-                # Kết quả cuối cùng
-                return {
-                    "movie_id": movie_data["movie_id"],
-                    "title": movie_data["title"],
-                    "original_title": movie_data["original_title"],
-                    "overview": movie_data["overview"],
-                    "release_date": movie_data["release_date"],
-                    "director": movie_data["director"],
-                    "stars": movie_data["stars"],
-                    "genres_vn": movie_data["genres_vn"],
-                    "poster": poster,
-                }
+#                 # Xử lý poster
+#                 poster = movie_data.get("poster")
 
-        except Exception as e:
-            print(f"[WARN] Lỗi get_movie_info('{title}') → {e}")
+#                 if isinstance(poster, (float, type(None))) or not poster:
+#                     poster_url = None
+#                 else:
+#                     raw_path = poster.replace("\\", "/")
+#                     abs_path = os.path.join(DATA_DIR, raw_path)
 
-    # Không tìm thấy → trả về rỗng
-    return {
-        "title": title,
-        "original_title": None,
-        "overview": None,
-        "release_date": None,
-        "director": None,
-        "stars": None,
-        "genres_vn": None,
-        "poster": None,
-    }
+#                     poster_url = (
+#                         f"{STATIC_URL_PREFIX}{raw_path}"
+#                         if os.path.exists(abs_path)
+#                         else None
+#                     )
+
+#                 # Kết quả cuối cùng
+#                 return {
+#                     "movie_id": movie_data["movie_id"],
+#                     "title": movie_data["title"],
+#                     "original_title": movie_data["original_title"],
+#                     "overview": movie_data["overview"],
+#                     "release_date": movie_data["release_date"],
+#                     "director": movie_data["director"],
+#                     "stars": movie_data["stars"],
+#                     "genres_vn": movie_data["genres_vn"],
+#                     "poster": poster,
+#                 }
+
+#         except Exception as e:
+#             print(f"[WARN] Lỗi get_movie_info('{title}') → {e}")
+
+#     # Không tìm thấy → trả về rỗng
+#     return {
+#         "title": title,
+#         "original_title": None,
+#         "overview": None,
+#         "release_date": None,
+#         "director": None,
+#         "stars": None,
+#         "genres_vn": None,
+#         "poster": None,
+#     }
 
 
 
@@ -238,3 +316,27 @@ def query_by_keyword(keyword: str, top_k: int = 5):
     #  Gộp kết quả & loại trùng
     unique = {f"{r.get('title')}-{r.get('match_type')}": r for r in results}
     return list(unique.values())[:top_k]
+
+
+def get_all_actors_in_movie(movie_title: str) -> list:
+    """
+    Lấy danh sách tất cả diễn viên (actor_name) tham gia một bộ phim
+    từ CSDL hoặc DataFrame Role/Movie.
+    """
+    with SessionLocal() as db:
+        # 1. Tìm Movie ID
+        movie = db.query(Movie).filter(Movie.original_title == movie_title).first()
+        if not movie:
+            movie = db.query(Movie).filter(Movie.title == movie_title).first()
+        
+        if not movie:
+            return []
+            
+        movie_id = movie.id
+        
+        # 2. Tìm tất cả Role cho Movie ID đó
+        roles = db.query(Role).filter(Role.movie_id == movie_id).all()
+        
+        # 3. Trả về danh sách tên diễn viên duy nhất
+        return list(set([role.actor_name for role in roles if role.actor_name]))
+    

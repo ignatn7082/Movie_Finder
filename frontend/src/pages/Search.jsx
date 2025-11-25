@@ -37,16 +37,16 @@
 //             <ul className="list-disc list-inside ml-4 text-sm text-gray-600 dark:text-gray-400 space-y-2">
 //               <li className='font-semibold text-gray-800 dark:text-gray-200'>Mục tiêu: Tìm phim bằng mô tả, tên, thể loại, đạo diễn, hoặc diễn viên/vai diễn.</li>
 //               <li>Sử dụng ngôn ngữ tự nhiên, tiếng Việt có dấu.</li>
-//               <li>Hệ thống hỗ trợ **tìm kiếm ngữ nghĩa** (semantic search).</li>
-//               <li>Hỗ trợ tìm kiếm **diễn viên/vai diễn**.</li>
+//               <li>Hệ thống hỗ trợ tìm kiếm ngữ nghĩa (semantic search).</li>
+//               <li>Hỗ trợ tìm kiếm diễn viên/vai diễn.</li>
 //             </ul>
 //           ) : (
 //             // Hướng dẫn cho Tab Ảnh
 //             <ul className="list-disc list-inside ml-4 text-sm text-gray-600 dark:text-gray-400 space-y-2">
 //               <li className='font-semibold text-gray-800 dark:text-gray-200'>Mục tiêu: Tìm phim dựa trên hình ảnh.</li>
-//               <li>Bạn có thể tải lên **poster phim**, **ảnh diễn viên**, hoặc **ảnh một cảnh phim**.</li>
-//               <li>**Chọn Mô hình:** Thử nghiệm với các mô hình **CLIP** hoặc **ResNet50**.</li>
-//               <li>**Lưu ý:** Độ chính xác phụ thuộc vào chất lượng hình ảnh.</li>
+//               <li>Bạn có thể tải lên poster phim, ảnh diễn viên, hoặc ảnh một cảnh phim.</li>
+//               <li>Chọn Mô hình: Thử nghiệm với các mô hình CLIP hoặc ResNet50.</li>
+//               <li>Lưu ý: Độ chính xác phụ thuộc vào chất lượng hình ảnh.</li>
 //             </ul>
 //           )}
 //         </div>
@@ -79,9 +79,10 @@
 //   };
 
 
+
 // function Search() {
 //   const [tab, setTab] = useState("image"); // tab hiện tại: "image" | "text"
-//   const [selectedImageModel, setSelectedImageModel] = useState("clip"); // Mặc định là CLIP
+//   const [selectedImageModel, setSelectedImageModel] = useState("resnet50"); // Mặc định là CLIP
 //   const [query, setQuery] = useState("");
 //   const [file, setFile] = useState(null);
 //   const [preview, setPreview] = useState(null);
@@ -123,7 +124,7 @@
 //     e.preventDefault();
 //     setResults([]);
 //     setActorInfo(null);
-//     setSelected(null); // Reset chi tiết
+//     setSelected(null);
 //     setLoading(true);
 
 //     try {
@@ -132,26 +133,29 @@
 //       if (tab === "image" && file) {
 //         const formData = new FormData();
 //         formData.append("file", file);
-//         formData.append("model", selectedImageModel); // Gửi mô hình tìm kiếm ảnh
-        
-//         // Gửi yêu cầu tìm kiếm ảnh
+//         formData.append("model", selectedImageModel);
+
 //         res = await fetch(`${API_HOST}/search/image`, {
 //           method: "POST",
 //           body: formData,
 //         });
 //         data = await res.json();
+//         console.debug("API /search/image response:", data);
 
-//         if (!res.ok) {
-//           throw new Error(`Lỗi API: ${data.detail || res.statusText}`);
-//         }
+//         if (!res.ok) throw new Error(data?.detail || res.statusText || "API error");
 
-//         // Xử lý kết quả trả về của API (giữ nguyên logic gốc)
+//         // Nếu backend trả movies:
 //         if (data.movies && Array.isArray(data.movies)) {
-//           setActorInfo({
-//             actor: data.actor,
-//             similarity: data.similarity,
-//             message: data.message,
-//           });
+//           // Nếu backend cung cấp actor (không null) -> hiển thị block actor + movies
+//           if (data.actor) {
+//             const topSimilarity = (data.actor_similarities && data.actor_similarities.length > 0)
+//               ? data.actor_similarities[0][1]
+//               : data.similarity ?? null;
+//             setActorInfo({ actor: data.actor, similarity: topSimilarity, message: data.message });
+//           } else {
+//             // Nếu actor === null thì coi đây là list phim bình thường
+//             setActorInfo(null);
+//           }
 //           setResults(data.movies);
 //         } else if (data.results && Array.isArray(data.results)) {
 //           setResults(data.results);
@@ -162,30 +166,28 @@
 //         }
 
 //       } else if (tab === "text" && query.trim()) {
-//         // Gửi yêu cầu tìm kiếm văn bản
-//         res = await fetch(
-//           `${API_HOST}/search/text?query=${encodeURIComponent(query)}`
-//         ) ;
+//         res = await fetch(`${API_HOST}/search/text?query=${encodeURIComponent(query)}`);
 //         data = await res.json();
+//         console.debug("API /search/text response:", data);
 
-//         if (!res.ok) {
-//           throw new Error(`Lỗi API: ${data.detail || res.statusText}`);
-//         }
+//         if (!res.ok) throw new Error(data?.detail || res.statusText || "API error");
 
-//         // Xử lý kết quả trả về của API (giữ nguyên logic gốc)
 //         if (data.movies && Array.isArray(data.movies)) {
-//           setActorInfo({
-//             actor: data.actor,
-//             similarity: data.similarity,
-//             message: data.message,
-//           });
+//           if (data.actor) {
+//             const topSimilarity = (data.actor_similarities && data.actor_similarities.length > 0)
+//               ? data.actor_similarities[0][1]
+//               : data.similarity ?? null;
+//             setActorInfo({ actor: data.actor, similarity: topSimilarity, message: data.message });
+//           } else {
+//             setActorInfo(null);
+//           }
 //           setResults(data.movies);
 //         } else if (data.results && Array.isArray(data.results)) {
 //           setResults(data.results);
 //           setActorInfo(null);
-//         } else if (data.title && !Array.isArray(data)) { // Trường hợp 1 item duy nhất
-//             setResults([data]);
-//             setActorInfo(null);
+//         } else if (data.title && !Array.isArray(data)) {
+//           setResults([data]);
+//           setActorInfo(null);
 //         } else {
 //           setResults([]);
 //           setActorInfo(null);
@@ -237,7 +239,6 @@
 // // Hàm này giúp loại bỏ dấu gạch chéo ở đầu chuỗi
 // const cleanLeadingSlash = (path) => {
 //     if (!path) return "";
-//     // Loại bỏ dấu gạch chéo ở đầu
 //     return path.replace(/^\/+/, '');
 // };  
 
@@ -356,11 +357,14 @@
 //                                         <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Mô hình:</span>
 //                                         <select
 //                                             value={selectedImageModel}
-//                                             onChange={(e) => setSelectedImageModel(e.target.value)}
+//                                             onChange={(e) => { 
+//                                                 setSelectedImageModel(e.target.value); 
+//                                                 console.log("Mô hình tìm kiếm ảnh được chọn:", e.target.value); 
+//                                             }}
 //                                             className="p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 focus:ring-blue-500 focus:border-blue-500"
 //                                         >
-//                                             <option value="clip">CLIP</option>
-//                                             <option value="resnet50">ResNet50</option>
+//                                             <option value="two_steps_clip">CLIP</option>
+//                                             <option value="two_steps_resnet">ResNet50</option>
 //                                         </select>
 //                                     </div>
 
@@ -562,10 +566,6 @@
 //     );
 // }
 // export default Search;
-
-// ... (các imports và component SidebarGuide giữ nguyên)
-
-
 import React, { useState } from "react";
 import { Loader2, Search as SearchIcon, Image, Type, User, AlertTriangle, X } from "lucide-react";
 import Navbar from "../components/Navbar";
@@ -650,7 +650,7 @@ const SidebarGuide = ({ tab, handleExampleClick }) => {
 
 function Search() {
   const [tab, setTab] = useState("image"); // tab hiện tại: "image" | "text"
-  const [selectedImageModel, setSelectedImageModel] = useState("resnet50"); // Mặc định là CLIP
+  const [selectedImageModel, setSelectedImageModel] = useState("two_steps_resnet"); // Mặc định dùng ResNet (theo logic backend)
   const [query, setQuery] = useState("");
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
@@ -669,6 +669,8 @@ function Search() {
       setFile(selectedFile);
       setPreview(URL.createObjectURL(selectedFile));
       setSelected(null); // Reset chi tiết khi chọn file mới
+      setResults([]);
+      setActorInfo(null);
     } else {
       setFile(null);
       setPreview(null);
@@ -676,7 +678,7 @@ function Search() {
   };
 
   const handleSetSelected = (item) => {
-        //  LOG 5: Dữ liệu chi tiết phim được chọn
+        // LOG 5: Dữ liệu chi tiết phim được chọn
         console.log("--- CHI TIẾT PHIM ĐƯỢC CHỌN ---");
         console.log("Đối tượng Selected:", item);
         console.log("Tên gốc:", item.original_title);
@@ -709,22 +711,34 @@ function Search() {
           body: formData,
         });
         data = await res.json();
-
+        
+        // LOG 1: Log kết quả API trả về
+        console.log("--- KẾT QUẢ API /search/image TRẢ VỀ ---");
+        console.log(data);
+        console.log("-----------------------------------------");
+        
         if (!res.ok) {
           throw new Error(`Lỗi API: ${data.detail || res.statusText}`);
         }
 
-        // Xử lý kết quả trả về của API (giữ nguyên logic gốc)
-        if (data.movies && Array.isArray(data.movies)) {
-          setActorInfo({
-            actor: data.actor,
-            similarity: data.similarity,
-            message: data.message,
-          });
-          setResults(data.movies);
-        } else if (data.results && Array.isArray(data.results)) {
-          setResults(data.results);
-          setActorInfo(null);
+        // --- Xử lý kết quả Tìm kiếm Ảnh (Logic Hai Bước) ---
+        if (data.status === "success" && data.actor) {
+            // Trường hợp tìm thấy diễn viên/vai diễn
+            const topSimilarity = data.actor_similarities && data.actor_similarities.length > 0
+                ? data.actor_similarities[0][1]
+                : null;
+                
+            setActorInfo({
+                actor: data.actor,
+                similarity: topSimilarity, 
+                message: data.message,
+            });
+            // Sử dụng data.movies (List phim liên quan đến diễn viên)
+            setResults(Array.isArray(data.movies) ? data.movies : []);
+        } else if (data.status === "success" && data.movies) { 
+            // Trường hợp chỉ tìm thấy content (movies)
+             setActorInfo(null);
+             setResults(Array.isArray(data.movies) ? data.movies : []);
         } else {
           setResults([]);
           setActorInfo(null);
@@ -737,24 +751,35 @@ function Search() {
         ) ;
         data = await res.json();
 
+        // LOG 2: Log kết quả API trả về
+        console.log("--- KẾT QUẢ API /search/text TRẢ VỀ ---");
+        console.log(data);
+        console.log("----------------------------------------");
+
         if (!res.ok) {
           throw new Error(`Lỗi API: ${data.detail || res.statusText}`);
         }
 
-        // Xử lý kết quả trả về của API (giữ nguyên logic gốc)
-        if (data.movies && Array.isArray(data.movies)) {
-          setActorInfo({
-            actor: data.actor,
-            similarity: data.similarity,
-            message: data.message,
-          });
-          setResults(data.movies);
-        } else if (data.results && Array.isArray(data.results)) {
-          setResults(data.results);
-          setActorInfo(null);
-        } else if (data.title && !Array.isArray(data)) { // Trường hợp 1 item duy nhất
-            setResults([data]);
+        // --- Xử lý kết quả Tìm kiếm Văn bản ---
+        // API Text thường trả về list phim trong `data.results`
+        if (data.results && Array.isArray(data.results)) {
+            setResults(data.results);
             setActorInfo(null);
+        } else if (data.movies && Array.isArray(data.movies)) {
+             // Trường hợp API text trả về dạng diễn viên/vai diễn (nếu có)
+            const topSimilarity = data.actor_similarities && data.actor_similarities.length > 0
+                ? data.actor_similarities[0][1]
+                : null;
+                
+            setActorInfo({
+                actor: data.actor,
+                similarity: topSimilarity || data.similarity, 
+                message: data.message,
+            });
+            setResults(data.movies);
+        } else if (data.title && !Array.isArray(data)) { // Trường hợp 1 item duy nhất
+          setResults([data]);
+          setActorInfo(null);
         } else {
           setResults([]);
           setActorInfo(null);
@@ -782,19 +807,21 @@ function Search() {
       setQuery(exampleQuery);
       setActorInfo(null);
       setResults([]);
+      setSelected(null);
     }
   };
 
   const fallbackPoster = (title) => {
-    if (!title) return BaseURL + "posters/default_poster.jpg";
+    if (!title) return "posters/default_poster.jpg"; 
     // Logic tạo tên file poster fallback (giữ nguyên logic gốc)
     const fallbackName = title
       .normalize("NFD")
       .replace(/[\u0300-\u036f]/g, "")
       .toLowerCase()
       .replace(/\s+/g, "_")
+      .replace(/[^a-z0-9_]/g, '') // Thêm: Lọc bỏ ký tự đặc biệt khác
       + ".jpg";
-    return BaseURL + "posters/" + fallbackName;
+    return "posters/" + fallbackName;
   };
  
 const cleanPath = (path) => {
@@ -808,44 +835,40 @@ const cleanLeadingSlash = (path) => {
     if (!path) return "";
     // Loại bỏ dấu gạch chéo ở đầu
     return path.replace(/^\/+/, '');
-};  
+};  
 
 const getPosterUrl = (result) => {
+    // Ưu tiên kiểm tra result.poster
     if (result.poster) {
         let posterPath = result.poster;
         
         // 1. Kiểm tra URL hoàn chỉnh
         if (posterPath.startsWith('http://') || posterPath.startsWith('https://')) {
-            // Nếu đã là URL hoàn chỉnh, sử dụng trực tiếp
             return posterPath;
         }
 
         // 2. Chuẩn hóa đường dẫn tương đối để loại bỏ ký tự thừa
-        // Loại bỏ tiền tố API_HOST hoặc /static/ nếu có, để chỉ còn lại 'posters/...'
         if (posterPath.startsWith(API_HOST)) {
             posterPath = posterPath.substring(API_HOST.length);
         }
         if (posterPath.startsWith('/static/')) {
-            // Loại bỏ /static/
             posterPath = posterPath.substring('/static/'.length);
         } else if (posterPath.startsWith('static/')) {
-            // Loại bỏ static/ (nếu không có dấu gạch chéo đầu)
             posterPath = posterPath.substring('static/'.length);
         }
 
         // 3. Nối BaseURL (đã chuẩn hóa) với posterPath (đã chuẩn hóa)
-        // cleanLeadingSlash đảm bảo posterPath không bắt đầu bằng '/'
         posterPath = cleanLeadingSlash(posterPath); 
         
-        // BaseURL hiện tại là: http://localhost:8000/static
-        return BaseURL + "/" + posterPath;
+        // BaseURL hiện tại là: http://localhost:8000/static/
+        return cleanPath(BaseURL) + "/" + posterPath;
 
     } 
     // 4. Fallback: Nối BaseURL với kết quả từ fallbackPoster
-    const fallbackPath = cleanLeadingSlash(fallbackPoster(result.title || result.original_title));
-    return BaseURL + "/" + fallbackPath;
+    const fallbackPath = fallbackPoster(result.title || result.original_title);
+    return cleanPath(BaseURL) + "/" + cleanLeadingSlash(fallbackPath);
 };
-  
+   
     return (
         <div className="min-h-screen bg-gray-100 dark:bg-gray-900 font-[Inter] text-gray-900 dark:text-white">
             <Navbar />
@@ -931,8 +954,8 @@ const getPosterUrl = (result) => {
                                             }}
                                             className="p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 focus:ring-blue-500 focus:border-blue-500"
                                         >
-                                            <option value="clip">CLIP</option>
-                                            <option value="resnet50">ResNet50</option>
+                                            <option value="two_steps_clip">CLIP</option>
+                                            <option value="two_steps_resnet">ResNet50</option>
                                         </select>
                                     </div>
 
@@ -992,11 +1015,11 @@ const getPosterUrl = (result) => {
                                 <p className="mt-2 text-gray-700 dark:text-gray-300">
                                     Diễn viên {actorInfo.actor} đã tham gia các phim sau:
                                 </p>
+                                {/* HIỂN THỊ PHIM DẠNG GRID CHO DIỄN VIÊN */}
                                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mt-3">
                                     {results.map((movie, idx) => (
                                         <div
                                             key={idx}
-                                            // onClick={() => setSelected(movie)}
                                             onClick={() => handleSetSelected(movie)}
                                             className="bg-gray-100 dark:bg-gray-700 rounded-lg p-2 shadow-md hover:shadow-lg transition cursor-pointer group"
                                         >
@@ -1021,22 +1044,23 @@ const getPosterUrl = (result) => {
                             </div>
                         )}
 
-
                         {/* Hiển thị danh sách kết quả phim (Dạng lưới - Grid) */}
                         <div className="space-y-4">
-                            {!loading && !actorInfo && results.length > 0 && (
+                            {/* CHỈ HIỂN THỊ KẾT QUẢ DẠNG GRID KHI results CÓ DỮ LIỆU VÀ KHÔNG PHẢI KẾT QUẢ DIỄN VIÊN (actorInfo.actor = false) */}
+                            {!loading && results.length > 0 && !(actorInfo && actorInfo.actor) && (
                                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                                     {results.map((item, idx) => (
                                         <div
                                             key={idx}
                                             className="group cursor-pointer relative rounded-lg shadow-lg overflow-hidden transition-all hover:scale-[1.03] hover:shadow-xl"
-                                            onClick={() => setSelected(item)}
+                                            onClick={() => handleSetSelected(item)}
                                         >
                                             <img
                                                 src={getPosterUrl(item)}
                                                 onError={(e) => {
-                                                    e.target.onerror = null; 
-                                                    e.target.src = item.poster;
+                                                    e.target.onerror = null;
+                                                    // Nếu poster không load được, thử dùng poster gốc nếu có, nếu không dùng fallback chung
+                                                    e.target.src = item.poster || (BaseURL + "150x225/0F275F/ffffff?text=Poster+Not+Found");
                                                 }}
                                                 alt={item.title}
                                                 className="w-full h-72 object-cover rounded-lg"
@@ -1051,6 +1075,8 @@ const getPosterUrl = (result) => {
                                     ))}
                                 </div>
                             )}
+                            
+                            {/* Điều kiện kiểm tra không có kết quả */}
                             {!loading && results.length === 0 && !actorInfo && (
                                 <p className="text-center text-gray-500 dark:text-gray-400 p-8 border border-dashed rounded-lg">
                                     {tab === "image" && !file
@@ -1082,7 +1108,7 @@ const getPosterUrl = (result) => {
                                                 style={{ maxHeight: "80vh" }}
                                                 onError={(e) => {
                                                     e.target.onerror = null; 
-                                                    e.target.src = selected.poster;
+                                                    e.target.src = selected.poster || (BaseURL + "150x225/0F275F/ffffff?text=Poster+Not+Found");
                                                 }}
                                             />
                                         </div>
@@ -1092,7 +1118,6 @@ const getPosterUrl = (result) => {
                                                 {selected.title}
                                             </h2>
                                             
-                                            {/* SỬA LỖI TẠI ĐÂY: Đã loại bỏ ký tự \u00A0 sau dấu hai chấm */}
                                             <p className="text-gray-700 dark:text-gray-300 mb-2 text-sm">
                                                 <b>Tên gốc:</b> {selected.original_title || "Đang cập nhật"}
                                             </p>
@@ -1112,7 +1137,6 @@ const getPosterUrl = (result) => {
                                             </div>
 
                                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-                                                {/* SỬA LỖI TẠI ĐÂY: Đã loại bỏ ký tự \u00A0 sau dấu hai chấm */}
                                                 <p className="text-gray-600 dark:text-gray-400">
                                                     <b>Thể loại:</b> <span className="text-gray-800 dark:text-gray-200">{selected.genres_vn || "Không rõ"}</span>
                                                 </p>
@@ -1120,17 +1144,17 @@ const getPosterUrl = (result) => {
                                                     <b>Diễn viên chính:</b> <span className="text-gray-800 dark:text-gray-200">{selected.stars || "Không rõ"}</span>
                                                 </p>
                                             </div>
-
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         )}
-
+                      
                     </div>
                 </div>
             </main>
         </div>
     );
 }
+
 export default Search;

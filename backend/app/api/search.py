@@ -67,14 +67,13 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 @router.post("/image")
 async def search_character(
-    # SỬA ĐỔI: Sử dụng Form để nhận model từ FormData, đặt mặc định là 'clip'
-    model: str = Form("clip"), 
+    model: str = Form("two_steps_resnet"), # Đổi model mặc định thành logic 2 bước mới
     file: UploadFile = File(...)
 ):
 
     try:
         logger.info("Incoming search/image request filename=%s content_type=%s model=%s", 
-                    getattr(file, "filename", None), getattr(file, "content_type", None), model) # Thêm log model
+                    getattr(file, "filename", None), getattr(file, "content_type", None), model)
 
         file_ext = os.path.splitext(file.filename)[1] if getattr(file, "filename", None) else ".jpg"
         temp_path = os.path.join(UPLOAD_DIR, f"{uuid.uuid4().hex}{file_ext}")
@@ -82,16 +81,19 @@ async def search_character(
         with open(temp_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
 
-        # SỬA ĐỔI QUAN TRỌNG: Truyền tham số model vào query_by_image
-        # Bạn cần đảm bảo hàm query_by_image chấp nhận và xử lý tham số model này.
+        # 1. Gọi hàm tìm kiếm mới (logic 2 bước)
+        # Hàm query_by_image đã được cập nhật để gọi query_by_image_two_steps
         results = query_by_image(temp_path, model=model) 
-        
-        # ... (phần còn lại giữ nguyên)
 
+        # 2. Xử lý kết quả trả về từ logic 2 bước
+        # Lấy dữ liệu an toàn từ dict kết quả
         actor = results.get("actor") if isinstance(results, dict) else None
         movies = results.get("movies") if isinstance(results, dict) else None
-
-        logger.info("query_by_image by model=%s returned actor=%s movies_count=%s", model, actor, len(movies) if movies else 0)
+        # THÊM: Trích xuất độ tương đồng của diễn viên (Kết quả từ Bước 2)
+        actor_similarities = results.get("actor_similarities") if isinstance(results, dict) else [] 
+        
+        logger.info("query_by_image by model=%s returned actor=%s movies_count=%s", 
+                    model, actor, len(movies) if movies else 0)
 
         # remove temp file (keep during debug by setting env KEEP_UPLOADS=1)
         if os.getenv("KEEP_UPLOADS", "0") != "1":
@@ -102,12 +104,14 @@ async def search_character(
         else:
             logger.info("Keeping uploaded file for debug: %s", temp_path)
 
-        # return a safe verbose payload to frontend for debugging
+        # 3. Trả về payload cho frontend
         return JSONResponse(content={
             "status": "success",
             "actor": actor,
             "movies": movies,
-            "raw_results": results
+            # THÊM: Trả về actor_similarities để hiển thị độ tương đồng
+            "actor_similarities": actor_similarities, 
+            "raw_results": results # Giữ lại raw_results cho debug
         })
 
     except Exception as e:
