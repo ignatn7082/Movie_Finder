@@ -15,11 +15,11 @@ from app.services.base_service import DATA_DIR, get_actor_movies, get_movie_info
 # =========================
 # CONFIG - MODEL & INDICES
 # =========================
-MODEL_FILENAME = "resnet50_feature_extractor.h5"
+MODEL_FILENAME = "resnet50_extractor.h5"
 
 # Config cho Content/Frame
-CONTENT_INDEX_FILENAME = "resnet_faiss_cosine.index" 
-CONTENT_LABELS_FILENAME = "train_labels_cosine.npy"
+CONTENT_INDEX_FILENAME = "resnet50_faiss_colab.index" 
+CONTENT_LABELS_FILENAME = "resnet50_faiss_label_colab.npy"
 
 # Config cho Actor Recognition (NEW)
 ACTOR_INDEX_FILENAME = "actor_resnet50_face_3.index" 

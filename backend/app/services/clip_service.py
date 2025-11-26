@@ -75,38 +75,60 @@ def detect_face_mtcnn(img_path):
     except Exception:
         return None
 
-# def query_by_image_clip(img_path, top_k=5, threshold=0.35):
-#     """Truy vấn diễn viên bằng đặc trưng CLIP."""
-#     if actor_index is None:
-#         return {"actor": None, "movies": [], "message": "CLIP Index chưa tải."}
+def extract_face_clip_feature(img_path):
+    """
+    Hàm 1: Trích xuất vector đặc trưng CLIP của khuôn mặt phát hiện trong ảnh.
+    
+    Trả về: np.ndarray (vector đặc trưng) hoặc None nếu không tìm thấy khuôn mặt.
+    """
+    face = detect_face_mtcnn(img_path)
+    if face is None:
+        # print("[CLIP] No face detected in the input image.")
+        return None
+        
+    feat = extract_clip_feature(face)
+    return feat
 
-#     face = detect_face_mtcnn(img_path)
-#     if face is None:
-#         return {"actor": None, "movies": [], "message": "Không thấy mặt người"}
+def get_all_actor_similarities_clip(input_feat: np.ndarray, top_k_actors=50) -> dict:
+    """
+    Hàm 2: So sánh đặc trưng khuôn mặt đầu vào với TOP K diễn viên gần nhất trong Index Diễn viên CLIP (Global FAISS Search).
+    
+    Args:
+        input_feat (np.ndarray): Vector đặc trưng khuôn mặt (1D, 512D).
+        top_k_actors (int): Số lượng diễn viên gần nhất muốn tìm kiếm.
+        
+    Trả về: dict: {normalized_actor_name: similarity}
+    """
+    global actor_index, actor_labels
+    
+    # *** ĐIỂM SỬA: Kiểm tra biến đã tải (actor_index) ***
+    if actor_index is None or not actor_labels:
+        print("[ERROR] CLIP Actor Index/Labels not loaded for comparison.")
+        return {}
+    
+    # Chuyển 1D array thành 2D (1, 512) và chuẩn hóa L2 cho FAISS
+    feat = input_feat.reshape(1, -1)
+    faiss.normalize_L2(feat)
+    
+    # *** ĐIỂM SỬA: Sử dụng actor_index.ntotal thay vì ACTOR_INDEX_PATH.ntotal ***
+    k = min(top_k_actors, actor_index.ntotal)
+    
+    # Tìm kiếm FAISS 
+    D, I = actor_index.search(feat, k) 
+    
+    similarities = {}
+    for dist, index in zip(D[0], I[0]):
+        if index != -1:
+            actor_name = str(actor_labels[index])
+            normalized_actor_name = actor_name.replace("_", " ")
+            
+            # Giả định D là Cosine Similarity (IndexFlatIP)
+            sim = dist
+            
+            similarities[normalized_actor_name] = float(sim)
+            
+    return similarities
 
-#     feat = extract_clip_feature(face)
-#     feat = feat.reshape(1, -1)
-#     faiss.normalize_L2(feat)
-
-#     D, I = actor_index.search(feat, top_k)
-#     best_sim = D[0][0]
-#     best_actor = actor_labels[I[0][0]]
-#     best_actor = (
-#         best_actor.replace(".npy.tmp", "")
-#                   .replace(".npy", "")
-#                   .replace(".tmp", "")
-#     )
-
-#     if best_sim < threshold:
-#         return {"actor": None, "movies": [], "message": "Không nhận diện được"}
-
-#     movies = get_actor_movies(best_actor)
-
-#     return {
-#         "actor": best_actor,
-#         "similarity": float(best_sim),
-#         "movies": movies
-#     }
 
 def get_actor_feature(actor_name: str):
     """Lấy vector đặc trưng CLIP đã lưu của một diễn viên."""

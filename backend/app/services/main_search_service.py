@@ -1,115 +1,156 @@
 # app/services/main_search_service.py
 
 # Import các hàm từ các service 
-
-# from app.services.text_search_service import query_by_text
-# from app.services.chatbot_service import query_by_text_chatbot
-# from app.services.base_service import query_by_keyword
-
-from app.services.clip_service import query_actor_by_image_clip, extract_clip_feature_content
-from app.services.resnet_service import query_by_image_resnet50_content
+import os
+import numpy as np
+import faiss
+from app.services.clip_service import query_actor_by_image_clip,extract_face_clip_feature, extract_clip_feature_content,get_all_actor_similarities_clip, ACTOR_INDEX_PATH, ACTOR_LABELS_JSON
+from app.services.resnet_service import query_by_image_resnet50_content, query_by_image_resnet50
 from app.services.base_service import get_all_actors_in_movie, safe_load_image
 
-# def query_by_image(img_path, model="clip", top_k=5):
-#     """
-#     Hàm tổng hợp cho truy vấn ảnh.
-#     model: 'clip', 'arcface' (hoặc 'resnet50').
-#     """
+# ==================================
+# HÀM HỖ TRỢ: SO SÁNH VỚI TẤT CẢ DIỄN VIÊN
+# ==================================
+
+def get_all_actor_similarities(input_feat: np.ndarray, top_k_actors=50):
+    """
+    So sánh đặc trưng ảnh đầu vào với TOP K diễn viên gần nhất trong Index Diễn viên CLIP.
+    Trả về dict: {actor_name: similarity}
+    """
+    # ACTOR_INDEX và ACTOR_LABELS được import từ clip_service
+    if ACTOR_INDEX_PATH is None or not ACTOR_LABELS_JSON:
+        print("[ERROR] CLIP Actor Index/Labels not loaded for comparison.")
+        return {}
+        
+    feat = input_feat.reshape(1, -1)
+    faiss.normalize_L2(feat)
     
-#     if model == "resnet50":
-#         return query_by_image_resnet50(img_path, top_k=top_k) 
+    k = min(top_k_actors, ACTOR_INDEX_PATH.ntotal)
+    D, I = ACTOR_INDEX_PATH.search(feat, k) # D: distance (khoảng cách cosine), I: index
+    
+    similarities = {}
+    for dist, index in zip(D[0], I[0]):
+        if index != -1:
+            # Lấy tên diễn viên và chuẩn hóa
+            actor_name = str(ACTOR_LABELS_JSON[index]).replace("_", " ")
+            # Cosine Similarity = 1 - Cosine Distance
+            sim = 1.0 - dist 
+            similarities[actor_name] = sim
+            
+    return similarities
 
-#     # Mặc định là CLIP
-#     return query_by_image_clip(img_path, top_k=top_k)
 
-# Các hàm khác có thể được import trực tiếp từ file text_search_service
+# ==================================
+# HÀM CHÍNH: TÌM KIẾM HAI BƯỚC
+# ==================================
 
-
-# (Các hàm khác như query_by_keyword và suggest_popular_movies giữ nguyên hoặc chuyển sang base_service)
-
-def get_content_search_results(img_path, content_model, top_k):
-    """
-    Hàm wrapper để gọi đúng logic tìm kiếm content/frame (Bước 1)
-    dựa trên model đã chọn.
-    """
-    if content_model == "resnet50":
-        # Hàm này đã được định nghĩa trong resnet_service.py
-        return query_by_image_resnet50_content(img_path, top_k=top_k)
-    elif content_model == "clip":
-        # Hàm này đã được triển khai trong clip_service.py
+def get_content_search_results(img_path, content_model="resnet50", top_k=5):
+    """Chọn mô hình tìm kiếm nội dung (frame/clip)."""
+    if content_model == "clip":
         return extract_clip_feature_content(img_path, top_k=top_k)
+    elif content_model == "resnet50":
+        return query_by_image_resnet50_content(img_path, top_k=top_k)
     else:
-        # Xử lý trường hợp model không hợp lệ cho bước 1
-        return {"movies": [], "message": f"Model content '{content_model}' không hợp lệ."}
+        return {"movies": [], "message": f"Content model '{content_model}' không hợp lệ."}
 
-def query_by_image_two_steps(img_path, top_k=5, content_model="resnet50", actor_threshold=0.35, content_threshold=0.25):
+
+def query_by_image_two_steps(img_path, top_k=5, content_model="resnet50", actor_threshold=0.8, content_threshold=0.25):
     """
     Thực hiện logic tìm kiếm 2 bước: 
     1. Tìm Content/Frame (dùng content_model: resnet50/clip)
-    2. Tìm Diễn viên (luôn dùng CLIP Actor Index)
+    2. Gắn Diễn viên tốt nhất cho TỪNG PHIM (luôn dùng CLIP Actor Index)
     """
-    # 1. BƯỚC 1: Tìm Content/Frame
-    # (Đây là dòng gây lỗi trong traceback nếu hàm này chưa được định nghĩa)
-    content_results = get_content_search_results(img_path, content_model, top_k) 
     
+    # 1. BƯỚC 1: Tìm Content/Frame
+    content_results = get_content_search_results(img_path, content_model, top_k) 
     movie_list = content_results.get("movies", [])
+    
     if not movie_list:
         return {
             "status": "success",
-            "actor": None,
             "movies": [],
             "actor_similarities": [],
             "message": content_results.get("message", "Không tìm thấy phim liên quan.")
         }
-    # 2. BƯỚC 2: So sánh đặc trưng khuôn mặt với diễn viên của TẤT CẢ các phim vừa tìm được
-    actor_similarities = {}
-    
-    # Lấy khuôn mặt từ ảnh đầu vào (Cần hàm detect_face_mtcnn trong clip_service/base_service)
-    # Giả định khuôn mặt được trích xuất thành công trong clip_service
-    face_feature = None
 
-    # Lặp qua tất cả các phim được tìm thấy
-    all_actors_to_check = set()
+    # 2. BƯỚC 2: So sánh đặc trưng khuôn mặt với diễn viên
+    
+    # 2a. Trích xuất đặc trưng khuôn mặt từ ảnh đầu vào (đặc trưng CLIP)
+    actor_feat = extract_face_clip_feature(img_path)
+    
+    # *** KIỂM TRA LỖI NoneType (ĐÃ SỬA) ***
+    if actor_feat is None: 
+        return {
+            "status": "success", 
+            "movies": movie_list, 
+            "actor_similarities": [],
+            "message": "Tìm thấy phim, nhưng không thể nhận dạng diễn viên (Không phát hiện khuôn mặt)."
+        }
+
+    # 2b. LẤY ĐỘ TƯƠNG ĐỒNG TOÀN CẦU (CHỈ MỘT LẦN)
+    # Tìm Top K diễn viên gần nhất trong Index Diễn viên CLIP toàn cầu (tối ưu hóa)
+    # Hàm này thực hiện FAISS search một lần duy nhất
+    global_actor_similarities = get_all_actor_similarities_clip(actor_feat, top_k_actors=50) 
+
+    # 2c. TRA CỨU VÀ GẮN DIỄN VIÊN TỐT NHẤT vào TỪNG PHIM (Lọc theo phim)
+    
+    global_best_actor = None
+    global_best_similarity = 0.0
+    
+    updated_movie_list = []
+    
     for movie in movie_list:
-        title = movie.get("original_title") or movie.get("title")
-        print(f"[INFO] Xử lý phim: {title}")
+        movie_title = movie.get("original_title") or movie.get("title")
         
-        # Lấy danh sách diễn viên tham gia trong phim này (Cần hàm này trong base_service.py)
-        # Giả định get_all_actors_in_movie(title) trả về list tên diễn viên
-        actor_names_in_movie = get_all_actors_in_movie(title) 
-        all_actors_to_check.update(actor_names_in_movie)
-        print(f"[INFO] Tìm thấy {len(actor_names_in_movie)} diễn viên trong phim '{title}'.")
+        # Lấy danh sách diễn viên của phim (chỉ những diễn viên này mới được quan tâm)
+        actor_names_in_movie = get_all_actors_in_movie(movie_title)
+        print(f"[DEBUG] Phim: {movie_title}, Diễn viên: {actor_names_in_movie}") 
 
-    # So sánh với từng diễn viên đã được đề xuất
-    for actor_name in all_actors_to_check:
-        
-        # Gọi hàm mới trong clip_service để so sánh ảnh đầu vào với đặc trưng diễn viên
-        # Hàm này trả về độ tương đồng khuôn mặt (similarity score)
-        similarity, face_feature = query_actor_by_image_clip(img_path, target_actor_name=actor_name)
-        print(f"[DEBUG] So sánh với diễn viên '{actor_name}': similarity = {similarity}")
-        
-        # Chỉ lưu nếu có độ tương đồng đáng kể
-        if similarity is not None and similarity > 0.40: # Ngưỡng tối thiểu 0.4
-            actor_similarities[actor_name] = similarity
+        best_actor_in_movie = None
+        max_similarity_in_movie = 0.0
+
+        for actor_name in actor_names_in_movie:
+            # TRA CỨU độ tương đồng đã tính sẵn từ index toàn cầu
+            normalized_actor_name = str(actor_name).replace("_", " ") 
+            sim = global_actor_similarities.get(normalized_actor_name, 0.0) 
             
-        # Nếu so sánh lần đầu, lưu lại đặc trưng khuôn mặt để tránh trích xuất lại
-        if face_feature is not None and 'face_feature' not in content_results:
-            content_results['face_feature'] = face_feature
+            # Cập nhật diễn viên tốt nhất trong phim
+            if sim > max_similarity_in_movie:
+                max_similarity_in_movie = sim
+                best_actor_in_movie = actor_name
+            
+            # Cập nhật diễn viên tốt nhất TỔNG THỂ
+            if sim > global_best_similarity:
+                global_best_similarity = sim
+                global_best_actor = actor_name
+                print(f"[DEBUG] Cập nhật diễn viên tốt nhất TỔNG THỂ: {global_best_actor} (Sim: {global_best_similarity:.2f})")
+        
+        # Thêm thông tin diễn viên tốt nhất vào đối tượng phim
+        if best_actor_in_movie and max_similarity_in_movie >= actor_threshold:
+            movie["matched_actor"] = best_actor_in_movie
+            movie["actor_similarity"] = float(max_similarity_in_movie)
+        else:
+            movie["matched_actor"] = None 
+            movie["actor_similarity"] = 0.0
+            
+        updated_movie_list.append(movie)
 
-
-    # Sắp xếp diễn viên theo độ tương đồng giảm dần
-    sorted_actors = sorted(actor_similarities.items(), key=lambda item: item[1], reverse=True)
-
-
-    best_actor = sorted_actors[0][0] if sorted_actors else None
+    # 3. Chuẩn bị kết quả cuối cùng 
     
-    # Chuẩn bị kết quả cuối cùng
+    sorted_actors = sorted(global_actor_similarities.items(), key=lambda item: item[1], reverse=True)
+    
+    # Cập nhật message
+    message = f"Tìm thấy {len(updated_movie_list)} phim liên quan."
+    if global_best_actor and global_best_similarity >= actor_threshold:
+        message += f" Diễn viên tiềm năng TỔNG THỂ: {global_best_actor} (Sim: {global_best_similarity:.2f})"
+    else:
+        message += " Không nhận dạng được diễn viên rõ ràng trong các phim này."
+        
     return {
         "status": "success",
-        "actor": best_actor, # Diễn viên có độ tương đồng cao nhất
-        "movies": movie_list, # Danh sách phim tìm được từ frame
-        "actor_similarities": sorted_actors, # Độ tương đồng của các diễn viên (tên, sim)
-        "message": f"Tìm thấy {len(movie_list)} phim liên quan. Diễn viên tiềm năng: {best_actor} (Sim: {sorted_actors[0][1]:.2f})" if best_actor else "Tìm thấy phim, nhưng không nhận dạng được diễn viên rõ ràng."
+        "movies": updated_movie_list, 
+        "actor_similarities": sorted_actors, 
+        "message": message,
     }
 
 # Thay thế hàm query_by_image cũ bằng logic mới (Mặc định dùng ResNet50 cho bước 1)
