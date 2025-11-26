@@ -1,8 +1,6 @@
 import React, { useState } from "react";
 import { Loader2, Search as SearchIcon, Image, Type, User, AlertTriangle, X } from "lucide-react";
 import Navbar from "../components/Navbar";
-import ActorResultDisplay from "../components/ActorResultDisplay";
-import MovieResultCard from "../components/MovieResultCard";
 
 // Dữ liệu mẫu cho phần hướng dẫn
 const searchExamples = {
@@ -439,7 +437,27 @@ const getPosterUrl = (result) => {
                                 {/* HIỂN THỊ PHIM DẠNG GRID CHO DIỄN VIÊN */}
                                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mt-3">
                                     {results.map((movie, idx) => (
-                                        <MovieResultCard key={idx} movie={movie} onClick={() => handleSetSelected(movie)} getPosterUrl={getPosterUrl} />
+                                        <div
+                                            key={idx}
+                                            onClick={() => handleSetSelected(movie)}
+                                            className="bg-gray-100 dark:bg-gray-700 rounded-lg p-2 shadow-md hover:shadow-lg transition cursor-pointer group"
+                                        >
+                                            <img
+                                                src={getPosterUrl(movie)}
+                                                onError={(e) => {
+                                                    e.target.onerror = null; 
+                                                    e.target.src = BaseURL + "150x225/0F275F/ffffff?text=Poster+Not+Found";
+                                                }}
+                                                alt={movie.title}
+                                                className="w-full h-48 object-cover rounded-md mb-2 group-hover:opacity-80 transition"
+                                            />
+                                            <p className="text-gray-900 dark:text-white font-semibold text-sm truncate">
+                                                {movie.title}
+                                            </p>
+                                            <p className="text-blue-600 dark:text-blue-300 text-xs truncate">
+                                                Vai: {movie.role_name}
+                                            </p>
+                                        </div>
                                     ))}
                                 </div>
                             </div>
@@ -451,7 +469,28 @@ const getPosterUrl = (result) => {
                             {!loading && results.length > 0 && !(actorInfo && actorInfo.actor) && (
                                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                                     {results.map((item, idx) => (
-                                        <MovieResultCard key={idx} movie={item} onClick={() => handleSetSelected(item)} getPosterUrl={getPosterUrl} showCompact />
+                                        <div
+                                            key={idx}
+                                            className="group cursor-pointer relative rounded-lg shadow-lg overflow-hidden transition-all hover:scale-[1.03] hover:shadow-xl"
+                                            onClick={() => handleSetSelected(item)}
+                                        >
+                                            <img
+                                                src={getPosterUrl(item)}
+                                                onError={(e) => {
+                                                    e.target.onerror = null;
+                                                    // Nếu poster không load được, thử dùng poster gốc nếu có, nếu không dùng fallback chung
+                                                    e.target.src = item.poster || (BaseURL + "150x225/0F275F/ffffff?text=Poster+Not+Found");
+                                                }}
+                                                alt={item.title}
+                                                className="w-full h-72 object-cover rounded-lg"
+                                            />
+                                            <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white text-sm px-3 py-2 opacity-100 transition-opacity">
+                                                <p className="font-semibold truncate">{item.title}</p>
+                                                <p className="text-xs text-blue-300">
+                                                    TĐ: {item.similarity ? (item.similarity * 100).toFixed(2) + '%' : 'N/A'}
+                                                </p>
+                                            </div>
+                                        </div>
                                     ))}
                                 </div>
                             )}
