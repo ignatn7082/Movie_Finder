@@ -465,35 +465,129 @@ const getPosterUrl = (result) => {
 
                         {/* Hiển thị danh sách kết quả phim (Dạng lưới - Grid) */}
                         <div className="space-y-4">
-                            {/* CHỈ HIỂN THỊ KẾT QUẢ DẠNG GRID KHI results CÓ DỮ LIỆU VÀ KHÔNG PHẢI KẾT QUẢ DIỄN VIÊN (actorInfo.actor = false) */}
-                            {!loading && results.length > 0 && !(actorInfo && actorInfo.actor) && (
-                                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                                    {results.map((item, idx) => (
-                                        <div
-                                            key={idx}
-                                            className="group cursor-pointer relative rounded-lg shadow-lg overflow-hidden transition-all hover:scale-[1.03] hover:shadow-xl"
-                                            onClick={() => handleSetSelected(item)}
-                                        >
-                                            <img
-                                                src={getPosterUrl(item)}
-                                                onError={(e) => {
-                                                    e.target.onerror = null;
-                                                    // Nếu poster không load được, thử dùng poster gốc nếu có, nếu không dùng fallback chung
-                                                    e.target.src = item.poster || (BaseURL + "150x225/0F275F/ffffff?text=Poster+Not+Found");
-                                                }}
-                                                alt={item.title}
-                                                className="w-full h-72 object-cover rounded-lg"
-                                            />
-                                            <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white text-sm px-3 py-2 opacity-100 transition-opacity">
-                                                <p className="font-semibold truncate">{item.title}</p>
-                                                <p className="text-xs text-blue-300">
-                                                    TĐ: {item.similarity ? (item.similarity * 100).toFixed(2) + '%' : 'N/A'}
-                                                </p>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
+{/* CHỈ HIỂN THỊ KẾT QUẢ DẠNG LIST KHI results CÓ DỮ LIỆU VÀ KHÔNG PHẢI KẾT QUẢ DIỄN VIÊN (actorInfo.actor = false) */}
+{!loading && results.length > 0 && !(actorInfo && actorInfo.actor) && (
+    <div className="space-y-4">
+        {results.map((item, idx) => (
+            <div
+                key={idx}
+                onClick={() => handleSetSelected(item)}
+                className="flex p-4 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-700 rounded-xl shadow-lg transition-all hover:shadow-xl hover:bg-gray-50 dark:hover:bg-gray-600 cursor-pointer items-start space-x-4"
+            >
+                {/* Poster - Fixed width on left */}
+                <img
+                    src={getPosterUrl(item)}
+                    onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = BaseURL + "150x225/0F275F/ffffff?text=Poster+Not+Found";
+                    }}
+                    alt={item.title}
+                    className="w-24 h-36 object-cover rounded-md flex-shrink-0 shadow-md"
+                />
+                
+                {/* Container cho Chi tiết và Diễn viên - Chiếm hết không gian còn lại */}
+                <div className="flex-grow flex space-x-4 min-w-0">
+                    
+                    {/* 1. Chi tiết - Chiếm 50% không gian còn lại */}
+                    <div className="flex-1 min-w-0">
+                        <h4 className="text-xl font-bold text-blue-600 dark:text-blue-300 mb-1 truncate">{item.title}</h4>
+                        
+                        {/* Release date/Similarity (inline) */}
+                        <div className="flex flex-wrap items-center space-x-4 text-xs mb-2">
+                            <p className="text-gray-600 dark:text-gray-400">
+                                <span className="font-semibold">Năm:</span> {item.release_date ? item.release_date.split('-')[0] : 'N/A'}
+                            </p>
+                            {item.similarity && (
+                                <p className="text-green-600 dark:text-green-400 font-bold">
+                                    TĐ: {(item.similarity * 100).toFixed(2) + '%'}
+                                </p>
                             )}
+                        </div>
+                        
+                        {/* Director/Genres */}
+                        <p className="text-sm text-gray-700 dark:text-gray-300 mb-1 truncate">
+                            <span className="font-semibold">Đạo diễn:</span> {item.director || "Đang cập nhật"}
+                        </p>
+                        <p className="text-sm text-gray-700 dark:text-gray-300 mb-2 truncate">
+                            <span className="font-semibold">Thể loại:</span> {item.genres_vn || "Đang cập nhật"}
+                        </p>
+
+                        {/* Overview Snippet */}
+                        <p className="text-xs italic text-gray-500 dark:text-gray-400 line-clamp-2">
+                            {item.overview ? item.overview.substring(0, 150) + (item.overview.length > 150 ? "..." : "") : "Không có tóm tắt chi tiết."}
+                        </p>
+                    </div>
+
+                    {/* 2. Bảng Diễn viên - Chiếm 50% không gian còn lại, bên phải Chi tiết */}
+{/* Giả định: Các dữ liệu 'actors' vẫn được lấy từ một biến có tên là 'selected' (hoặc bạn đổi nó thành 'item') */}
+
+{/* 2. Bảng Diễn viên - Chiếm 50% không gian còn lại, bên phải Chi tiết */}
+<div className="flex-1 min-w-0 border-l pl-4 border-gray-200 dark:border-gray-600">
+    
+    {/* ============================= */}
+    {/*  DIỄN VIÊN KHỚP THEO HÌNH ẢNH */}
+    {/* ============================= */}
+    
+    {/*  Đã loại bỏ điều kiện 'selected &&' ban đầu. 
+       Bây giờ chỉ cần kiểm tra sự tồn tại của 'actors' bên trong 'selected' (hoặc biến chứa dữ liệu đó).
+       Nếu 'selected' là một biến local/state/prop, nó vẫn phải tồn tại (khác null/undefined) để tránh lỗi. 
+       Tôi sẽ giả định bạn muốn giữ tên biến 'selected' nhưng bỏ qua điều kiện kiểm tra trạng thái click.
+       Cũng có thể bạn muốn dùng 'item' thay thế cho 'selected' nếu nó chứa dữ liệu này.
+    */}
+    
+    {/* Thay thế selected bằng item nếu dữ liệu khớp ảnh nằm trong item, 
+        hoặc giữ nguyên selected nếu nó là nguồn dữ liệu chính */}
+    
+    {item.actors && Array.isArray(item.actors) && item.actors.length > 0 ? ( 
+        <div> 
+            <h4 className="text-lg font-bold text-gray-800 dark:text-white mb-2">
+                Diễn viên khớp theo ảnh
+            </h4>
+
+            <div className="overflow-y-auto max-h-36 text-sm">
+                <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-600">
+                    {/* ... (Phần thead không đổi) ... */}
+                    <thead className="bg-gray-50 dark:bg-gray-800">
+                        <tr>
+                            <th className="px-1 py-1 text-left text-xs font-medium text-gray-500 uppercase dark:text-gray-400">
+                                Diễn viên
+                            </th>
+                            <th className="px-1 py-1 text-left text-xs font-medium text-gray-500 uppercase dark:text-gray-400">
+                                Similarity
+                            </th>
+                        </tr>
+                    </thead>
+
+                    {/* Thay thế 'selected.actors' bằng 'item.actors' để khớp với điều kiện mới */}
+                    <tbody className="bg-white dark:bg-gray-700 divide-y divide-gray-200 dark:divide-gray-600">
+                        {item.actors.map((actorItem, idx) => ( 
+                            <tr key={idx}>
+                                <td className="px-1 py-1 truncate text-gray-900 dark:text-gray-200">
+                                    {actorItem.actor}
+                                </td>
+                                <td className="px-1 py-1 text-green-600 dark:text-green-400 font-semibold">
+                                    {(actorItem.similarity * 100).toFixed(2)}%
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    ) : (
+         <p className="text-sm text-gray-500 dark:text-gray-400 italic">
+            Không có diễn viên nào khớp theo ảnh.
+        </p>
+    )}
+</div>
+                </div>
+            </div>
+        ))}
+    </div>
+)}
+
+
+
                             
                             {/* Điều kiện kiểm tra không có kết quả */}
                             {!loading && results.length === 0 && !actorInfo && (
