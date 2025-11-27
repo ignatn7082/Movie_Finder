@@ -11,8 +11,8 @@ from app.core.clip_loader import clip_model, preprocess, DEVICE
 from app.services.base_service import safe_load_image, DATA_DIR, get_actor_movies, get_movie_info
 
 # Cấu hình CLIP
-ACTOR_INDEX_PATH = os.path.join(DATA_DIR, "actor_index.index")
-ACTOR_LABELS_JSON = os.path.join(DATA_DIR, "actor_labels.json")
+ACTOR_INDEX_PATH = os.path.join(DATA_DIR, "actor_index_clip_colab.index")
+ACTOR_LABELS_JSON = os.path.join(DATA_DIR, "actor_labels_clip_colab.json")
 
 MOVIE_INDEX_PATH = os.path.join(DATA_DIR, "clip_faiss_colab.index")
 MOVIE_LABELS_PATH = os.path.join(DATA_DIR, "clip_faiss_labels_colab.npy")

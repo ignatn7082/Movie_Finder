@@ -1,25 +1,42 @@
+// src/App.jsx
 import React from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+  Outlet
+} from "react-router-dom";
+
+// Pages
 import Home from "./pages/Home";
 import Search from "./pages/Search";
 import Dataset from "./pages/Dataset";
 import About from "./pages/About";
+import MoviesList from "./pages/MoviesList";
+
+// Components
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
-import MoviesList from "./pages/MoviesList";
 import ChatBotButton from "./components/ChatBotButton";
 import ChatBotPanel from "./components/ChatBotPanel";
 import ProtectedRoute from "./components/ProtectedRoute";
-import AdminDashboard from "./pages/admin/DashboardHome";  //  Layout có Sidebar + Header
-import LoginAdmin from "./pages/LoginAdmin";
-import LoginUser from "./pages/LoginUser";
-import Register from "./pages/Register";
-import Forbidden from "./pages/Forbidden";
+
+// Admin
+import AdminDashboard from "./pages/admin/DashboardHome";
+import AdminPanel from "./pages/admin/AdminPanel";
 import MoviesPanel from "./pages/admin/MoviePanel";
 import AdminSettings from "./pages/admin/AdminSetting";
-import AdminPanel from "./pages/admin/AdminPanel"; // quản lý user
+
+// Auth
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import Forbidden from "./pages/Forbidden";
+
+// Context
 import { ChatBotProvider, useChatBot } from "./context/ChatBotContext";
 
+// Chatbot toàn cục
 function GlobalChat() {
   const { isOpen, toggleChat, closeChat } = useChatBot();
   return (
@@ -30,22 +47,26 @@ function GlobalChat() {
   );
 }
 
-// Layout chỉ hiện Navbar + Footer cho người dùng thông thường
-function LayoutWithNavbar({ children }) {
-  const userToken = localStorage.getItem("user_token");
-  const adminToken = localStorage.getItem("admin_token");
-
-  if (adminToken) return <div className="min-h-screen flex flex-col">{children}</div>;
-
-  if (!userToken) return <Navigate to="/login/user" replace />;
-
+// Layout chung cho toàn bộ trang user (có Navbar + Footer)
+function UserLayout() {
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-gray-900 via-purple-900 to-black text-white">
       <Navbar />
-      <div className="h-16" />
-      <main className="flex-1 container mx-auto px-4 py-6">{children}</main>
+      <div className="h-20 lg:h-24" /> {/* Khoảng trống cho navbar fixed */}
+      <main className="flex-1">
+        <Outlet /> {/* Nội dung trang con */}
+      </main>
       <Footer />
     </div>
+  );
+}
+
+// Layout riêng cho khu vực Admin (có Sidebar + Header riêng)
+function AdminLayout() {
+  return (
+    <ProtectedRoute roles={["admin"]}>
+      <AdminDashboard />
+    </ProtectedRoute>
   );
 }
 
@@ -54,73 +75,38 @@ export default function App() {
     <ChatBotProvider>
       <Router>
         <Routes>
-          {/*  Trang user (có Navbar + Footer) */}
-          <Route
-            path="/"
-            element={
-              <LayoutWithNavbar>
-                <Home />
-              </LayoutWithNavbar>
-            }
-          />
-          <Route
-            path="/search"
-            element={
-              <LayoutWithNavbar>
-                <Search />
-              </LayoutWithNavbar>
-            }
-          />
-          <Route
-            path="/dataset"
-            element={
-              <LayoutWithNavbar>
-                <Dataset />
-              </LayoutWithNavbar>
-            }
-          />
-          <Route
-            path="/about"
-            element={
-              <LayoutWithNavbar>
-                <About />
-              </LayoutWithNavbar>
-            }
-          />
-          <Route
-            path="/movies"
-            element={
-              <LayoutWithNavbar>
-                <MoviesList />
-              </LayoutWithNavbar>
-            }
-          />
 
-          {/*  Khu vực ADMIN - có Sidebar + Header */}
-          <Route
-            path="/admin"
-            element={
-              <ProtectedRoute roles={["admin"]}>
-                <AdminDashboard /> {/*  Layout có Sidebar + Header */}
-              </ProtectedRoute>
-            }
-          >
-            <Route index element={<AdminPanel />} /> {/* Quản lý user */}
-            <Route path="movies" element={<MoviesPanel />} /> {/* Quản lý phim */}
-            <Route path="settings" element={<AdminSettings />} /> {/* Cài đặt */}
+          {/* ===== TRANG USER – DÙNG NAVBAR CHUNG ===== */}
+          <Route element={<UserLayout />}>
+            <Route path="/" element={<Home />} />
+            <Route path="/search" element={<Search />} />
+            <Route path="/movies" element={<MoviesList />} />
+            <Route path="/dataset" element={<Dataset />} />
+            <Route path="/about" element={<About />} />
           </Route>
 
-          {/*  Trang đăng nhập và cấm truy cập */}
-          <Route path="/login/admin" element={<LoginAdmin />} />
-          <Route path="/login/user" element={<LoginUser />} />
+          {/* ===== KHU VỰC ADMIN – DÙNG LAYOUT RIÊNG (Sidebar + Header) ===== */}
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={
+              <div className="p-8 text-3xl font-bold text-gray-100">
+                Chào mừng đến bảng điều khiển quản trị!
+              </div>
+            } />
+            <Route path="users" element={<AdminPanel />} />
+            <Route path="movies" element={<MoviesPanel />} />
+            <Route path="settings" element={<AdminSettings />} />
+          </Route>
+
+          {/* ===== AUTH ===== */}
+          <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/403" element={<Forbidden />} />
 
-          {/* Fallback */}
+          {/* ===== FALLBACK ===== */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
 
-        {/*  Chatbot luôn hiển thị */}
+        {/* Chatbot luôn hiện ở mọi trang */}
         <GlobalChat />
       </Router>
     </ChatBotProvider>

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Loader2, Search as SearchIcon, Image, Type, User, AlertTriangle, X } from "lucide-react";
+import { Loader2, Search as SearchIcon, Image, Type, User, AlertTriangle, X, Upload, Sparkles, Film, Calendar, Clapperboard, Users } from "lucide-react";
 import Navbar from "../components/Navbar";
 
 // Dữ liệu mẫu cho phần hướng dẫn
@@ -17,85 +17,84 @@ const searchExamples = {
   ]
 };
 
-// Component Hướng dẫn và Ví dụ được tùy chỉnh theo tab hiện tại
 const SidebarGuide = ({ tab, handleExampleClick }) => {
-    // Xác định tab hiện tại
-    const isTextTab = tab === 'text';
-    // Chọn ví dụ tương ứng
-    const examples = isTextTab ? searchExamples.text : searchExamples.image;
+  const isTextTab = tab === 'text';
+  const examples = isTextTab ? searchExamples.text : searchExamples.image;
 
-    return (
-      <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 h-full overflow-y-auto">
-        <h3 className="text-xl font-extrabold text-blue-700 dark:text-blue-400 mb-4 border-b pb-2">
-          <SearchIcon className="inline mr-2 w-5 h-5"/> Hướng Dẫn {isTextTab ? "Tìm Kiếm Văn Bản" : "Tìm Kiếm Bằng Ảnh"}
-        </h3>
-
-        {/* PHẦN HƯỚNG DẪN CỤ THỂ THEO TAB */}
-        <div className="mb-6">
-          {isTextTab ? (
-            // Hướng dẫn cho Tab Văn bản
-            <ul className="list-disc list-inside ml-4 text-sm text-gray-600 dark:text-gray-400 space-y-2">
-              <li className='font-semibold text-gray-800 dark:text-gray-200'>Mục tiêu: Tìm phim bằng mô tả, tên, thể loại, đạo diễn, hoặc diễn viên/vai diễn.</li>
-              <li>Sử dụng ngôn ngữ tự nhiên, tiếng Việt có dấu.</li>
-              <li>Hệ thống hỗ trợ tìm kiếm ngữ nghĩa (semantic search).</li>
-              <li>Hỗ trợ tìm kiếm diễn viên/vai diễn.</li>
-            </ul>
-          ) : (
-            // Hướng dẫn cho Tab Ảnh
-            <ul className="list-disc list-inside ml-4 text-sm text-gray-600 dark:text-gray-400 space-y-2">
-              <li className='font-semibold text-gray-800 dark:text-gray-200'>Mục tiêu: Tìm phim dựa trên hình ảnh.</li>
-              <li>Bạn có thể tải lên poster phim, ảnh diễn viên, hoặc ảnh một cảnh phim.</li>
-              <li>Chọn Mô hình: Thử nghiệm với các mô hình CLIP hoặc ResNet50.</li>
-              <li>Lưu ý: Độ chính xác phụ thuộc vào chất lượng hình ảnh.</li>
-            </ul>
-          )}
+  return (
+    <div className="p-6 bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-gray-900 dark:to-gray-800 rounded-2xl shadow-xl border border-indigo-200 dark:border-indigo-900 h-full overflow-y-auto">
+      <div className="flex items-center mb-6">
+        <div className="p-3 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl shadow-lg mr-4">
+          <Sparkles className="w-6 h-6 text-white" />
         </div>
-        
-        {/* VÍ DỤ TÌM KIẾM CỤ THỂ THEO TAB */}
-        <h4 className="text-lg font-extrabold text-gray-800 dark:text-gray-200 flex items-center mb-3 border-t pt-4">
-          {isTextTab ? 
-            <Type className="inline mr-2 w-5 h-5 text-indigo-500"/> : 
-            <Image className="inline mr-2 w-5 h-5 text-orange-500"/>
-          }
-          Ví Dụ {isTextTab ? "Văn Bản (Click để thử)" : "Hình Ảnh"}
-        </h4>
-        <div className="space-y-2">
-          {examples.map((example, index) => (
-            <div 
-              key={index} 
-              className={`p-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm transition-all ${isTextTab ? 'cursor-pointer hover:bg-blue-50 dark:hover:bg-gray-600' : ''}`}
-              onClick={isTextTab ? () => handleExampleClick(example.query) : undefined}
-              title={isTextTab ? `Click để điền: ${example.query}` : ''}
-            >
-              <p className="font-semibold text-sm text-gray-900 dark:text-white mb-1">{example.title}</p>
-              <p className={`text-xs italic truncate ${isTextTab ? 'text-blue-600 dark:text-blue-300' : 'text-gray-600 dark:text-gray-400'}`}>
-                {isTextTab ? `"${example.query}"` : example.info}
-              </p>
-            </div>
-          ))}
+        <h3 className="text-2xl font-extrabold text-indigo-700 dark:text-indigo-400">
+          Hướng Dẫn {isTextTab ? "Tìm Văn Bản" : "Tìm Bằng Ảnh"}
+        </h3>
+      </div>
+
+      <div className="space-y-6">
+        <div className="bg-white dark:bg-gray-800 p-5 rounded-xl shadow-md border border-indigo-100 dark:border-indigo-800">
+          <ul className="space-y-3 text-sm">
+            {isTextTab ? (
+              <>
+                <li className="flex items-start"><span className="text-indigo-600 mr-2">•</span> <strong>Tìm bằng mô tả tự nhiên</strong> – "Phim buồn về tình yêu tuổi trẻ"</li>
+                <li className="flex items-start"><span className="text-indigo-600 mr-2">•</span> Hỗ trợ tìm đạo diễn, diễn viên, thể loại</li>
+                <li className="flex items-start"><span className="text-indigo-600 mr-2">•</span> Công nghệ tìm kiếm ngữ nghĩa AI</li>
+              </>
+            ) : (
+              <>
+                <li className="flex items-start"><span className="text-purple-600 mr-2">•</span> <strong>Poster, ảnh diễn viên hoặc cảnh phim</strong></li>
+                <li className="flex items-start"><span className="text-purple-600 mr-2">•</span> Hỗ trợ 2 mô hình AI: CLIP & ResNet50</li>
+                <li className="flex items-start"><span className="text-purple-600 mr-2">•</span> Nhận diện cả diễn viên trong ảnh</li>
+              </>
+            )}
+          </ul>
+        </div>
+
+        <div>
+          <h4 className="text-lg font-bold text-gray-800 dark:text-gray-200 mb-4 flex items-center">
+            {isTextTab ? <Type className="w-5 h-5 mr-2 text-indigo-600" /> : <Image className="w-5 h-5 mr-2 text-purple-600" />}
+            Ví dụ {isTextTab ? "tìm kiếm" : "hình ảnh"}
+          </h4>
+          <div className="space-y-3">
+            {examples.map((example, index) => (
+              <div 
+                key={index}
+                onClick={isTextTab ? () => handleExampleClick(example.query) : undefined}
+                className={`p-4 rounded-xl border-2 transition-all transform hover:scale-105 ${
+                  isTextTab 
+                    ? 'bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 border-blue-300 dark:border-blue-700 cursor-pointer shadow-md hover:shadow-xl' 
+                    : 'bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600'
+                }`}
+              >
+                <p className="font-bold text-gray-800 dark:text-gray-200">{example.title}</p>
+                <p className={`text-sm mt-1 ${isTextTab ? 'text-indigo-600 dark:text-indigo-400 font-medium' : 'text-gray-600 dark:text-gray-400 italic'}`}>
+                  {isTextTab ? `“${example.query}”` : example.info}
+                </p>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
-    );
-  };
-
-
+    </div>
+  );
+};
 
 function Search() {
-  const [tab, setTab] = useState("image"); // tab hiện tại: "image" | "text"
-  const [selectedImageModel, setSelectedImageModel] = useState("two_steps_resnet"); // Mặc định dùng ResNet (theo logic backend)
+  const [tab, setTab] = useState("image");
+  const [selectedImageModel, setSelectedImageModel] = useState("two_steps_resnet");
   const [query, setQuery] = useState("");
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
-  const [results, setResults] = useState([]); // luôn là mảng phim để render list
-  const [actorInfo, setActorInfo] = useState(null); // lưu kết quả actor (nếu có)
+  const [results, setResults] = useState([]);
+  const [actorInfo, setActorInfo] = useState(null);
   const [loading, setLoading] = useState(false);
   const [selected, setSelected] = useState(null);
 
-  // API base URL
   const BaseURL = "http://localhost:8000/static/";
-  const API_HOST = "http://localhost:8000"; 
+  const API_HOST = "http://localhost:8000";
 
-  const handleFileChange = (e) => {
+   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
     if (selectedFile) {
       setFile(selectedFile);
@@ -287,387 +286,335 @@ const getPosterUrl = (result) => {
     const fallbackPath = fallbackPoster(result.title || result.original_title);
     return cleanPath(BaseURL) + "/" + cleanLeadingSlash(fallbackPath);
 };
-   
-    return (
-        <div className="min-h-screen bg-gray-100 dark:bg-gray-900 font-[Inter] text-gray-900 dark:text-white">
-            <Navbar />
 
-            <main className="container mx-auto p-4 md:p-8">
-                <h1 className="text-4xl font-extrabold text-center text-gray-900 dark:text-white mb-8">
-                    Hệ Thống Tìm Kiếm Phim Thông Minh
-                </h1>
-                
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                    
-                    {/* CỘT TRÁI: Hướng Dẫn & Ví Dụ */}
-                    <div className="lg:col-span-3">
-                        <SidebarGuide tab={tab} handleExampleClick={handleExampleClick} />
-                    </div>
 
-                    {/* CỘT PHẢI: Form và Kết Quả */}
-                    <div className="lg:col-span-9 bg-white dark:bg-gray-800 p-6 rounded-xl shadow-2xl">
-                        
-                        {/* Thanh Tab Chuyển Đổi */}
-                        <div className="flex justify-center mb-6">
-                            <button
-                                onClick={() => { setTab("image"); setQuery(""); setActorInfo(null); setResults([]); setSelected(null); }}
-                                className={`py-2 px-6 rounded-l-full font-semibold transition-all duration-300 flex items-center ${
-                                    tab === "image"
-                                        ? "bg-blue-600 text-white shadow-lg shadow-blue-500/50"
-                                        : "bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
-                                }`}
-                            >
-                                <Image className="w-5 h-5 mr-2" /> Tìm Kiếm Ảnh
-                            </button>
-                            <button
-                                onClick={() => { setTab("text"); setFile(null); setPreview(null); setActorInfo(null); setResults([]); setSelected(null); }}
-                                className={`py-2 px-6 rounded-r-full font-semibold transition-all duration-300 flex items-center ${
-                                    tab === "text"
-                                        ? "bg-blue-600 text-white shadow-lg shadow-blue-500/50"
-                                        : "bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
-                                }`}
-                            >
-                                <Type className="w-5 h-5 mr-2" /> Tìm Kiếm Văn Bản
-                            </button>
-                        </div>
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-indigo-950 font-sans">
+      <Navbar />
 
-                        {/* Form Tìm Kiếm */}
-                        <form onSubmit={handleSearch} className="mb-8 space-y-4">
-                            {tab === "image" ? (
-                                // Input Ảnh
-                                <div className="border-4 border-dashed border-blue-300 dark:border-blue-600 rounded-xl p-6 text-center">
-                                    <label htmlFor="image-upload" className="block cursor-pointer">
-                                        <input
-                                            id="image-upload"
-                                            type="file"
-                                            accept="image/*"
-                                            onChange={handleFileChange}
-                                            className="hidden"
-                                        />
-                                        {preview ? (
-                                            <div className="flex flex-col items-center">
-                                                <img 
-                                                    src={preview} 
-                                                    alt="Ảnh xem trước" 
-                                                    className="max-h-64 max-w-full object-contain rounded-lg shadow-md mb-4 border border-gray-300"
-                                                />
-                                                <p className="text-blue-600 dark:text-blue-400 font-medium">Click để chọn ảnh khác</p>
-                                            </div>
-                                        ) : (
-                                            <div className="p-8">
-                                                <Image className="w-12 h-12 mx-auto text-blue-500 mb-2" />
-                                                <p className="text-lg font-semibold text-gray-700 dark:text-gray-300">Tải lên ảnh Poster, Diễn viên hoặc Cảnh phim</p>
-                                                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Kéo thả hoặc nhấn để duyệt file (JPG, PNG)</p>
-                                            </div>
-                                        )}
-                                    </label>
-                                    
-                                    {/* Chọn mô hình tìm kiếm ảnh */}
-                                    <div className="mt-4 flex justify-center items-center space-x-4">
-                                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Mô hình:</span>
-                                        <select
-                                            value={selectedImageModel}
-                                            onChange={(e) => { 
-                                                setSelectedImageModel(e.target.value); 
-                                                console.log("Mô hình tìm kiếm ảnh được chọn:", e.target.value); 
-                                            }}
-                                            className="p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 focus:ring-blue-500 focus:border-blue-500"
-                                        >
-                                            <option value="two_steps_clip">CLIP</option>
-                                            <option value="two_steps_resnet">ResNet50</option>
-                                        </select>
-                                    </div>
+      <main className="container mx-auto px-4 py-8 md:py-12">
+        {/* Tiêu đề chính */}
+        <div className="text-center mb-12">
+          <h1 className="text-5xl md:text-6xl font-extrabold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-4">
+            Tìm Phim Thông Minh
+          </h1>
+          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+            Dùng AI để tìm phim bằng <span className="text-indigo-600 font-bold">văn bản</span> hoặc <span className="text-purple-600 font-bold">hình ảnh</span>
+          </p>
+        </div>
 
-                                </div>
-                            ) : (
-                                // Input Văn bản
-                                <textarea
-                                    type="text"
-                                    value={query}
-                                    onChange={(e) => setQuery(e.target.value)}
-                                    placeholder="Nhập tên phim, mô tả, đạo diễn, hoặc diễn viên..."
-                                    className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-inner focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                                rows="4"
-                                />
-                            )}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          {/* Cột trái - Hướng dẫn */}
+          <div className="lg:col-span-3">
+            <SidebarGuide tab={tab} handleExampleClick={handleExampleClick} />
+          </div>
 
-                            <button
-                                type="submit"
-                                disabled={loading || (tab === "image" && !file) || (tab === "text" && !query.trim())}
-                                className="w-full py-3 px-4 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition duration-300 disabled:bg-blue-400 dark:disabled:bg-blue-800 shadow-md flex items-center justify-center"
-                            >
-                                {loading && <Loader2 className="w-5 h-5 mr-2 animate-spin" />}
-                                {tab === "image" ? "Tìm Kiếm Phim Bằng Ảnh" : "Tìm Kiếm Phim Bằng Văn Bản"}
-                            </button>
-                        </form>
+          {/* Cột phải - Form & Kết quả */}
+          <div className="lg:col-span-9">
+            <div className="bg-white/80 dark:bg-gray-800/90 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 dark:border-gray-700 p-8">
+              {/* Tab chuyển đổi đẹp hơn */}
+              <div className="flex justify-center mb-10">
+                <div className="inline-flex bg-gray-100 dark:bg-gray-700 p-2 rounded-2xl shadow-inner">
+                  <button
+                    onClick={() => { setTab("image"); setQuery(""); setActorInfo(null); setResults([]); setSelected(null); }}
+                    className={`flex items-center px-8 py-4 rounded-xl font-bold text-lg transition-all duration-300 ${
+                      tab === "image"
+                        ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg"
+                        : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+                    }`}
+                  >
+                    <Image className="w-6 h-6 mr-3" />
+                    Tìm bằng Ảnh
+                  </button>
+                  <button
+                    onClick={() => { setTab("text"); setFile(null); setPreview(null); setActorInfo(null); setResults([]); setSelected(null); }}
+                    className={`flex items-center px-8 py-4 rounded-xl font-bold text-lg transition-all duration-300 ${
+                      tab === "text"
+                        ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg"
+                        : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+                    }`}
+                  >
+                    <Type className="w-6 h-6 mr-3" />
+                    Tìm bằng Văn Bản
+                  </button>
+                </div>
+              </div>
 
-                        {/* Kết Quả Tìm Kiếm */}
-                        <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4 border-b pb-2">
-                            Kết Quả ({results.length > 0 ? results.length : 
-                            actorInfo ? (actorInfo.error ? '0' : 'Diễn viên') : (loading ? 'Đang tìm...' : '0')})
-                        </h3>
-                        
-                        {loading && (
-                            <div className="flex justify-center items-center p-8">
-                                <Loader2 className="w-8 h-8 mr-3 text-blue-500 animate-spin" />
-                                <span className="text-lg text-gray-600 dark:text-gray-400">Đang tìm kiếm...</span>
-                            </div>
-                        )}
-
-                        {/* Hiển thị lỗi nếu có (Dùng actorInfo.error như một cách để hiển thị lỗi chung) */}
-                        {actorInfo && actorInfo.error && (
-                            <div className="p-4 bg-red-100 dark:bg-red-900 border border-red-400 dark:border-red-600 text-red-700 dark:text-red-300 rounded-lg flex items-center">
-                                <AlertTriangle className="w-5 h-5 mr-2" />
-                                {actorInfo.error}
-                            </div>
-                        )}
-
-                        {/* Hiển thị kết quả tìm kiếm diễn viên/vai diễn */}
-                        {actorInfo && !actorInfo.error && actorInfo.actor && (
-                            <div className="p-4 mb-4 bg-yellow-50 dark:bg-yellow-900/50 border border-yellow-300 dark:border-yellow-700 rounded-lg">
-                                <h4 className="text-xl font-semibold text-yellow-800 dark:text-yellow-200 flex items-center">
-                                    <User className="w-5 h-5 mr-2" /> Nhận diện Diễn viên/Vai Diễn: {actorInfo.actor}
-                                </h4>
-                                <p className="mt-2 text-gray-700 dark:text-gray-300">
-                                    Độ chính xác: {actorInfo.similarity ? (actorInfo.similarity * 100).toFixed(2) + '%' : 'N/A'}
-                                </p>
-                                <p className="mt-2 text-gray-700 dark:text-gray-300">
-                                    Diễn viên {actorInfo.actor} đã tham gia các phim sau:
-                                </p>
-                                {/* HIỂN THỊ PHIM DẠNG GRID CHO DIỄN VIÊN */}
-                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mt-3">
-                                    {results.map((movie, idx) => (
-                                        <div
-                                            key={idx}
-                                            onClick={() => handleSetSelected(movie)}
-                                            className="bg-gray-100 dark:bg-gray-700 rounded-lg p-2 shadow-md hover:shadow-lg transition cursor-pointer group"
-                                        >
-                                            <img
-                                                src={getPosterUrl(movie)}
-                                                onError={(e) => {
-                                                    e.target.onerror = null; 
-                                                    e.target.src = BaseURL + "150x225/0F275F/ffffff?text=Poster+Not+Found";
-                                                }}
-                                                alt={movie.title}
-                                                className="w-full h-48 object-cover rounded-md mb-2 group-hover:opacity-80 transition"
-                                            />
-                                            <p className="text-gray-900 dark:text-white font-semibold text-sm truncate">
-                                                {movie.title}
-                                            </p>
-                                            <p className="text-blue-600 dark:text-blue-300 text-xs truncate">
-                                                Vai: {movie.role_name}
-                                            </p>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Hiển thị danh sách kết quả phim (Dạng lưới - Grid) */}
-                        <div className="space-y-4">
-{/* CHỈ HIỂN THỊ KẾT QUẢ DẠNG LIST KHI results CÓ DỮ LIỆU VÀ KHÔNG PHẢI KẾT QUẢ DIỄN VIÊN (actorInfo.actor = false) */}
-{!loading && results.length > 0 && !(actorInfo && actorInfo.actor) && (
-    <div className="space-y-4">
-        {results.map((item, idx) => (
-            <div
-                key={idx}
-                onClick={() => handleSetSelected(item)}
-                className="flex p-4 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-700 rounded-xl shadow-lg transition-all hover:shadow-xl hover:bg-gray-50 dark:hover:bg-gray-600 cursor-pointer items-start space-x-4"
-            >
-                {/* Poster - Fixed width on left */}
-                <img
-                    src={getPosterUrl(item)}
-                    onError={(e) => {
-                        e.target.onerror = null;
-                        e.target.src = BaseURL + "150x225/0F275F/ffffff?text=Poster+Not+Found";
-                    }}
-                    alt={item.title}
-                    className="w-24 h-36 object-cover rounded-md flex-shrink-0 shadow-md"
-                />
-                
-                {/* Container cho Chi tiết và Diễn viên - Chiếm hết không gian còn lại */}
-                <div className="flex-grow flex space-x-4 min-w-0">
-                    
-                    {/* 1. Chi tiết - Chiếm 50% không gian còn lại */}
-                    <div className="flex-1 min-w-0">
-                        <h4 className="text-xl font-bold text-blue-600 dark:text-blue-300 mb-1 truncate">{item.title}</h4>
-                        
-                        {/* Release date/Similarity (inline) */}
-                        <div className="flex flex-wrap items-center space-x-4 text-xs mb-2">
-                            <p className="text-gray-600 dark:text-gray-400">
-                                <span className="font-semibold">Năm:</span> {item.release_date ? item.release_date.split('-')[0] : 'N/A'}
+              {/* Form tìm kiếm */}
+              <form onSubmit={handleSearch} className="mb-10">
+                {tab === "image" ? (
+                  <div className="relative group">
+                    <label htmlFor="image-upload" className="block cursor-pointer">
+                      <input id="image-upload" type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
+                      <div className={`border-4 border-dashed rounded-3xl p-12 text-center transition-all duration-300 ${
+                        preview 
+                          ? "border-indigo-400 bg-indigo-50/50 dark:bg-indigo-900/20" 
+                          : "border-gray-300 dark:border-gray-600 hover:border-indigo-500 hover:bg-indigo-50/30 dark:hover:bg-gray-700 group"
+                      }`}>
+                        {preview ? (
+                          <div className="space-y-6">
+                            <img src={preview} alt="Preview" className="mx-auto max-h-96 rounded-2xl shadow-2xl border-4 border-white" />
+                            <p className="text-indigo-600 dark:text-indigo-400 font-bold text-lg animate-pulse">
+                              <Upload className="inline w-5 h-5 mr-2" />
+                              Nhấn để thay đổi ảnh
                             </p>
-                            {item.similarity && (
-                                <p className="text-green-600 dark:text-green-400 font-bold">
-                                    TĐ: {(item.similarity * 100).toFixed(2) + '%'}
-                                </p>
-                            )}
-                        </div>
-                        
-                        {/* Director/Genres */}
-                        <p className="text-sm text-gray-700 dark:text-gray-300 mb-1 truncate">
-                            <span className="font-semibold">Đạo diễn:</span> {item.director || "Đang cập nhật"}
-                        </p>
-                        <p className="text-sm text-gray-700 dark:text-gray-300 mb-2 truncate">
-                            <span className="font-semibold">Thể loại:</span> {item.genres_vn || "Đang cập nhật"}
-                        </p>
-
-                        {/* Overview Snippet */}
-                        <p className="text-xs italic text-gray-500 dark:text-gray-400 line-clamp-2">
-                            {item.overview ? item.overview.substring(0, 150) + (item.overview.length > 150 ? "..." : "") : "Không có tóm tắt chi tiết."}
-                        </p>
-                    </div>
-
-                    {/* 2. Bảng Diễn viên - Chiếm 50% không gian còn lại, bên phải Chi tiết */}
-{/* Giả định: Các dữ liệu 'actors' vẫn được lấy từ một biến có tên là 'selected' (hoặc bạn đổi nó thành 'item') */}
-
-{/* 2. Bảng Diễn viên - Chiếm 50% không gian còn lại, bên phải Chi tiết */}
-<div className="flex-1 min-w-0 border-l pl-4 border-gray-200 dark:border-gray-600">
-    
-    {/* ============================= */}
-    {/*  DIỄN VIÊN KHỚP THEO HÌNH ẢNH */}
-    {/* ============================= */}
-    
-    {/*  Đã loại bỏ điều kiện 'selected &&' ban đầu. 
-       Bây giờ chỉ cần kiểm tra sự tồn tại của 'actors' bên trong 'selected' (hoặc biến chứa dữ liệu đó).
-       Nếu 'selected' là một biến local/state/prop, nó vẫn phải tồn tại (khác null/undefined) để tránh lỗi. 
-       Tôi sẽ giả định bạn muốn giữ tên biến 'selected' nhưng bỏ qua điều kiện kiểm tra trạng thái click.
-       Cũng có thể bạn muốn dùng 'item' thay thế cho 'selected' nếu nó chứa dữ liệu này.
-    */}
-    
-    {/* Thay thế selected bằng item nếu dữ liệu khớp ảnh nằm trong item, 
-        hoặc giữ nguyên selected nếu nó là nguồn dữ liệu chính */}
-    
-    {item.actors && Array.isArray(item.actors) && item.actors.length > 0 ? ( 
-        <div> 
-            <h4 className="text-lg font-bold text-gray-800 dark:text-white mb-2">
-                Diễn viên khớp theo ảnh
-            </h4>
-
-            <div className="overflow-y-auto max-h-36 text-sm">
-                <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-600">
-                    {/* ... (Phần thead không đổi) ... */}
-                    <thead className="bg-gray-50 dark:bg-gray-800">
-                        <tr>
-                            <th className="px-1 py-1 text-left text-xs font-medium text-gray-500 uppercase dark:text-gray-400">
-                                Diễn viên
-                            </th>
-                            <th className="px-1 py-1 text-left text-xs font-medium text-gray-500 uppercase dark:text-gray-400">
-                                Similarity
-                            </th>
-                        </tr>
-                    </thead>
-
-                    {/* Thay thế 'selected.actors' bằng 'item.actors' để khớp với điều kiện mới */}
-                    <tbody className="bg-white dark:bg-gray-700 divide-y divide-gray-200 dark:divide-gray-600">
-                        {item.actors.map((actorItem, idx) => ( 
-                            <tr key={idx}>
-                                <td className="px-1 py-1 truncate text-gray-900 dark:text-gray-200">
-                                    {actorItem.actor}
-                                </td>
-                                <td className="px-1 py-1 text-green-600 dark:text-green-400 font-semibold">
-                                    {(actorItem.similarity * 100).toFixed(2)}%
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    ) : (
-         <p className="text-sm text-gray-500 dark:text-gray-400 italic">
-            Không có diễn viên nào khớp theo ảnh.
-        </p>
-    )}
-</div>
-                </div>
-            </div>
-        ))}
-    </div>
-)}
-
-
-
-                            
-                            {/* Điều kiện kiểm tra không có kết quả */}
-                            {!loading && results.length === 0 && !actorInfo && (
-                                <p className="text-center text-gray-500 dark:text-gray-400 p-8 border border-dashed rounded-lg">
-                                    {tab === "image" && !file
-                                        ? "Vui lòng tải lên một hình ảnh để bắt đầu tìm kiếm."
-                                        : tab === "text" && !query
-                                        ? "Vui lòng nhập từ khóa để bắt đầu tìm kiếm."
-                                        : "Không tìm thấy kết quả nào. Hãy thử lại với từ khóa hoặc hình ảnh khác."}
-                                </p>
-                            )}
-                        </div>
-
-                        {/* Chi tiết Phim được Chọn (Modal-like view) */}
-                        {selected && (
-                            <div className="fixed inset-0 bg-black bg-opacity-50 dark:bg-opacity-70 flex justify-center items-center z-50 p-4">
-                                <div className="bg-white dark:bg-gray-800 rounded-xl max-w-4xl w-full p-6 shadow-2xl relative overflow-y-auto max-h-[90vh]">
-                                    <button
-                                        onClick={() => setSelected(null)}
-                                        className="absolute top-4 right-4 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors p-1 rounded-full bg-gray-100 dark:bg-gray-700"
-                                    >
-                                        <X className="w-6 h-6" />
-                                    </button>
-
-                                    <div className="flex flex-col md:flex-row gap-6">
-                                        <div className="flex-shrink-0">
-                                            <img
-                                                src={getPosterUrl(selected)}
-                                                alt={selected.original_title}
-                                                className="w-48 h-72 object-cover rounded-lg shadow-xl border-4 border-white dark:border-gray-700"
-                                                style={{ maxHeight: "80vh" }}
-                                                onError={(e) => {
-                                                    e.target.onerror = null; 
-                                                    e.target.src = selected.poster || (BaseURL + "150x225/0F275F/ffffff?text=Poster+Not+Found");
-                                                }}
-                                            />
-                                        </div>
-                                        
-                                        <div className="flex-grow">
-                                            <h2 className="text-3xl font-bold text-blue-600 dark:text-blue-400 mb-2">
-                                                {selected.title}
-                                            </h2>
-                                            
-                                            <p className="text-gray-700 dark:text-gray-300 mb-2 text-sm">
-                                                <b>Tên gốc:</b> {selected.original_title || "Đang cập nhật"}
-                                            </p>
-                                            <p className="text-gray-700 dark:text-gray-300 text-sm mb-4">
-                                                <b>Ngày công chiếu:</b> {selected.release_date || "Đang cập nhật"}
-                                            </p>
-                                            
-                                            <p className="text-gray-700 dark:text-gray-300 mb-4">
-                                                <b>Đạo diễn:</b> {selected.director || "Đang cập nhật"}
-                                            </p>
-
-                                            <div className="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg mb-4">
-                                                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Tóm tắt</h3>
-                                                <p className="text-gray-800 dark:text-gray-200 leading-relaxed italic">
-                                                    {selected.overview || "Tóm tắt đang được cập nhật."}
-                                                </p>
-                                            </div>
-
-                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-                                                <p className="text-gray-600 dark:text-gray-400">
-                                                    <b>Thể loại:</b> <span className="text-gray-800 dark:text-gray-200">{selected.genres_vn || "Không rõ"}</span>
-                                                </p>
-                                                <p className="text-gray-600 dark:text-gray-400">
-                                                    <b>Diễn viên chính:</b> <span className="text-gray-800 dark:text-gray-200">{selected.stars || "Không rõ"}</span>
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                          </div>
+                        ) : (
+                          <div>
+                            <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center shadow-2xl">
+                              <Image className="w-12 h-12 text-white" />
                             </div>
+                            <p className="text-2xl font-bold text-gray-700 dark:text-gray-300 mb-2">
+                              Tải lên Poster, Ảnh Diễn Viên hoặc Cảnh Phim
+                            </p>
+                            <p className="text-gray-500 dark:text-gray-400">Kéo thả hoặc nhấn để chọn ảnh</p>
+                          </div>
                         )}
-                      
+                      </div>
+                    </label>
+
+                    {/* Chọn mô hình */}
+                    <div className="mt-6 flex justify-center items-center space-x-4">
+                      <span className="text-lg font-medium text-gray-700 dark:text-gray-300">Mô hình AI:</span>
+                      <select
+                        value={selectedImageModel}
+                        onChange={(e) => setSelectedImageModel(e.target.value)}
+                        className="px-6 py-3 bg-gradient-to-r from-indigo-100 to-purple-100 dark:from-indigo-900 dark:to-purple-900 rounded-xl font-bold text-indigo-700 dark:text-indigo-300 shadow-lg"
+                      >
+                        <option value="two_steps_clip">CLIP (Thông minh hơn)</option>
+                        <option value="two_steps_resnet">ResNet50 (Nhanh hơn)</option>
+                      </select>
                     </div>
-                </div>
-            </main>
+                  </div>
+                ) : (
+                  <div className="relative">
+                    <textarea
+                      value={query}
+                      onChange={(e) => setQuery(e.target.value)}
+                      placeholder="Ví dụ: Phim về người lính trở về từ chiến tranh, đạo diễn Victor Vũ, diễn viên Lan Ngọc..."
+                      className="w-full p-6 pr-16 text-lg bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-gray-700 dark:to-gray-800 rounded-2xl border-2 border-indigo-200 dark:border-indigo-700 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-300 dark:focus:ring-indigo-800 shadow-xl resize-none transition-all"
+                      rows="5"
+                    />
+                    <SearchIcon className="absolute right-6 top-6 w-8 h-8 text-indigo-500" />
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={loading || (tab === "image" && !file) || (tab === "text" && !query.trim())}
+                  className="mt-8 w-full py-5 px-8 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-extrabold text-xl rounded-2xl shadow-2xl transform hover:scale-105 transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center"
+                >
+                  {loading ? (
+                    <>
+                      <Loader2 className="w-8 h-8 mr-3 animate-spin" />
+                      Đang tìm kiếm...
+                    </>
+                  ) : (
+                    <>
+                      <SearchIcon className="w-8 h-8 mr-3" />
+                      {tab === "image" ? "Tìm Phim Bằng Ảnh" : "Tìm Phim Bằng Văn Bản"}
+                    </>
+                  )}
+                </button>
+              </form>
+
+              {/* Kết quả */}
+<div className="mt-10">
+                <h3 className="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-8">
+                  Kết Quả Tìm Kiếm {results.length > 0 && `(${results.length})`}
+                </h3>
+
+                {loading && (
+                  <div className="flex flex-col items-center py-20">
+                    <div className="relative">
+                      <Loader2 className="w-20 h-20 text-indigo-600 animate-spin" />
+                      <Film className="w-10 h-10 text-purple-600 absolute top-5 left-5 animate-pulse" />
+                    </div>
+                    <p className="mt-6 text-xl text-gray-600 dark:text-gray-400">AI đang phân tích...</p>
+                  </div>
+                )}
+
+                {/* Nhận diện diễn viên chính */}
+                {actorInfo && actorInfo.actor && (
+                  <div className="mb-10 p-8 bg-gradient-to-r from-yellow-100 to-orange-100 dark:from-yellow-900/30 dark:to-orange-900/30 rounded-3xl border-2 border-yellow-400 dark:border-yellow-700 shadow-2xl">
+                    <h4 className="text-2xl font-bold text-orange-700 dark:text-orange-400 flex items-center mb-4">
+                      <User className="w-10 h-10 mr-4" />
+                      Phát hiện diễn viên: <span className="ml-3 text-3xl">{actorInfo.actor}</span>
+                    </h4>
+                    <p className="text-lg font-bold text-green-600 dark:text-green-400">
+                      Độ tương đồng: {(actorInfo.similarity * 100).toFixed(1)}%
+                    </p>
+                  </div>
+                )}
+
+                {/* Danh sách phim – chỉ hiển thị khi KHÔNG phải kết quả nhận diện diễn viên */}
+                {!loading && results.length > 0 && !(actorInfo && actorInfo.actor) && (
+                  <div className="grid gap-10">
+                    {results.map((item, idx) => (
+                      <div
+                        key={idx}
+                        onClick={() => handleSetSelected(item)}
+                        className="group bg-white dark:bg-gray-800 rounded-3xl shadow-xl hover:shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden transform hover:scale-[1.02] transition-all duration-500 cursor-pointer"
+                      >
+                        <div className="flex flex-col lg:flex-row">
+                          {/* Poster */}
+                          <div className="lg:w-64 flex-shrink-0 relative overflow-hidden">
+                            <img
+                              src={getPosterUrl(item)}
+                              alt={item.title}
+                              className="w-full h-96 lg:h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                              onError={(e) => {
+                                e.target.onerror = null;
+                                e.target.src = BaseURL + "300x450/1a1a1a/ffffff?text=No+Poster";
+                              }}
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end p-6">
+                              <p className="text-white font-bold text-lg">Xem chi tiết</p>
+                            </div>
+                          </div>
+
+                          {/* Nội dung */}
+                          <div className="p-8 flex-grow flex flex-col lg:flex-row gap-8">
+                            {/* Thông tin phim */}
+                            <div className="flex-1 space-y-5">
+                              <h4 className="text-3xl font-extrabold text-indigo-600 dark:text-indigo-400">
+                                {item.title}
+                              </h4>
+
+                              <div className="flex flex-wrap items-center gap-4 text-sm">
+                                <span className="flex items-center text-gray-600 dark:text-gray-400">
+                                  <Calendar className="w-5 h-5 mr-2" />
+                                  {item.release_date?.split('-')[0] || "N/A"}
+                                </span>
+                                {item.similarity && (
+                                  <span className="px-4 py-2 bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 rounded-full font-bold">
+                                    {(item.similarity * 100).toFixed(1)}% khớp
+                                  </span>
+                                )}
+                              </div>
+
+                              <p className="text-gray-700 dark:text-gray-300 leading-relaxed line-clamp-4">
+                                {item.overview || "Chưa có tóm tắt."}
+                              </p>
+
+                              <div className="flex flex-wrap gap-6 text-sm">
+                                <div className="flex items-center text-gray-600 dark:text-gray-400">
+                                  <Clapperboard className="w-5 h-5 mr-2 text-indigo-600" />
+                                  <span className="font-medium">Đạo diễn:</span> {item.director || "Đang cập nhật"}
+                                </div>
+                                <div className="flex items-center text-gray-600 dark:text-gray-400">
+                                  <Users className="w-5 h-5 mr-2 text-purple-600" />
+                                  <span className="font-medium">Diễn viên:</span> {item.stars?.split(',')[0] || "Nhiều diễn viên"}
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* BẢNG ĐỘ TƯƠNG ĐỒNG DIỄN VIÊN – ĐÃ SỬA LẠI ĐẸP & SCROLL */}
+                            {item.actors && Array.isArray(item.actors) && item.actors.length > 0 && (
+                              <div className="lg:w-80">
+                                <h5 className="text-xl font-bold text-gray-800 dark:text-gray-200 mb-4 flex items-center">
+                                  <User className="w-6 h-6 mr-2 text-purple-600" />
+                                  Diễn viên khớp theo ảnh
+                                </h5>
+
+                                <div className="bg-gray-50 dark:bg-gray-700/50 rounded-2xl border border-gray-200 dark:border-gray-600 overflow-hidden">
+                                  <div className="max-h-64 overflow-y-auto scrollbar-thin scrollbar-thumb-indigo-500 scrollbar-track-gray-200 dark:scrollbar-thumb-indigo-400 dark:scrollbar-track-gray-700">
+                                    <table className="w-full text-sm">
+                                      <thead className="bg-indigo-100 dark:bg-indigo-900/50 sticky top-0">
+                                        <tr>
+                                          <th className="px-4 py-3 text-left font-bold text-indigo-700 dark:text-indigo-300">Diễn viên</th>
+                                          <th className="px-4 py-3 text-right font-bold text-green-600 dark:text-green-400">Độ tương đồng</th>
+                                        </tr>
+                                      </thead>
+                                      <tbody className="divide-y divide-gray-200 dark:divide-gray-600">
+                                        {item.actors.map((actorItem, i) => (
+                                          <tr key={i} className="hover:bg-indigo-50 dark:hover:bg-indigo-900/30 transition-colors">
+                                            <td className="px-4 py-3 font-medium text-gray-800 dark:text-gray-200 truncate">
+                                              {actorItem.actor}
+                                            </td>
+                                            <td className="px-4 py-3 text-right">
+                                              <span className="inline-block px-3 py-1 bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 rounded-full font-bold text-sm">
+                                                {(actorItem.similarity * 100).toFixed(1)}%
+                                              </span>
+                                            </td>
+                                          </tr>
+                                        ))}
+                                      </tbody>
+                                    </table>
+                                  </div>
+                                </div>
+
+                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 text-center">
+                                  {item.actors.length} diễn viên được phát hiện
+                                </p>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Không có kết quả */}
+                {!loading && results.length === 0 && !actorInfo && (
+                  <div className="text-center py-20">
+                    <Film className="w-24 h-24 mx-auto text-gray-300 dark:text-gray-700 mb-6" />
+                    <p className="text-xl text-gray-500 dark:text-gray-400">
+                      Chưa có kết quả. Hãy thử tìm kiếm bằng từ khóa hoặc hình ảnh khác nhé!
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
-    );
+
+        
+        {/* Modal chi tiết phim - đẹp hơn */}
+        {selected && (
+          <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-6" onClick={() => setSelected(null)}>
+            <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-3xl max-w-5xl w-full max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+              <div className="relative">
+                <button
+                  onClick={() => setSelected(null)}
+                  className="absolute -top-4 -right-4 bg-red-600 text-white p-4 rounded-full shadow-2xl hover:bg-red-700 transition z-10"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+                <div className="grid md:grid-cols-2">
+                  <div className="p-8">
+                    <img
+                      src={getPosterUrl(selected)}
+                      alt={selected.title}
+                      className="w-full rounded-2xl shadow-2xl border-8 border-white dark:border-gray-700"
+                    />
+                  </div>
+                  <div className="p-10 space-y-6">
+                    <h2 className="text-4xl font-extrabold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                      {selected.title}
+                    </h2>
+                    <p className="text-2xl text-gray-600 dark:text-gray-400">{selected.original_title}</p>
+                    <div className="space-y-4 text-lg">
+                      <p><strong className="text-indigo-600">Đạo diễn:</strong> {selected.director}</p>
+                      <p><strong className="text-purple-600">Thể loại:</strong> {selected.genres_vn}</p>
+                      <p><strong className="text-green-600">Diễn viên:</strong> {selected.stars}</p>
+                    </div>
+                    <div className="pt-6 border-t-2 border-gray-200 dark:border-gray-700">
+                      <h3 className="text-2xl font-bold mb-4 text-indigo-600">Tóm tắt nội dung</h3>
+                      <p className="text-gray-700 dark:text-gray-300 leading-relaxed text-lg">
+                        {selected.overview || "Đang cập nhật..."}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </main>
+    </div>
+  );
 }
 
 export default Search;
