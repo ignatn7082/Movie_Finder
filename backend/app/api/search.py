@@ -19,52 +19,6 @@ UPLOAD_DIR = "uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 
-# 1️ --- Tìm kiếm bằng ảnh (POST) ---
-# @router.post("/image")
-# async def search_character(model: str = "clip", file: UploadFile = File(...)):
-
-#     try:
-#         logger.info("Incoming search/image request filename=%s content_type=%s", getattr(file, "filename", None), getattr(file, "content_type", None))
-
-#         file_ext = os.path.splitext(file.filename)[1] if getattr(file, "filename", None) else ".jpg"
-#         temp_path = os.path.join(UPLOAD_DIR, f"{uuid.uuid4().hex}{file_ext}")
-
-#         with open(temp_path, "wb") as buffer:
-#             shutil.copyfileobj(file.file, buffer)
-
-#         logger.info("Saved uploaded file to %s", temp_path)
-
-#         # call service
-#         results = query_by_image(temp_path, model=model)
-
-#         # safety: ensure keys exist
-#         actor = results.get("actor") if isinstance(results, dict) else None
-#         movies = results.get("movies") if isinstance(results, dict) else None
-
-#         logger.info("query_by_image by model=%s returned actor=%s movies_count=%s", model, actor, len(movies) if movies else 0)
-
-#         # remove temp file (keep during debug by setting env KEEP_UPLOADS=1)
-#         if os.getenv("KEEP_UPLOADS", "0") != "1":
-#             try:
-#                 os.remove(temp_path)
-#             except Exception:
-#                 logger.exception("Failed to remove temp file %s", temp_path)
-#         else:
-#             logger.info("Keeping uploaded file for debug: %s", temp_path)
-
-#         # return a safe verbose payload to frontend for debugging
-#         return JSONResponse(content={
-#             "status": "success",
-#             "actor": actor,
-#             "movies": movies,
-#             "raw_results": results
-#         })
-
-#     except Exception as e:
-#         logger.exception("search_character failed")
-#         raise HTTPException(status_code=500, detail=str(e))
-
-
 @router.post("/image")
 async def search_character(
     model: str = Form("two_steps_resnet"), # Đổi model mặc định thành logic 2 bước mới
