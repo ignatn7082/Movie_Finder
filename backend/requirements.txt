@@ -37,7 +37,7 @@ pydantic
 pydantic_core
 pydantic_settings
 typing_inspection
-git+https://github.com/openai/CLIP.git
+# git+https://github.com/openai/CLIP.git
 annotated_types
 anyio
 sniffio
@@ -66,3 +66,4 @@ httpcore
 annotated_doc
 ecdsa
 psycopg2-binary
+timm

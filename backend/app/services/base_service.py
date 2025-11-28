@@ -18,8 +18,6 @@ STATIC_URL_PREFIX = "http://localhost:8000/static/"
 MAX_SIZE = 1024
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
-# Tải dữ liệu cơ sở
-movie_df = load_movie_metadata()
 
 def safe_load_image(path):
     """Tải ảnh PIL an toàn và giới hạn kích thước."""

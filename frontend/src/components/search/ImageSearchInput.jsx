@@ -41,8 +41,8 @@ export default function ImageSearchInput({ file, preview, selectedImageModel, se
           onChange={(e) => setSelectedImageModel(e.target.value)}
           className="px-6 py-3 bg-gradient-to-r from-indigo-100 to-purple-100 dark:from-indigo-900 dark:to-purple-900 rounded-xl font-bold text-indigo-700 shadow-lg"
         >
-          <option value="two_steps_clip">CLIP (Thông minh hơn)</option>
-          <option value="two_steps_resnet">ResNet50 (Nhanh hơn)</option>
+          <option value="two_steps_vit">Vision Transformer</option>
+          <option value="two_steps_resnet">ResNet50 </option>
         </select>
       </div>
     </div>

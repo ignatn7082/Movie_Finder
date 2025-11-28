@@ -42,7 +42,7 @@ export default function MoviesList() {
   const [sortAsc, setSortAsc] = useState(true);
   const [loading, setLoading] = useState(true);
 
-  const perPage = 20;
+  const perPage = 10;
 
   // Đảm bảo genres_vn luôn là mảng → dùng để đếm và lọc
   const processedMovies = useMemo(() => {
@@ -207,7 +207,7 @@ export default function MoviesList() {
         {/* Grid phim */}
         <div className="pt-48 px-10 pb-32">
           {loading ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-8">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 gap-8">
               {[...Array(20)].map((_, i) => (
                 <div key={i} className="animate-pulse">
                   <div className="aspect-[2/3] bg-white/10 rounded-3xl" />
@@ -222,7 +222,7 @@ export default function MoviesList() {
             </div>
           ) : (
             <>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-8">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 gap-8">
                 {currentMovies.map((movie) => (
                   <div
                     key={movie.id}
