@@ -109,7 +109,7 @@ export default function Navbar() {
               Tìm kiếm
             </Link>
 
-            <Link
+            {/* <Link
               to="/about"
               className={`flex items-center gap-3 px-6 py-3 rounded-2xl font-bold transition-all duration-300 ${
                 isActive("/about")
@@ -119,7 +119,7 @@ export default function Navbar() {
             >
               <Info className="w-5 h-5" />
               Giới thiệu
-            </Link>
+            </Link> */}
 
             {/* Nút QUẢN TRỊ - CHỈ HIỆN CHO ADMIN */}
             {isAdmin && (
@@ -164,17 +164,17 @@ export default function Navbar() {
                 </div>
 
                 {/* Logout */}
-                <button
+                {/* <button
                   onClick={handleLogout}
                   className="p-3 bg-red-600/20 hover:bg-red-600/40 rounded-xl transition-all hover:scale-110"
                   title="Đăng xuất"
                 >
                   <LogOut className="w-5 h-5 text-red-400" />
-                </button>
+                </button> */}
               </div>
             ) : (
               <div className="flex items-center gap-4">
-                <Link
+                {/* <Link
                   to="/login"
                   className="px-7 py-3 font-bold text-white hover:bg-white/10 rounded-2xl transition-all hover:scale-105"
                 >
@@ -185,7 +185,7 @@ export default function Navbar() {
                   className="px-7 py-3 font-black text-white bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl shadow-xl hover:shadow-pink-500/50 hover:scale-105 transition-all"
                 >
                   Đăng ký
-                </Link>
+                </Link> */}
               </div>
             )}
 
@@ -217,9 +217,9 @@ export default function Navbar() {
                   <Crown className="w-6 h-6" /> QUẢN TRỊ HỆ THỐNG
                 </Link>
               )}
-              <Link to="/about" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-4 px-6 py-4 rounded-2xl hover:bg-white/10 text-white font-bold text-lg">
+              {/* <Link to="/about" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-4 px-6 py-4 rounded-2xl hover:bg-white/10 text-white font-bold text-lg">
                 <Info className="w-6 h-6" /> Giới thiệu
-              </Link>
+              </Link> */}
             </div>
           </div>
         )}

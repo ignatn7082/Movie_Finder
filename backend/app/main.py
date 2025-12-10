@@ -4,7 +4,7 @@ import os
 load_dotenv() 
 
 from fastapi import FastAPI
-from app.api import search, movies, upload,chatbot
+from app.api import search, movies, upload,chatbot_2
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import JSONResponse
@@ -22,7 +22,7 @@ app = FastAPI(title="Film Character Search API")
 
 # Đăng ký router
 
-app.include_router(chatbot.router, prefix="/api", tags=["chatbot"])
+app.include_router(chatbot_2.router, prefix="/api", tags=["chatbot"])
 app.include_router(search.router)  # hoặc include_router(search.router, prefix="")
 app.include_router(movies.router, prefix="/api", tags=["movies"])
 app.include_router(upload.router, prefix="/api", tags=["upload"])

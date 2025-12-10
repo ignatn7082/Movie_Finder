@@ -52,7 +52,8 @@ function UserLayout() {
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-gray-900 via-purple-900 to-black text-white">
       <Navbar />
-      <div className="h-20 lg:h-24" /> {/* Khoảng trống cho navbar fixed */}
+      {/* <div className="h-20 lg:h-24" /> Khoảng trống cho navbar fixed */}
+      <div className="flex-auto" /> {/* Khoảng trống cho navbar fixed */}
       <main className="flex-1">
         <Outlet /> {/* Nội dung trang con */}
       </main>

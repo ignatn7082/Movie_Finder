@@ -7,6 +7,7 @@ import numpy as np
 from PIL import Image
 from facenet_pytorch import MTCNN
 import torch
+from typing import List, Dict
 # *** ĐIỂM SỬA: Thay thế clip_loader bằng vit_loader ***
 from app.core.vit_loader import vit_model, vit_preprocess, DEVICE 
 from app.services.base_service import safe_load_image, DATA_DIR, get_actor_movies, get_movie_info
@@ -273,3 +274,67 @@ def query_by_image_vit_feature_content(img_path, top_k=5, threshold=0.25):
         
         "message": f"Tìm thấy {len(results)} phim liên quan bằng ViT Content Search."
     }
+
+
+
+def get_similarities_vit(
+    input_feat: np.ndarray,
+    top_k_actors: int = 50
+) -> List[Dict[str, float]]:
+    global actor_index, actor_labels
+
+    if actor_index is None or actor_labels is None:
+        print("[ERROR] FAISS index hoặc labels chưa được load!")
+        return []
+
+    if actor_index.ntotal == 0:
+        print("[ERROR] FAISS index rỗng!")
+        return []
+
+    print(f"[DEBUG] FAISS index: {actor_index.ntotal} vectors | Input shape: {input_feat.shape}")
+
+    # Chuẩn bị vector
+    feat = input_feat.reshape(1, -1).astype('float32')
+    faiss.normalize_L2(feat)
+
+    k = min(top_k_actors, actor_index.ntotal)
+    D, I = actor_index.search(feat, k)
+
+    results = []
+    for i in range(k):
+        idx = int(I[0][i])
+        dist = float(D[0][i])
+
+        if idx == -1:
+            continue
+
+        try:
+            # XỬ LÝ AN TOÀN actor_labels (có thể là bytes hoặc str)
+            label = actor_labels[idx]
+            if isinstance(label, bytes):
+                actor_name = label.decode('utf-8', errors='ignore').strip()
+            else:
+                actor_name = str(label).strip()
+
+            actor_name = actor_name.replace("_", " ")
+
+            # Chuyển distance → similarity
+            if isinstance(actor_index, faiss.IndexFlatIP):
+                similarity = dist  # Inner Product = Cosine similarity
+            else:
+                similarity = 1.0 / (1.0 + dist)  # L2 → similarity
+
+            results.append({
+                "actor": actor_name,
+                "score": round(float(similarity), 4)
+            })
+
+        except Exception as e:
+            print(f"[ERROR] Lỗi xử lý label index {idx}: {e}")
+            continue
+
+    # Sắp xếp giảm dần
+    results.sort(key=lambda x: x["score"], reverse=True)
+    print(f"[DEBUG] Tìm thấy {len(results)} diễn viên | Top 1: {results[0] if results else 'N/A'}")
+
+    return results

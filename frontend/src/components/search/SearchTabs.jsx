@@ -13,6 +13,7 @@ export default function SearchTabs({ tab, setTab, onTabChange }) {
     <div className="flex justify-center mb-10">
       <div className="inline-flex bg-gray-100 dark:bg-gray-700 p-2 rounded-2xl shadow-inner">
         <button
+          type = "button"
           onClick={() => handleTabClick("image")}
           className={`flex items-center px-8 py-4 rounded-xl font-bold text-lg transition-all duration-300 ${
             tab === "image"
@@ -24,6 +25,7 @@ export default function SearchTabs({ tab, setTab, onTabChange }) {
           Tìm bằng Ảnh
         </button>
         <button
+          type = "button"
           onClick={() => handleTabClick("text")}
           className={`flex items-center px-8 py-4 rounded-xl font-bold text-lg transition-all duration-300 ${
             tab === "text"

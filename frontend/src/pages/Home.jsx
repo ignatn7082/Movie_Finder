@@ -95,15 +95,15 @@ export default function Home() {
             className="inline-flex items-center gap-3 mb-6 px-6 py-3 bg-blue-600/20 backdrop-blur-md border border-blue-400/30 rounded-full"
           >
             <Sparkles className="w-5 h-5 text-blue-400" />
-            <span className="text-blue-300 font-medium">Trợ lý AI phim Việt thông minh nhất 2025</span>
+            <span className="text-blue-300 font-medium">Trợ lý AI phim Việt thông minh</span>
           </motion.div>
 
           <h1 className="text-5xl md:text-7xl font-black mb-6 bg-clip-text text-transparent bg-gradient-to-r from-white via-blue-200 to-blue-400 drop-shadow-2xl">
-            Khám Phá Phim Việt <br /> Cùng AI Siêu Thông Minh
+            Khám Phá Phim Việt <br /> 
           </h1>
 
           <p className="text-xl md:text-2xl text-gray-200 mb-10 max-w-3xl mx-auto font-light leading-relaxed">
-            Tìm kiếm diễn viên, hỏi nội dung phim, phân tích nhân vật — tất cả chỉ trong tích tắc với công nghệ AI hiện đại nhất.
+            Tìm kiếm diễn viên, hỏi nội dung phim, phân tích nhân vật.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-5 justify-center items-center">
@@ -133,7 +133,7 @@ export default function Home() {
             <div className="text-center">
               <Users className="w-8 h-8 mx-auto mb-2 text-yellow-400" />
               <p className="text-3xl font-bold">{stats.directors}+</p>
-              <p className="text-sm">Đạo diễn nổi bật</p>
+              <p className="text-sm">Đạo diễn</p>
             </div>
           </div>
         </motion.div>
@@ -156,9 +156,9 @@ export default function Home() {
             className="text-center mb-16"
           >
             <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-              Phim Nổi Bật Nhất
+              Phim Nổi Bật 
             </h2>
-            <p className="mt-4 text-gray-600 dark:text-gray-400 text-lg">Những tác phẩm được yêu thích nhất mọi thời đại</p>
+            <p className="mt-4 text-gray-600 dark:text-gray-400 text-lg">Những tác phẩm được yêu thích </p>
           </motion.div>
 
           <motion.div
@@ -209,7 +209,7 @@ export default function Home() {
             whileInView={{ opacity: 1 }}
             className="text-4xl md:text-5xl font-bold text-center mb-16 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"
           >
-            Bộ Sưu Tập Phim Việt Lớn Nhất
+            Bộ Sưu Tập Phim Việt Đa Dạng
           </motion.h2>
 
           <div className="grid lg:grid-cols-2 gap-12 items-center">
@@ -287,7 +287,7 @@ export default function Home() {
             Sẵn sàng khám phá thế giới phim Việt?
           </h2>
           <p className="text-xl mb-10 opacity-90">
-            Hàng ngàn bộ phim, hàng triệu câu chuyện đang chờ bạn khám phá.
+            Nhiều câu chuyện đang chờ bạn khám phá.
           </p>
           <Link
             to="/search"
@@ -300,9 +300,9 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="py-10 text-center text-gray-500 dark:text-gray-400 border-t border-gray-200 dark:border-gray-800">
+      {/* <footer className="py-10 text-center text-gray-500 dark:text-gray-400 border-t border-gray-200 dark:border-gray-800">
         <p>© 2025 Film Character Search • Được xây dựng với ❤️ và AI</p>
-      </footer>
+      </footer> */}
     </div>
   );
 }

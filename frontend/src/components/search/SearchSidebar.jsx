@@ -4,12 +4,12 @@ import { Sparkles, Image, Type } from "lucide-react";
 const searchExamples = {
   text: [
     { title: "Tìm theo tên/mô tả", query: "Phim về người lính sau chiến tranh" },
-    { title: "Tìm theo đạo diễn", query: "Đạo diễn Bùi Thạc Chuyên" },
+    // { title: "Tìm theo đạo diễn", query: "Đạo diễn Bùi Thạc Chuyên" },
     { title: "Tìm theo thể loại", query: "Phim tâm lý xã hội" },
     { title: "Tìm theo diễn viên/vai diễn", query: "Diễn viên Thái Hòa" },
   ],
   image: [
-    { title: "Tìm bằng poster phim", info: "Tải lên poster phim 'Hai Phượng'" },
+    { title: "Tìm bằng phim", info: "Tải lên phim 'Hai Phượng'" },
     { title: "Tìm bằng ảnh diễn viên", info: "Tải lên ảnh Trấn Thành" },
     { title: "Tìm bằng ảnh một cảnh phim", info: "Tải lên ảnh một cảnh trong 'Mắt Biếc'" },
   ]
@@ -23,7 +23,7 @@ export default function SearchSidebar({ tab, onExampleClick }) {
     <div className="p-6 bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-gray-900 dark:to-gray-800 rounded-2xl shadow-xl border border-indigo-200 dark:border-indigo-900 h-full overflow-y-auto">
       <div className="flex items-center mb-6">
         <div className="p-3 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl shadow-lg mr-4">
-          <Sparkles className="w-6 h-6 text-white" />
+          <Sparkles className="w-6 h-6 text-black" />
         </div>
         <h3 className="text-2xl font-extrabold text-indigo-700 dark:text-indigo-400">
           Hướng Dẫn {isTextTab ? "Tìm Văn Bản" : "Tìm Bằng Ảnh"}
@@ -36,14 +36,14 @@ export default function SearchSidebar({ tab, onExampleClick }) {
             {isTextTab ? (
               <>
                 <li className="flex items-start"><span className="text-indigo-600 mr-2">•</span> <strong>Tìm bằng mô tả tự nhiên</strong> – "Phim buồn về tình yêu tuổi trẻ"</li>
-                <li className="flex items-start"><span className="text-indigo-600 mr-2">•</span> Hỗ trợ tìm đạo diễn, diễn viên, thể loại</li>
-                <li className="flex items-start"><span className="text-indigo-600 mr-2">•</span> Công nghệ tìm kiếm ngữ nghĩa AI</li>
+                {/* <li className="flex items-start"><span className="text-indigo-600 mr-2">•</span> Hỗ trợ tìm đạo diễn, diễn viên, thể loại</li> */}
+                {/* <li className="flex items-start"><span className="text-indigo-600 mr-2">•</span> Công nghệ tìm kiếm ngữ nghĩa </li> */}
               </>
             ) : (
               <>
-                <li className="flex items-start"><span className="text-purple-600 mr-2">•</span> <strong>Poster, ảnh diễn viên hoặc cảnh phim</strong></li>
-                <li className="flex items-start"><span className="text-purple-600 mr-2">•</span> Hỗ trợ 2 mô hình AI: CLIP & ResNet50</li>
-                <li className="flex items-start"><span className="text-purple-600 mr-2">•</span> Nhận diện cả diễn viên trong ảnh</li>
+                <li className="flex items-start"><span className="text-purple-600 mr-2">•</span> <strong> Hỗ trợ cả ảnh diễn viên hoặc cảnh phim</strong></li>
+                {/* <li className="flex items-start"><span className="text-purple-600 mr-2">•</span> Hỗ trợ cả theo diễn viên và nội dung phim</li>
+                <li className="flex items-start"><span className="text-purple-600 mr-2">•</span> Nhận diện cả diễn viên trong ảnh</li> */}
               </>
             )}
           </ul>

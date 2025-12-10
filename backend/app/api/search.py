@@ -1,9 +1,12 @@
-from fastapi import APIRouter, UploadFile, File, HTTPException, Query, Form
+from fastapi import APIRouter, UploadFile, File, HTTPException, Query, Form, Depends
 from fastapi.responses import JSONResponse
 import os
 import uuid
 import shutil
 import logging
+from sqlalchemy.orm import Session
+from app.db import get_db
+
 
 # from app.services.search_service import query_by_image, query_by_text
 from app.services.main_search_service import query_by_image
@@ -21,56 +24,61 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 @router.post("/image")
 async def search_character(
-    model: str = Form("two_steps_resnet"), # Đổi model mặc định thành logic 2 bước mới
-    file: UploadFile = File(...)
+    mode: str = Form("actor"),        # "actor" hoặc "content"
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db)     # ← BẮT BUỘC ĐỂ LẤY PHIM CỦA DIỄN VIÊN
 ):
-
+    temp_path = None
     try:
-        logger.info("Incoming search/image request filename=%s content_type=%s model=%s", 
-                    getattr(file, "filename", None), getattr(file, "content_type", None), model)
+        logger.info("Incoming /image | mode=%s | file=%s", mode, file.filename)
 
-        file_ext = os.path.splitext(file.filename)[1] if getattr(file, "filename", None) else ".jpg"
-        temp_path = os.path.join(UPLOAD_DIR, f"{uuid.uuid4().hex}{file_ext}")
+        # 1. Lưu file tạm
+        ext = os.path.splitext(file.filename)[1].lower() or ".jpg"
+        temp_path = os.path.join(UPLOAD_DIR, f"{uuid.uuid4().hex}{ext}")
+        os.makedirs(UPLOAD_DIR, exist_ok=True)
 
-        with open(temp_path, "wb") as buffer:
-            shutil.copyfileobj(file.file, buffer)
+        with open(temp_path, "wb") as f:
+            shutil.copyfileobj(file.file, f)
 
-        # 1. Gọi hàm tìm kiếm mới (logic 2 bước)
-        # Hàm query_by_image đã được cập nhật để gọi query_by_image_two_steps
-        results = query_by_image(temp_path, model=model) 
+        # 2. GỌI HÀM CHÍNH – ĐÃ TRUYỀN DB VÀO
+        results = query_by_image(
+            img_path=temp_path,
+            mode=mode,
+            db=db                      # ← QUAN TRỌNG NHẤT – KHÔNG ĐƯỢC QUÊN!
+        )
 
-        # 2. Xử lý kết quả trả về từ logic 2 bước
-        # Lấy dữ liệu an toàn từ dict kết quả
-        actor = results.get("actor") if isinstance(results, dict) else None
-        movies = results.get("movies") if isinstance(results, dict) else None
-        # THÊM: Trích xuất độ tương đồng của diễn viên (Kết quả từ Bước 2)
-        actor_similarities = results.get("actor_similarities") if isinstance(results, dict) else [] 
-        
-        logger.info("query_by_image by model=%s returned actor=%s movies_count=%s", 
-                    model, actor, len(movies) if movies else 0)
+        # 3. Log kết quả
+        detected = results.get("detected_actor")
+        films = len(results.get("actor_filmography") or [])
+        logger.info("Search success | mode=%s | actor=%s | films=%d", mode, detected["name"] if detected else None, films)
 
-        # remove temp file (keep during debug by setting env KEEP_UPLOADS=1)
+        # 4. Xóa file tạm (trừ khi debug)
         if os.getenv("KEEP_UPLOADS", "0") != "1":
             try:
                 os.remove(temp_path)
-            except Exception:
-                logger.exception("Failed to remove temp file %s", temp_path)
-        else:
-            logger.info("Keeping uploaded file for debug: %s", temp_path)
+            except:
+                pass
 
-        # 3. Trả về payload cho frontend
+        # 5. Trả về dữ liệu chuẩn cho frontend
         return JSONResponse(content={
             "status": "success",
-            "actor": actor,
-            "movies": movies,
-            # THÊM: Trả về actor_similarities để hiển thị độ tương đồng
-            "actor_similarities": actor_similarities, 
-            "raw_results": results # Giữ lại raw_results cho debug
+            "search_mode": mode,
+            "movies": results.get("movies") or [],
+            "detected_actor": results.get("detected_actor"),
+            "actor_filmography": results.get("actor_filmography") or [],
+            "actor_similarities": results.get("actor_similarities") or [],
+            "message": results.get("message", "Tìm kiếm hoàn tất"),
+            "raw_results": results
         })
 
     except Exception as e:
         logger.exception("search_character failed")
-        raise HTTPException(status_code=500, detail=str(e))
+        if temp_path and os.path.exists(temp_path):
+            try:
+                os.remove(temp_path)
+            except:
+                pass
+        raise HTTPException(status_code=500, detail="Lỗi xử lý ảnh")
 
 # 2 --- Tìm kiếm bằng mô tả (GET) ---
 @router.get("/text")

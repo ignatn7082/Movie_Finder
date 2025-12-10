@@ -3,7 +3,10 @@
 import os
 import numpy as np
 import faiss
-from app.services.resnet_service import query_by_image_resnet50_content
+
+from app.services.actor_service import query_by_image_actor_mode
+from typing import List, Dict, Optional
+from sqlalchemy.orm import Session
 from app.services.base_service import get_all_actors_in_movie, safe_load_image
 
 # Import ViT loader
@@ -47,21 +50,18 @@ def get_content_search_results(img_path, content_model="resnet50", top_k=5):
     """Chọn mô hình tìm kiếm nội dung (frame/ViT)."""
     if content_model == "vit":
         return query_by_image_vit_feature_content(img_path, top_k=top_k)
-    elif content_model == "resnet50":
-        return query_by_image_resnet50_content(img_path, top_k=top_k)
     else:
         return {"movies": [], "message": f"Content model '{content_model}' không hợp lệ."}
 
-def query_by_image_two_steps(
+def query_by_image_vit(
     img_path,
     top_k=5,
-    content_model="resnet50",
     actor_threshold=0.8,
     content_threshold=0.25
 ):
     """Logic hai bước, trả về toàn bộ diễn viên + độ tương đồng"""
     # 1. BƯỚC 1: Tìm Content/Frame
-    content_results = get_content_search_results(img_path, content_model, top_k)
+    content_results = query_by_image_vit_feature_content(img_path, top_k=top_k)
     movie_list = content_results.get("movies", [])
 
     if not movie_list:
@@ -161,12 +161,38 @@ def query_by_image_two_steps(
 # HÀM TỔNG HỢP
 # ==================================
 
-def query_by_image(img_path, model="two_steps_resnet", top_k=5):
-    """Hàm tổng hợp chính, dùng logic hai bước."""
-    if model == "two_steps_resnet":
-        return query_by_image_two_steps(img_path, top_k=top_k, content_model="resnet50")
-    elif model == "two_steps_vit":
-        return query_by_image_two_steps(img_path, top_k=top_k, content_model="vit")
+def query_by_image(
+    img_path: str,
+    mode: str = "actor",
+    top_k: int = 12,
+    db: Session = None
+) -> dict:
+    """
+    Hàm tổng hợp chính - 2 chế độ tìm kiếm ảnh
+    - mode="actor": Tìm diễn viên → trả về tất cả phim + vai diễn
+    - mode="content": Tìm phim theo nội dung ảnh (poster, cảnh phim)
+    """
+    if not os.path.exists(img_path):
+        return {"status": "error", "message": "File ảnh không tồn tại"}
+
+    if mode == "actor":
+        return query_by_image_actor_mode(
+            img_path=img_path,
+            actor_threshold=0.60,
+            top_k_actors=100,
+            film_limit=60,
+            db=db
+        )
+    elif mode == "content":
+        # Nếu bạn chưa có hàm này, tạm trả về kết quả đơn giản
+        try:
+            return query_by_image_vit(
+                img_path=img_path,
+                top_k=top_k,
+                actor_threshold=0.8,
+                content_threshold=0.25
+            )
+        except Exception as e:
+            return {"status": "error", "message": f"Lỗi tìm nội dung: {str(e)}"}
     else:
-        print(f"Warning: Model '{model}' không được hỗ trợ. Chuyển sang 'two_steps_resnet'.")
-        return query_by_image_two_steps(img_path, top_k=top_k, content_model="resnet50")
+        return {"status": "error", "message": f"Chế độ không hợp lệ: {mode}"}

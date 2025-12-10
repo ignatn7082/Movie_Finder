@@ -16,9 +16,9 @@ import { API_ENDPOINTS } from "../config/api";
 import MoviesModal from "../components/MoviesModal";
 
 const GENRES = [
-  "Hành Động", "Lãng Mạn", "Chính Kịch", "Hài", "Tội Phạm", "Kinh Dị",
-  "Giả Tưởng", "Khoa Học Viễn Tưởng", "Gia Đình", "Hoạt Hình", "Chiến Tranh",
-  "Bí Ẩn", "Âm Nhạc", "Phiêu Lưu"
+  "Hành Động", "Lãng Mạn", "Chính Kịch", "Hài",  "Kinh Dị",
+   "Khoa Học Viễn Tưởng", "Gia Đình",  "Chiến Tranh",
+   "Âm Nhạc", "Phiêu Lưu"
 ];
 
 const BaseURL = "http://localhost:8000/static/";

@@ -13,8 +13,10 @@ numpy<2
 matplotlib
 faiss-cpu
 tqdm
+rapidfuzz
 opencv-python-headless
 facenet_pytorch
+mtcnn
 tensorflow
 h5py
 absl-py
