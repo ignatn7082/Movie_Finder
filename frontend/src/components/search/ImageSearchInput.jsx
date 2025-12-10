@@ -23,6 +23,7 @@ export default function ImageSearchInput({
       <div className="flex justify-center">
         <div className="inline-flex bg-gray-100 dark:bg-gray-800 p-3 rounded-3xl shadow-2xl border border-gray-300 dark:border-gray-700">
           <button
+            type ="button"
             onClick={() => setSearchMode("actor")}
             className={`flex items-center gap-4 px-10 py-5 rounded-2xl font-extrabold text-lg transition-all duration-300 shadow-lg ${
               searchMode === "actor"
@@ -34,6 +35,7 @@ export default function ImageSearchInput({
             Tìm Diễn Viên
           </button>
           <button
+            type ="button"
             onClick={() => setSearchMode("content")}
             className={`flex items-center gap-4 px-10 py-5 rounded-2xl font-extrabold text-lg transition-all duration-300 shadow-lg ${
               searchMode === "content"

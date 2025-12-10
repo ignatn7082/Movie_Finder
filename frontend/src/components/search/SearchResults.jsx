@@ -30,7 +30,7 @@ export default function SearchResults({
           <Sparkles className="w-12 h-12 text-purple-600 absolute -top-2 -right-2 animate-pulse" />
         </div>
         <p className="mt-8 text-2xl font-bold text-gray-700 dark:text-gray-300">
-          AI đang phân tích hình ảnh...
+          Đang phân tích...
         </p>
       </div>
     );
@@ -40,32 +40,45 @@ export default function SearchResults({
   if (searchMode === "actor" && hasActorDetected) {
     const totalMovies = actorFilmography.length;
 
-    return (
-      <div className="space-y-12">
-        {/* PHẦN NHẬN DIỆN DIỄN VIÊN */}
-        <div className="p-10 bg-gradient-to-br from-amber-100 via-orange-100 to-red-100 
-                         dark:from-amber-950/50 dark:via-orange-950/40 dark:to-red-950/30 
-                         rounded-3xl border-4 border-amber-500 dark:border-amber-700 shadow-2xl text-center">
-          <div className="inline-flex items-center gap-8 bg-white/90 dark:bg-gray-900/90 
-                          rounded-full px-12 py-10 shadow-2xl backdrop-blur-sm">
-            <div className="w-32 h-32 bg-gradient-to-br from-amber-500 to-red-600 
-                            rounded-full flex items-center justify-center shadow-xl">
-              <User className="w-20 h-20 text-white" />
-            </div>
-            <div className="text-left">
-              <h2 className="text-5xl font-extrabold text-orange-700 dark:text-orange-300">
-                {detectedActor.name}
-              </h2>
-              <p className="text-3xl font-bold text-green-600 mt-4">
-                {(detectedActor.similarity * 100).toFixed(1)}% khớp
-              </p>
-              <p className="text-2xl text-gray-700 dark:text-gray-300 mt-4">
-                Tham gia <strong className="text-purple-600">{totalMovies}</strong> bộ phim trong hệ thống
-              </p>
-            </div>
-          </div>
+ return (
+<div className="space-y-10">
+  {/* Ô DIỄN VIÊN – SIÊU NHỎ GỌN, HIỆN ĐẠI NHƯ APPLE */}
+  <div className="max-w-3xl mx-auto">
+    <div className="backdrop-blur-xl bg-white/70 dark:bg-gray-900/80 rounded-3xl border border-white/20 dark:border-gray-700/50 shadow-2xl p-5 flex items-center gap-5 overflow-hidden">
+      {/* Avatar + hiệu ứng glow */}
+      <div className="relative flex-shrink-0">
+        <div className="absolute inset-0 bg-gradient-to-br from-orange-400 to-red-600 rounded-full blur-xl opacity-70 scale-125 animate-pulse"></div>
+        <div className="relative w-20 h-20 bg-gradient-to-br from-orange-500 to-red-600 rounded-full flex items-center justify-center shadow-2xl ring-4 ring-white/50">
+          <User className="w-10 h-10 text-white" />
         </div>
+      </div>
 
+      {/* Thông tin chính */}
+      <div className="flex-1 min-w-0">
+        <h2 className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-orange-600 to-red-600 dark:from-orange-400 dark:to-red-400 truncate">
+          {detectedActor.name}
+        </h2>
+        <div className="flex items-center gap-4 mt-2">
+          <span className="text-lg font-bold text-green-600 flex items-center gap-2">
+            <Sparkles className="w-5 h-5" />
+            {(detectedActor.similarity * 100).toFixed(1)}% khớp
+          </span>
+          <span className="text-gray-600 dark:text-gray-400 text-sm font-medium">
+            • Tham gia <span className="text-purple-600 font-bold">{totalMovies}</span> phim
+          </span>
+        </div>
+      </div>
+
+      {/* Badge trạng thái */}
+      <div className="flex-shrink-0">
+        <div className="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full text-white font-bold text-sm shadow-lg">
+          ĐÃ XÁC NHẬN
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {/* DANH SÁCH PHIM – POSTER SIÊU LỚN, ĐẸP NHƯ NETFLIX */}
         {/* PHẦN DANH SÁCH PHIM */}
         {totalMovies > 0 ? (
           <div>
@@ -121,6 +134,9 @@ export default function SearchResults({
           </div>
         )}
 
+
+
+        
         {/* Phim gợi ý từ nội dung */}
         {results.length > 0 && (
           <div className="mt-16 pt-12 border-t-4 border-dashed border-gray-300 dark:border-gray-700">
@@ -152,6 +168,7 @@ export default function SearchResults({
     );
   }
 
+  //==============================================================================================================
   // Kết quả tìm nội dung
   return (
     <div className="mt-10">
