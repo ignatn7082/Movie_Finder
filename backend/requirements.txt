@@ -70,3 +70,4 @@ ecdsa
 psycopg2-binary
 timm
 requests
+urllib3
