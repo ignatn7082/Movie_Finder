@@ -69,4 +69,3 @@ annotated_doc
 ecdsa
 psycopg2-binary
 timm
-startswith
