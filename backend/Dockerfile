@@ -23,11 +23,7 @@ COPY requirements.txt ./
 #     -f https://download.pytorch.org/whl/torch_stable.html
 
 
-RUN pip install --no-cache-dir \
-    torch==2.4.1+cpu \
-    torchvision==0.19.1+cpu \
-    torchaudio==2.4.1+cpu \
-    -f https://download.pytorch.org/whl/torch_stable.html
+RUN pip install --no-cache-dir torch==2.4.0 torchvision==0.19.0 torchaudio==2.4.0 --index-url https://download.pytorch.org/whl/cpu
 
 RUN pip install --no-cache-dir --no-deps --timeout 120 -r requirements.txt
 
