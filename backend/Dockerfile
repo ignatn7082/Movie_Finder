@@ -17,10 +17,18 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt ./
+# RUN pip install --no-cache-dir \
+#     torch==2.2.0+cpu \
+#     torchvision==0.17.0+cpu \
+#     -f https://download.pytorch.org/whl/torch_stable.html
+
+
 RUN pip install --no-cache-dir \
-    torch==2.2.0+cpu \
-    torchvision==0.17.0+cpu \
+    torch==2.4.1+cpu \
+    torchvision==0.19.1+cpu \
+    torchaudio==2.4.1+cpu \
     -f https://download.pytorch.org/whl/torch_stable.html
+
 RUN pip install --no-cache-dir --no-deps --timeout 120 -r requirements.txt
 
 COPY . .
