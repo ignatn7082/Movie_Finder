@@ -97,7 +97,7 @@ function Search() {
         {/* Header */}
         <div className="text-center mb-12">
           <h1 className="text-5xl md:text-6xl font-extrabold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-4">
-            Công Cụ Tìm Kiếm Phim
+            Công cụ tìm kiếm phim
             
           </h1>
           {/* <p className="text-xl text-gray-600 dark:text-gray-300">
