@@ -55,7 +55,7 @@ export default function MoviesModals({ movie, onClose }) {
                 {/* Tiêu đề + năm */}
                 <div>
                   <h1 className="text-4xl md:text-5xl font-black bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent drop-shadow-lg">
-                    {movie.title || movie.original_title}
+                    { movie.original_title || movie.title }
                   </h1>
                   <div className="flex items-center gap-4 mt-3 text-gray-300">
                     <span className="flex items-center gap-2">
@@ -119,12 +119,12 @@ export default function MoviesModals({ movie, onClose }) {
                 </div>
 
                 {/* Nút xem phim (tùy chọn sau này) */}
-                <div className="pt-6">
+                {/* <div className="pt-6">
                   <button className="flex items-center gap-4 px-8 py-5 bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl font-bold text-xl shadow-2xl hover:scale-105 transition-all duration-300">
                     <Play className="w-8 h-8 fill-white" />
                     Xem ngay
                   </button>
-                </div>
+                </div> */}
               </div>
             </div>
           </div>

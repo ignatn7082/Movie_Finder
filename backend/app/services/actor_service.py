@@ -98,113 +98,6 @@ def get_movies_by_actor(
     return actor_name, movies
 
 
-# def query_by_image_actor_mode(
-#     img_path: str,
-#     actor_threshold: float = 0.60,
-#     top_k_actors: int = 100,
-#     film_limit: int = 60,
-#     db: Session = None
-# ):
-
-#     if db is None:
-#         print("LỖI: db = None → không thể lấy phim từ CSDL!")
-#         return {"status": "error", "message": "Database session không được cung cấp."}
-
-#     # 1. Mở ảnh
-#     try:
-#         pil_img = Image.open(img_path).convert("RGB")
-#         print(f"[DEBUG] Ảnh mở thành công | size={pil_img.size} | mode={pil_img.mode}")
-#     except Exception as e:
-#         print(f"[ERROR] Không mở được ảnh: {e}")
-#         return {"status": "error", "message": f"Không mở được ảnh: {e}"}
-
-#     # 2. Phát hiện khuôn mặt
-#     print("[DEBUG] Đang detect khuôn mặt bằng MTCNN...")
-#     cropped_face = detect_and_crop_face(pil_img)
-#     # cropped_face = crop_face(pil_img)
-
-#     if not cropped_face:
-#         print("KHÔNG PHÁT HIỆN ĐƯỢC KHUÔN MẶT!")
-#         return {
-#             "status": "success",
-#             "search_mode": "actor",
-#             "detected_actor": None,
-#             "actor_filmography": [],
-#             "message": "Không phát hiện khuôn mặt rõ ràng trong ảnh."
-#         }
-
-#     print(f"[DEBUG] Phát hiện khuôn mặt thành công | size={cropped_face.size}")
-
-#     # 3. Trích xuất đặc trưng
-#     print("[DEBUG] Đang trích xuất đặc trưng ViT...")
-#     face_feat = extract_vit_feature(cropped_face)
-#     if face_feat is None:
-#         print("LỖI: extract_vit_feature trả về None!")
-#         return {"status": "error", "message": "Không trích xuất được đặc trưng khuôn mặt."}
-
-#     print(f"[DEBUG] Trích xuất đặc trưng thành công | vector shape={face_feat.shape}")
-
-#     # 4. So sánh với CSDL diễn viên
-#     print(f"[DEBUG] Đang tìm {top_k_actors} diễn viên giống nhất...")
-#     top_actors = get_all_actor_similarities_vit(face_feat, top_k_actors=top_k_actors)
-
-#     if not top_actors:
-#         print("KHÔNG TÌM THẤY DIỄN VIÊN NÀO TRONG INDEX!")
-#         return {
-#             "status": "success",
-#             "search_mode": "actor",
-#             "detected_actor": None,
-#             "actor_filmography": [],
-#             "message": "Không tìm thấy diễn viên nào trong hệ thống."
-#         }
-
-#     best = top_actors[0]
-#     print(f"[DEBUG] Diễn viên giống nhất: {best['actor']} | score={best['score']:.4f} ({best['score']*100:.1f}%)")
-
-#     if best["score"] < actor_threshold:
-#         print(f"ĐỘ TƯƠNG ĐỒNG DƯỚI NGƯỠNG {actor_threshold} → BỎ QUA")
-#         return {
-#             "status": "success",
-#             "search_mode": "actor",
-#             "detected_actor": None,
-#             "actor_filmography": [],
-#             "actor_similarities": top_actors[:10],
-#             "message": f"Không đủ độ tin cậy (cao nhất: {best['actor']} – {best['score']:.1%})"
-#         }
-
-#     actor_name = best["actor"]
-#     print(f"NHẬN DIỆN THÀNH CÔNG: {actor_name} ({best['score']:.1%})")
-
-#     # 5. Lấy phim từ DB
-#     print(f"[DEBUG] Đang truy vấn phim của '{actor_name}' trong CSDL...")
-#     real_name, movies = get_movies_by_actor(db=db, actor_name=actor_name, limit=film_limit, use_fuzzy=False)
-
-#     print(f"[DEBUG] Kết quả truy vấn: real_name='{real_name}' | tìm thấy {len(movies)} phim")
-
-#     if not movies:
-#         print(f"DIỄN VIÊN '{actor_name}' CHƯA CÓ PHIM TRONG CSDL!")
-#         return {
-#             "status": "success",
-#             "search_mode": "actor",
-#             "detected_actor": {"name": actor_name, "similarity": round(best["score"], 4), "total_movies": 0},
-#             "actor_filmography": [],
-#             "message": f"Nhận diện thành công {actor_name} nhưng chưa có phim trong hệ thống."
-#         }
-
-#     print(f"HOÀN TẤT! Tìm thấy {len(movies)} phim của {actor_name}")
-#     return {
-#         "status": "success",
-#         "search_mode": "actor",
-#         "detected_actor": {
-#             "name": real_name or actor_name,
-#             "similarity": round(best["score"], 4),
-#             "total_movies": len(movies)
-#         },
-#         "actor_filmography": movies,
-#         "message": f"Nhận diện thành công: {real_name or actor_name} ({best['score']:.1%})"
-#     }
-
-
 
 
 def query_by_image_actor_mode(
@@ -295,3 +188,93 @@ def query_by_image_actor_mode(
             + (f"  Độ tin cậy thấp" if similarity < actor_threshold else "")
         )
     }
+
+
+# def query_by_image_actor_mode(
+#     img_path: str,
+#     actor_threshold: float = 0.60,
+#     top_k_actors: int = 100,
+#     film_limit: int = 60,
+#     db: Session = None
+# ):
+#     if db is None:
+#         print("LỖI: db = None → không thể lấy phim từ CSDL!")
+#         return {"status": "error", "message": "Database session không được cung cấp."}
+
+#     try:
+#         pil_img = Image.open(img_path).convert("RGB")
+#         print(f"[DEBUG] Ảnh mở thành công | size={pil_img.size}")
+#     except Exception as e:
+#         print(f"[ERROR] Không mở được ảnh: {e}")
+#         return {"status": "error", "message": f"Không mở được ảnh: {e}"}
+
+#     # Phát hiện khuôn mặt
+#     print("[DEBUG] Đang detect khuôn mặt bằng MTCNN...")
+#     cropped_face = detect_and_crop_face(pil_img)
+
+#     if not cropped_face:
+#         print("KHÔNG PHÁT HIỆN ĐƯỢC KHUÔN MẶT!")
+#         return {
+#             "status": "success",
+#             "search_mode": "actor",
+#             "detected_actor": None,
+#             "actor_filmography": [],
+#             "message": "Không phát hiện khuôn mặt rõ ràng trong ảnh."
+#         }
+
+#     print(f"[DEBUG] Phát hiện khuôn mặt thành công | size={cropped_face.size}")
+
+#     # Trích xuất đặc trưng
+#     print("[DEBUG] Đang trích xuất đặc trưng ViT...")
+#     face_feat = extract_vit_feature(cropped_face)
+#     if face_feat is None:
+#         print("LỖI: extract_vit_feature trả về None!")
+#         return {"status": "error", "message": "Không trích xuất được đặc trưng khuôn mặt."}
+
+#     print(f"[DEBUG] Trích xuất đặc trưng thành công | shape={face_feat.shape}")
+
+#     # So sánh bằng IVFPQ – giảm số lượng phép tính
+#     print(f"[DEBUG] Đang tìm {top_k_actors} diễn viên giống nhất bằng IVFPQ...")
+#     top_actors = get_similarities_vit(face_feat, top_k_actors=top_k_actors)
+
+#     if not top_actors:
+#         print("KHÔNG TÌM THẤY DIỄN VIÊN NÀO TRONG INDEX!")
+#         return {
+#             "status": "success",
+#             "search_mode": "actor",
+#             "detected_actor": None,
+#             "actor_filmography": [],
+#             "message": "Không tìm thấy diễn viên nào trong hệ thống."
+#         }
+
+#     best = top_actors[0]
+#     actor_name = best["actor"]
+#     similarity = best["score"]
+#     actor_name = re.sub(r'image\s*\d+\.jpg\s*\(\)', '', actor_name).strip()
+#     print(f"[RESULT] Diễn viên giống nhất: {actor_name} | độ tương đồng: {similarity:.1%}")
+
+#     # Lấy phim từ DB (luôn lấy, dù dưới ngưỡng)
+#     print(f"[DEBUG] Đang truy vấn phim của '{actor_name}' trong CSDL...")
+#     real_name, movies = get_movies_by_actor(db=db, actor_name=actor_name, limit=film_limit)
+
+#     total_movies = len(movies)
+#     print(f"[DEBUG] Tìm thấy {total_movies} phim của '{real_name or actor_name}'")
+
+#     # LUÔN TRẢ VỀ DIỄN VIÊN GIỐNG NHẤT – KHÔNG LOẠI BỎ DÙ DƯỚI NGƯỠNG
+#     return {
+#         "status": "success",
+#         "search_mode": "actor",
+#         "detected_actor": {
+#             "name": real_name or actor_name,
+#             "similarity": round(similarity, 4),
+#             "total_movies": total_movies,
+#             "confidence_note": "low" if similarity < actor_threshold else "high"
+#         },
+#         "actor_filmography": movies,
+#         "actor_similarities": top_actors[:10],
+#         "message": (
+#             f"Tìm thấy: {real_name or actor_name} "
+#             f"({similarity:.1%} tương đồng)"
+#             + (f" – Độ tin cậy thấp" if similarity < actor_threshold else "")
+#         )
+#     }

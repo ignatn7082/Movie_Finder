@@ -165,13 +165,13 @@ export default function MoviesList() {
                   {filteredList.length} bộ phim • Trang {page} / {totalPages}
                 </p>
               </div>
-              <button
+              {/* <button
                 onClick={() => setSortAsc(!sortAsc)}
                 className="flex items-center gap-4 px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl font-bold text-white shadow-2xl hover:scale-105 transition-all"
               >
                 {sortAsc ? <SortAsc className="w-6 h-6" /> : <SortDesc className="w-6 h-6" />}
                 {sortAsc ? "A → Z" : "Z → A"}
-              </button>
+              </button> */}
             </div>
 
             <div className="flex items-center gap-6">

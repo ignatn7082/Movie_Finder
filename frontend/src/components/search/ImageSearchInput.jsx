@@ -32,7 +32,7 @@ export default function ImageSearchInput({
             }`}
           >
             <User className="w-7 h-7" />
-            Tìm Diễn Viên
+            Tìm diễn viên
           </button>
           <button
             type ="button"
@@ -44,7 +44,7 @@ export default function ImageSearchInput({
             }`}
           >
             <Film className="w-7 h-7" />
-            Tìm Nội Dung Phim
+            Tìm nội dung phim
           </button>
         </div>
       </div>
@@ -100,14 +100,14 @@ export default function ImageSearchInput({
                 <p className="text-lg text-gray-600 dark:text-gray-400">
                   {searchMode === "actor" 
                     ? "Tải lên ảnh diễn viên → Xem tất cả phim đã đóng + vai diễn" 
-                    : "Tải lên  cảnh phim → Tìm phim tương tự"
+                    : "Tải lên cảnh phim → Tìm phim tương tự"
                   }
                 </p>
               </div>
 
               <div className="text-sm font-medium text-indigo-600 dark:text-indigo-400">
                 Đang chọn chế độ: <span className="font-bold">
-                  {searchMode === "actor" ? "TÌM DIỄN VIÊN" : "TÌM NỘI DUNG PHIM"}
+                  {searchMode === "actor" ? "Tìm diễn viên" : "Tìm nội dung phim"}
                 </span>
               </div>
             </div>

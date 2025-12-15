@@ -20,7 +20,7 @@ export default function MovieCard({ movie, onClick, getPosterUrl, BaseURL }) {
 
         <div className="p-8 flex-grow flex flex-col lg:flex-row gap-8">
           <div className="flex-1 space-y-5">
-            <h4 className="text-3xl font-extrabold text-indigo-600 dark:text-indigo-400">{movie.title}</h4>
+            <h4 className="text-3xl font-extrabold text-indigo-600 dark:text-indigo-400">{movie.original_title}</h4>
             <div className="flex flex-wrap items-center gap-4 text-sm">
               <span className="flex items-center text-gray-600 dark:text-gray-400">
                 <Calendar className="w-5 h-5 mr-2" />

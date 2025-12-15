@@ -99,11 +99,11 @@ export default function Home() {
           </motion.div>
 
           <h1 className="text-5xl md:text-7xl font-black mb-6 bg-clip-text text-transparent bg-gradient-to-r from-white via-blue-200 to-blue-400 drop-shadow-2xl">
-            Khám Phá Phim Việt <br /> 
+            Khám phá phim Việt <br /> 
           </h1>
 
           <p className="text-xl md:text-2xl text-gray-200 mb-10 max-w-3xl mx-auto font-light leading-relaxed">
-            Tìm kiếm diễn viên, hỏi nội dung phim, phân tích nhân vật.
+            Tìm kiếm diễn viên, hỏi nội dung phim.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-5 justify-center items-center">
@@ -112,7 +112,7 @@ export default function Home() {
               className="group flex items-center gap-3 px-10 py-5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-lg font-bold rounded-2xl shadow-2xl transform hover:scale-105 transition-all duration-300"
             >
               <Search className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
-              Bắt Đầu Tìm Kiếm Ngay
+              Bắt đầu tìm kiếm ngay
               <PlayCircle className="w-6 h-6 ml-2 opacity-80" />
             </Link>
 
@@ -156,7 +156,7 @@ export default function Home() {
             className="text-center mb-16"
           >
             <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-              Phim Nổi Bật 
+              Phim nổi bật 
             </h2>
             <p className="mt-4 text-gray-600 dark:text-gray-400 text-lg">Những tác phẩm được yêu thích </p>
           </motion.div>
@@ -209,7 +209,7 @@ export default function Home() {
             whileInView={{ opacity: 1 }}
             className="text-4xl md:text-5xl font-bold text-center mb-16 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"
           >
-            Bộ Sưu Tập Phim Việt Đa Dạng
+            Bộ sưu tập phim Việt đa dạng
           </motion.h2>
 
           <div className="grid lg:grid-cols-2 gap-12 items-center">
@@ -221,8 +221,8 @@ export default function Home() {
             >
               {[
                 { icon: Film, label: "Tổng số phim", value: stats.total_movies, color: "blue" },
-                { icon: Users, label: "Đạo diễn nổi bật", value: stats.directors, color: "green" },
-                { icon: Sparkles, label: "Diễn viên hàng đầu", value: stats.top_stars.length, color: "purple" },
+                { icon: Users, label: "Đạo diễn", value: stats.directors, color: "green" },
+                // { icon: Sparkles, label: "Diễn viên hàng đầu", value: stats.top_stars.length, color: "purple" },
               ].map((item, i) => (
                 <div key={i} className="flex items-center gap-6 p-6 bg-white/70 dark:bg-gray-800/70 backdrop-blur rounded-2xl shadow-lg">
                   <div className={`p-4 rounded-2xl bg-gradient-to-br from-${item.color}-500 to-${item.color}-600 text-white`}>
@@ -234,13 +234,13 @@ export default function Home() {
                   </div>
                 </div>
               ))}
-
+{/* 
               <div className="p-6 bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl text-white">
                 <p className="text-lg font-semibold mb-2">Diễn viên được yêu thích nhất</p>
                 <p className="text-2xl">
                   {stats.top_stars.length > 0 ? stats.top_stars.join(" • ") : "Đang tải..."}
                 </p>
-              </div>
+              </div> */}
             </motion.div>
 
             <motion.div
@@ -294,7 +294,7 @@ export default function Home() {
             className="inline-flex items-center gap-4 px-12 py-6 bg-white text-blue-600 font-bold text-xl rounded-full shadow-2xl hover:shadow-3xl transform hover:scale-110 transition-all duration-300"
           >
             <Film className="w-8 h-8" />
-            Bắt Đầu Ngay Hôm Nay
+            Bắt đầu ngay hôm nay
           </Link>
         </motion.div>
       </section>

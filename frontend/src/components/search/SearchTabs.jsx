@@ -22,7 +22,7 @@ export default function SearchTabs({ tab, setTab, onTabChange }) {
           }`}
         >
           <Image className="w-6 h-6 mr-3" />
-          Tìm bằng Ảnh
+          Tìm bằng ảnh
         </button>
         <button
           type = "button"
@@ -34,7 +34,7 @@ export default function SearchTabs({ tab, setTab, onTabChange }) {
           }`}
         >
           <Type className="w-6 h-6 mr-3" />
-          Tìm bằng Văn Bản
+          Tìm bằng văn bản
         </button>
       </div>
     </div>

@@ -20,6 +20,10 @@ FEATURE_DIM = 768 # Giả định kích thước đặc trưng ViT mới
 ACTOR_INDEX_PATH = os.path.join(DATA_DIR, "actor_index_vit_colab.index")
 ACTOR_LABELS_JSON = os.path.join(DATA_DIR, "actor_labels_vit_colab.json")
 
+# ACTOR_INDEX_PATH = os.path.join(DATA_DIR, "actor_all_index_ivfpq.faiss")
+# ACTOR_LABELS_JSON = os.path.join(DATA_DIR, "actor_all_labels.json")
+
+
 MOVIE_INDEX_PATH = os.path.join(DATA_DIR, "vit_faiss_cpu_colab.index")
 MOVIE_LABELS_PATH = os.path.join(DATA_DIR, "vit_faiss_labels_colab.npy")
 
@@ -203,16 +207,89 @@ def query_actor_by_image_vit(img_path, target_actor_name: str):
 
 # TẠM THỜI: Thêm hàm giả định cho bước 1 nếu người dùng chọn ViT (Content)
 # *** ĐIỂM SỬA: Đổi tên hàm, dùng vit_model/vit_preprocess ***
+# def query_by_image_vit_feature_content(img_path, top_k=5, threshold=0.25):
+#     """
+#     Hàm thực hiện Bước 1: Tìm kiếm Frame/Nội dung phim bằng ViT (Vision only).
+#     """
+#     try:
+#         if MOVIE_INDEX is None:
+#             # *** ĐIỂM SỬA: Cập nhật thông báo lỗi ***
+#             return {"movies": [], "message": "ViT Content Index chưa tải."}
+#     except NameError:
+#         print("[ERROR] Biến MOVIE_INDEX/MOVIE_LABELS chưa được định nghĩa. Xin hãy kiểm tra lại.")
+#         return {"movies": [], "message": "ViT Content Index chưa được định nghĩa."}
+
+#     # 1. Tải và tiền xử lý ảnh
+#     img = safe_load_image(img_path)
+#     if img is None:
+#         return {"movies": [], "message": "Không thể tải hoặc xử lý ảnh đầu vào."}
+    
+#     # *** ĐIỂM SỬA: Dùng vit_preprocess ***
+#     image_tensor = vit_preprocess(img).unsqueeze(0).to(DEVICE)
+
+#     # 2. Trích xuất đặc trưng của toàn bộ ảnh (Content Feature)
+#     with torch.no_grad():
+#         # *** ĐIỂM SỬA: Dùng vit_model ***
+#         image_features = vit_model(image_tensor)
+        
+#     # Chuẩn bị vector cho FAISS (Sử dụng logic tương tự như extract_vit_feature)
+#     feat = image_features.cpu().numpy().astype('float32')
+#     feat = feat.reshape(1, -1)
+#     faiss.normalize_L2(feat)
+    
+#     # 3. Truy vấn FAISS (Tăng số lượng truy vấn ban đầu để lọc tốt hơn)
+#     D, I = MOVIE_INDEX.search(feat, top_k * 5) 
+    
+#     # 4. Xử lý và lọc kết quả trùng lặp (Logic này giữ nguyên)
+#     results = {} 
+    
+#     for sim, label_idx in zip(D[0], I[0]):
+#         if sim < threshold:
+#             continue
+            
+#         raw_label = str(MOVIE_LABELS[label_idx])
+#         cleaned_label = raw_label
+        
+#         if '.' in cleaned_label:
+#             cleaned_label = cleaned_label.rsplit('.', 1)[0]
+        
+#         parts = cleaned_label.rsplit("_", 1)
+        
+#         if len(parts) > 1 and parts[1] and not parts[1].startswith('by'):
+#             if parts[1].isdigit() or parts[1].startswith('Frame') or parts[1].startswith('Clip'):
+#                 cleaned_label = parts[0]
+
+#         if cleaned_label not in results:
+#             info = get_movie_info(cleaned_label)
+#             if info:
+#                 info["similarity"] = float(sim)
+#                 results[cleaned_label] = info
+                
+#             if len(results) >= top_k:
+#                 break
+
+#     if not results:
+        
+#         print(f"[ViT_CONTENT] Search found 0 results. Max similarity: {D[0][0]:.4f}.")
+#         return {"movies": [], "message": f"Không tìm thấy nội dung phim nào (Độ tương đồng tối đa: {D[0][0]:.2f})"}
+
+#     return {
+#         "movies": list(results.values()),
+        
+#         "message": f"Tìm thấy {len(results)} phim liên quan bằng ViT Content Search."
+#     }
+
+
 def query_by_image_vit_feature_content(img_path, top_k=5, threshold=0.25):
     """
     Hàm thực hiện Bước 1: Tìm kiếm Frame/Nội dung phim bằng ViT (Vision only).
+    → BỎ QUA DUY NHẤT 1 PHIM CÓ TÊN CHÍNH XÁC LÀ "quynh" (không phân biệt hoa thường)
     """
     try:
         if MOVIE_INDEX is None:
-            # *** ĐIỂM SỬA: Cập nhật thông báo lỗi ***
             return {"movies": [], "message": "ViT Content Index chưa tải."}
     except NameError:
-        print("[ERROR] Biến MOVIE_INDEX/MOVIE_LABELS chưa được định nghĩa. Xin hãy kiểm tra lại.")
+        print("[ERROR] Biến MOVIE_INDEX/MOVIE_LABELS chưa được định nghĩa.")
         return {"movies": [], "message": "ViT Content Index chưa được định nghĩa."}
 
     # 1. Tải và tiền xử lý ảnh
@@ -220,25 +297,23 @@ def query_by_image_vit_feature_content(img_path, top_k=5, threshold=0.25):
     if img is None:
         return {"movies": [], "message": "Không thể tải hoặc xử lý ảnh đầu vào."}
     
-    # *** ĐIỂM SỬA: Dùng vit_preprocess ***
     image_tensor = vit_preprocess(img).unsqueeze(0).to(DEVICE)
 
-    # 2. Trích xuất đặc trưng của toàn bộ ảnh (Content Feature)
+    # 2. Trích xuất đặc trưng
     with torch.no_grad():
-        # *** ĐIỂM SỬA: Dùng vit_model ***
         image_features = vit_model(image_tensor)
         
-    # Chuẩn bị vector cho FAISS (Sử dụng logic tương tự như extract_vit_feature)
     feat = image_features.cpu().numpy().astype('float32')
     feat = feat.reshape(1, -1)
     faiss.normalize_L2(feat)
     
-    # 3. Truy vấn FAISS (Tăng số lượng truy vấn ban đầu để lọc tốt hơn)
-    D, I = MOVIE_INDEX.search(feat, top_k * 5) 
-    
-    # 4. Xử lý và lọc kết quả trùng lặp (Logic này giữ nguyên)
-    results = {} 
-    
+    # 3. Truy vấn FAISS với số lượng lớn hơn để có dư địa lọc
+    D, I = MOVIE_INDEX.search(feat, top_k * 10)
+
+    # 4. Xử lý và lọc kết quả
+    results = {}
+    quynh_skipped = False  # chỉ bỏ qua đúng 1 lần
+
     for sim, label_idx in zip(D[0], I[0]):
         if sim < threshold:
             continue
@@ -250,10 +325,16 @@ def query_by_image_vit_feature_content(img_path, top_k=5, threshold=0.25):
             cleaned_label = cleaned_label.rsplit('.', 1)[0]
         
         parts = cleaned_label.rsplit("_", 1)
-        
         if len(parts) > 1 and parts[1] and not parts[1].startswith('by'):
             if parts[1].isdigit() or parts[1].startswith('Frame') or parts[1].startswith('Clip'):
                 cleaned_label = parts[0]
+
+        # *** ĐIỂM CHÍNH: CHỈ BỎ QUA KHI TÊN CHÍNH XÁC LÀ "quynh" ***
+        if cleaned_label.lower() == "quynh":
+            if not quynh_skipped:
+                print(f"[ViT_CONTENT] Bỏ qua phim 'Quỳnh' theo yêu cầu.")
+                quynh_skipped = True
+            continue  # bỏ qua phim này
 
         if cleaned_label not in results:
             info = get_movie_info(cleaned_label)
@@ -265,16 +346,14 @@ def query_by_image_vit_feature_content(img_path, top_k=5, threshold=0.25):
                 break
 
     if not results:
-        
-        print(f"[ViT_CONTENT] Search found 0 results. Max similarity: {D[0][0]:.4f}.")
-        return {"movies": [], "message": f"Không tìm thấy nội dung phim nào (Độ tương đồng tối đa: {D[0][0]:.2f})"}
+        max_sim = D[0][0] if len(D[0]) > 0 else 0.0
+        print(f"[ViT_CONTENT] Search found 0 results after filtering. Max similarity: {max_sim:.4f}.")
+        return {"movies": [], "message": f"Không tìm thấy nội dung phim nào phù hợp (sau khi lọc)."}
 
     return {
         "movies": list(results.values()),
-        
-        "message": f"Tìm thấy {len(results)} phim liên quan bằng ViT Content Search."
+        "message": f"Tìm thấy {len(results)} phim liên quan (đã bỏ qua phim 'Quỳnh' nếu có)."
     }
-
 
 
 def get_similarities_vit(
@@ -338,3 +417,58 @@ def get_similarities_vit(
     print(f"[DEBUG] Tìm thấy {len(results)} diễn viên | Top 1: {results[0] if results else 'N/A'}")
 
     return results
+
+
+
+# def get_similarities_vit(
+#     input_feat: np.ndarray,
+#     top_k_actors: int = 100
+# ) -> List[Dict[str, float]]:
+#     """
+#     Tìm top K diễn viên giống nhất bằng FAISS IVFPQ
+#     → Giảm số lượng phép tính từ O(n) xuống O(log n + k)
+#     """
+#     global actor_index, actor_labels
+
+#     if actor_index is None or actor_labels is None:
+#         print("[ERROR] FAISS IVFPQ index chưa được load!")
+#         return []
+
+#     if actor_index.ntotal == 0:
+#         print("[ERROR] Index rỗng!")
+#         return []
+
+#     print(f"[DEBUG] FAISS IVFPQ index: {actor_index.ntotal} vectors | Input shape: {input_feat.shape}")
+
+#     # Chuẩn bị vector
+#     feat = input_feat.reshape(1, -1).astype('float32')
+#     faiss.normalize_L2(feat)  # bắt buộc cho cosine
+
+#     # Tối ưu: tăng nprobe để chính xác hơn
+#     actor_index.nprobe = 10
+
+#     k = min(top_k_actors, actor_index.ntotal)
+#     D, I = actor_index.search(feat, k)
+
+#     results = []
+#     for dist, idx in zip(D[0], I[0]):
+#         if idx == -1:
+#             continue
+#         try:
+#             actor_name = str(actor_labels[idx]).strip().replace("_", " ")
+#             results.append({
+#                 "actor": actor_name,
+#                 "score": float(dist)  # IVFPQ + IP → dist là cosine similarity
+#             })
+#         except Exception as e:
+#             print(f"[WARN] Lỗi xử lý label index {idx}: {e}")
+#             continue
+
+#     results.sort(key=lambda x: x["score"], reverse=True)
+#     if results:
+#         top_actor = results[0]["actor"]
+#         top_score = results[0]["score"]
+#         print(f"[DEBUG] Tìm thấy {len(results)} diễn viên | Top 1: {top_actor} ({top_score:.1%})")
+#     else:
+#         print(f"[DEBUG] Tìm thấy {len(results)} diễn viên | Top 1: N/A")
+#     return results

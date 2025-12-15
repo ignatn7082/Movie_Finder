@@ -26,7 +26,7 @@ export default function SearchSidebar({ tab, onExampleClick }) {
           <Sparkles className="w-6 h-6 text-black" />
         </div>
         <h3 className="text-2xl font-extrabold text-indigo-700 dark:text-indigo-400">
-          Hướng dẫn {isTextTab ? "Tìm Văn Bản" : "Tìm Bằng Ảnh"}
+          Hướng dẫn {isTextTab ? "tìm phim bằng văn bản" : "tìm phìm bằng hình ảnh"}
         </h3>
       </div>
 
