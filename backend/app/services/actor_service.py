@@ -10,7 +10,8 @@ from typing import List, Dict, Optional
 from app.services.vit_service import ( 
     extract_vit_feature,
     get_all_actor_similarities_vit,
-    get_similarities_vit
+    get_similarities_vit,
+    get_similarities_vit_actor_mode
 )
 from app.core.detect_face import detect_and_crop_face,crop_face
 from PIL import Image

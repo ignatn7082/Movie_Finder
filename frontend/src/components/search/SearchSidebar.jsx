@@ -25,13 +25,13 @@ export default function SearchSidebar({ tab, onExampleClick }) {
         <div className="p-3 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl shadow-lg mr-4">
           <Sparkles className="w-6 h-6 text-black" />
         </div>
-        <h3 className="text-2xl font-extrabold text-indigo-700 dark:text-indigo-400">
-          Hướng dẫn {isTextTab ? "tìm phim bằng văn bản" : "tìm phìm bằng hình ảnh"}
+        <h3 className="text-2xl font-extrabold text-black dark:text-white">
+          Hướng dẫn {isTextTab ? "tìm phim bằng văn bản" : "tìm phim bằng hình ảnh"}
         </h3>
       </div>
-
+      
       <div className="space-y-6">
-        <div className="bg-white dark:bg-gray-800 p-5 rounded-xl shadow-md border border-indigo-100 dark:border-indigo-800">
+        <div className=" text-black dark:text-white p-5 rounded-xl shadow-md border border-indigo-100 dark:border-indigo-800">
           <ul className="space-y-3 text-sm">
             {isTextTab ? (
               <>

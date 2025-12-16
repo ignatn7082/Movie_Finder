@@ -20,8 +20,8 @@ FEATURE_DIM = 768 # Giả định kích thước đặc trưng ViT mới
 ACTOR_INDEX_PATH = os.path.join(DATA_DIR, "actor_index_vit_colab.index")
 ACTOR_LABELS_JSON = os.path.join(DATA_DIR, "actor_labels_vit_colab.json")
 
-# ACTOR_INDEX_PATH = os.path.join(DATA_DIR, "actor_all_index_ivfpq.faiss")
-# ACTOR_LABELS_JSON = os.path.join(DATA_DIR, "actor_all_labels.json")
+ACTOR_INDEX_PATH_2 = os.path.join(DATA_DIR, "actor_all_index_ivfpq.faiss")
+ACTOR_LABELS_JSON_2= os.path.join(DATA_DIR, "actor_all_labels.json")
 
 
 MOVIE_INDEX_PATH = os.path.join(DATA_DIR, "vit_faiss_cpu_colab.index")
@@ -36,6 +36,9 @@ try:
     with open(ACTOR_LABELS_JSON, "r", encoding="utf-8") as f:
         actor_labels = json.load(f)
     print("[ViT] Actor Index Loaded.")
+    actor_index_actor = faiss.read_index(ACTOR_INDEX_PATH_2)
+    with open(ACTOR_LABELS_JSON_2, "r", encoding="utf-8") as f:
+        actor_labels_actor = json.load(f)
 except Exception as e:
     # *** ĐIỂM SỬA: Cập nhật thông báo lỗi ***
     print(f"[ERROR] Could not load ViT actor index: {e}") 
@@ -420,55 +423,55 @@ def get_similarities_vit(
 
 
 
-# def get_similarities_vit(
-#     input_feat: np.ndarray,
-#     top_k_actors: int = 100
-# ) -> List[Dict[str, float]]:
-#     """
-#     Tìm top K diễn viên giống nhất bằng FAISS IVFPQ
-#     → Giảm số lượng phép tính từ O(n) xuống O(log n + k)
-#     """
-#     global actor_index, actor_labels
+def get_similarities_vit_actor_mode(
+    input_feat: np.ndarray,
+    top_k_actors: int = 100
+) -> List[Dict[str, float]]:
+    """
+    Tìm top K diễn viên giống nhất bằng FAISS IVFPQ
+    → Giảm số lượng phép tính từ O(n) xuống O(log n + k)
+    """
+    global actor_index_actor, actor_labels_actor
 
-#     if actor_index is None or actor_labels is None:
-#         print("[ERROR] FAISS IVFPQ index chưa được load!")
-#         return []
+    if actor_index_actor is None or actor_labels_actor is None:
+        print("[ERROR] FAISS IVFPQ index chưa được load!")
+        return []
 
-#     if actor_index.ntotal == 0:
-#         print("[ERROR] Index rỗng!")
-#         return []
+    if actor_index_actor.ntotal == 0:
+        print("[ERROR] Index rỗng!")
+        return []
 
-#     print(f"[DEBUG] FAISS IVFPQ index: {actor_index.ntotal} vectors | Input shape: {input_feat.shape}")
+    print(f"[DEBUG] FAISS IVFPQ index: {actor_index_actor.ntotal} vectors | Input shape: {input_feat.shape}")
 
-#     # Chuẩn bị vector
-#     feat = input_feat.reshape(1, -1).astype('float32')
-#     faiss.normalize_L2(feat)  # bắt buộc cho cosine
+    # Chuẩn bị vector
+    feat = input_feat.reshape(1, -1).astype('float32')
+    faiss.normalize_L2(feat)  # bắt buộc cho cosine
 
-#     # Tối ưu: tăng nprobe để chính xác hơn
-#     actor_index.nprobe = 10
+    # Tối ưu: tăng nprobe để chính xác hơn
+    actor_index_actor.nprobe = 10
 
-#     k = min(top_k_actors, actor_index.ntotal)
-#     D, I = actor_index.search(feat, k)
+    k = min(top_k_actors, actor_index_actor.ntotal)
+    D, I = actor_index_actor.search(feat, k)
 
-#     results = []
-#     for dist, idx in zip(D[0], I[0]):
-#         if idx == -1:
-#             continue
-#         try:
-#             actor_name = str(actor_labels[idx]).strip().replace("_", " ")
-#             results.append({
-#                 "actor": actor_name,
-#                 "score": float(dist)  # IVFPQ + IP → dist là cosine similarity
-#             })
-#         except Exception as e:
-#             print(f"[WARN] Lỗi xử lý label index {idx}: {e}")
-#             continue
+    results = []
+    for dist, idx in zip(D[0], I[0]):
+        if idx == -1:
+            continue
+        try:
+            actor_name = str(actor_labels_actor[idx]).strip().replace("_", " ")
+            results.append({
+                "actor": actor_name,
+                "score": float(dist)  # IVFPQ + IP → dist là cosine similarity
+            })
+        except Exception as e:
+            print(f"[WARN] Lỗi xử lý label index {idx}: {e}")
+            continue
 
-#     results.sort(key=lambda x: x["score"], reverse=True)
-#     if results:
-#         top_actor = results[0]["actor"]
-#         top_score = results[0]["score"]
-#         print(f"[DEBUG] Tìm thấy {len(results)} diễn viên | Top 1: {top_actor} ({top_score:.1%})")
-#     else:
-#         print(f"[DEBUG] Tìm thấy {len(results)} diễn viên | Top 1: N/A")
-#     return results
+    results.sort(key=lambda x: x["score"], reverse=True)
+    if results:
+        top_actor = results[0]["actor"]
+        top_score = results[0]["score"]
+        print(f"[DEBUG] Tìm thấy {len(results)} diễn viên | Top 1: {top_actor} ({top_score:.1%})")
+    else:
+        print(f"[DEBUG] Tìm thấy {len(results)} diễn viên | Top 1: N/A")
+    return results

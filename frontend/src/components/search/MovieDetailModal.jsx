@@ -22,7 +22,7 @@ export default function MovieDetailModal({ movie, onClose, getPosterUrl }) {
             <div className="space-y-4 text-lg">
               <p><strong className="text-indigo-600">Đạo diễn:</strong> {movie.director}</p>
               <p><strong className="text-purple-600">Thể loại:</strong> {movie.genres_vn}</p>
-              <p><strong className="text-green-600">Diễn viên:</strong> {movie.stars}</p>
+              {/* <p><strong className="text-green-600">Diễn viên:</strong> {movie.stars}</p> */}
             </div>
             <div className="pt-6 border-t-2 border-gray-200 dark:border-gray-700">
               <h3 className="text-2xl font-bold mb-4 text-indigo-600">Tóm tắt nội dung</h3>

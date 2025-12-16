@@ -3,6 +3,7 @@
 import os
 import numpy as np
 import faiss
+from PIL import Image
 
 from app.services.actor_service import query_by_image_actor_mode
 from typing import List, Dict, Optional
@@ -100,13 +101,51 @@ def get_content_search_results(img_path, content_model="resnet50", top_k=5):
 #     actor_threshold=0.8,
 #     content_threshold=0.25
 # ):
-#     """
-#     Logic hai bước cũ:
-#     1. Tìm phim theo nội dung ảnh (ViT feature content)
-#     2. Trích xuất khuôn mặt → so sánh với index diễn viên bằng FAISS IVFPQ
-#     → Giữ nguyên logic cũ, chỉ thay phần so sánh diễn viên bằng IVFPQ
-#     """
-#     # BƯỚC 1: Tìm phim theo nội dung (giữ nguyên)
+#     """Logic hai bước: tìm phim theo content → nhận dạng diễn viên bằng ViT (chỉ nếu detect được khuôn mặt rõ ràng)"""
+    
+#     # Load ảnh dưới dạng PIL để dùng cho detect face
+#     pil_img = Image.open(img_path).convert("RGB")  # Nên trả về PIL.Image hoặc None
+#     if pil_img is None:
+#         return {
+#             "status": "success",
+#             "movies": [],
+#             "actor_similarities": [],
+#             "message": "Không đọc được ảnh đầu vào."
+#         }
+
+#     # ================================
+#     # THÊM BƯỚC: PHÁT HIỆN VÀ CẮT KHUÔN MẶT
+#     # ================================
+#     print("[DEBUG] Đang detect khuôn mặt bằng MTCNN...")
+#     cropped_face = detect_and_crop_face(pil_img)
+
+#     if not cropped_face:
+#         print("KHÔNG PHÁT HIỆN ĐƯỢC KHUÔN MẶT!")
+
+#         # Vẫn chạy bước tìm phim theo content (giữ logic cũ)
+#         content_results = query_by_image_vit_feature_content(img_path, top_k=top_k)
+#         movie_list = content_results.get("movies", [])
+
+#         if not movie_list:
+#             return {
+#                 "status": "success",
+#                 "movies": [],
+#                 "actor_similarities": [],
+#                 "message": content_results.get("message", "Không tìm thấy phim liên quan.")
+#             }
+
+#         return {
+#             "status": "success",
+#             "movies": movie_list,
+#             "actor_similarities": [],  # Không hiển thị bảng so sánh diễn viên
+#             "message": "Tìm thấy phim liên quan nhưng không phát hiện khuôn mặt để nhận dạng diễn viên."
+#         }
+
+#     print(f"[DEBUG] Phát hiện khuôn mặt thành công | size={cropped_face.size}")
+
+#     # ================================
+#     # BƯỚC 1: Tìm phim theo nội dung (dùng ảnh gốc để giữ context cảnh)
+#     # ================================
 #     content_results = query_by_image_vit_feature_content(img_path, top_k=top_k)
 #     movie_list = content_results.get("movies", [])
 
@@ -115,46 +154,28 @@ def get_content_search_results(img_path, content_model="resnet50", top_k=5):
 #             "status": "success",
 #             "movies": [],
 #             "actor_similarities": [],
-#             "message": content_results.get("message", "Không tìm thấy phim liên quan.")
+#             "message": "Phát hiện khuôn mặt nhưng không tìm thấy phim liên quan theo nội dung."
 #         }
 
-#     # BƯỚC 2: Trích xuất đặc trưng khuôn mặt
-#     pil_img = safe_load_image(img_path)
-#     if pil_img is None:
-#         return {
-#             "status": "success",
-#             "movies": movie_list,
-#             "actor_similarities": [],
-#             "message": "Không đọc được ảnh đầu vào."
-#         }
+#     # ================================
+#     # BƯỚC 2: Trích xuất đặc trưng từ KHUÔN MẶT ĐÃ CROP (tăng độ chính xác)
+#     # ================================
+#     print("[DEBUG] Đang trích xuất đặc trưng ViT từ khuôn mặt đã crop...")
+#     actor_feat = extract_vit_feature(cropped_face)  # Truyền cropped_face (PIL.Image)
 
-#     cropped_face = detect_and_crop_face(pil_img)
-#     if cropped_face is None:
-#         return {
-#             "status": "success",
-#             "movies": movie_list,
-#             "actor_similarities": [],
-#             "message": "Tìm thấy phim nhưng không phát hiện khuôn mặt để nhận dạng diễn viên."
-#         }
-
-#     actor_feat = extract_vit_feature(cropped_face)
 #     if actor_feat is None:
+#         print("LỖI: extract_vit_feature trả về None dù đã crop face!")
 #         return {
 #             "status": "success",
 #             "movies": movie_list,
 #             "actor_similarities": [],
-#             "message": "Không trích xuất được đặc trưng khuôn mặt."
+#             "message": "Phát hiện khuôn mặt nhưng không trích xuất được đặc trưng để nhận dạng diễn viên."
 #         }
 
-#     print(f"[DEBUG] actor_feat shape: {actor_feat.shape}")
+#     print(f"[DEBUG] Trích xuất đặc trưng thành công | shape={actor_feat.shape}")
 
-#     # BƯỚC MỚI: DÙNG IVFPQ ĐỂ TÌM DIỄN VIÊN GIỐNG NHẤT (giảm số lượng phép tính)
-#     # top_actors = get_all_actor_similarities_vit_ivfpq(actor_feat, top_k_actors=400)
-
-
-#     # # Chuyển về dict để giữ logic cũ
-#     # global_actor_similarities = {item["actor"]: item["score"] for item in top_actors}
-#     global_actor_similarities = get_all_actor_similarities_vit(actor_feat, top_k_actors=400)
+#     # === Phần còn lại GIỮ NGUYÊN logic cũ (chỉ chạy khi có actor_feat hợp lệ) ===
+#     global_actor_similarities = get_all_actor_similarities_vit(actor_feat, top_k_actors=800)
 
 #     updated_movie_list = []
 #     global_best_actor = None
@@ -197,18 +218,17 @@ def get_content_search_results(img_path, content_model="resnet50", top_k=5):
 
 #         updated_movie_list.append(movie)
 
-#     # Giữ nguyên format trả về cũ
 #     sorted_actors = sorted(
 #         global_actor_similarities.items(),
 #         key=lambda item: item[1],
 #         reverse=True
-#     )
+#     )[:50]
 
-#     message = f"Tìm thấy {len(updated_movie_list)} phim."
+#     message = f"Tìm thấy {len(updated_movie_list)} phim liên quan."
 #     if global_best_actor and global_best_similarity >= actor_threshold:
-#         message += f" Diễn viên tiềm năng tổng thể: {global_best_actor} (Sim: {global_best_similarity:.2f})"
+#         message += f" Diễn viên nhận dạng tốt nhất: {global_best_actor.replace('_', ' ')} (độ tương đồng: {global_best_similarity:.2f})"
 #     else:
-#         message += " Không nhận dạng được diễn viên rõ ràng."
+#         message += " Có khuôn mặt nhưng không khớp chắc chắn với diễn viên nào trong database."
 
 #     return {
 #         "status": "success",
@@ -217,14 +237,16 @@ def get_content_search_results(img_path, content_model="resnet50", top_k=5):
 #         "message": message
 #     }
 
+
 def query_by_image_vit(
     img_path,
     top_k=5,
     actor_threshold=0.8,
     content_threshold=0.25
 ):
-    """Logic hai bước, trả về toàn bộ diễn viên + độ tương đồng"""
-    # 1. BƯỚC 1: Tìm Content/Frame
+    """Logic hai bước: tìm phim theo content → nhận dạng diễn viên bằng ViT nếu có khuôn mặt"""
+    
+    # BƯỚC 1: Tìm phim theo nội dung/frame
     content_results = query_by_image_vit_feature_content(img_path, top_k=top_k)
     movie_list = content_results.get("movies", [])
 
@@ -232,11 +254,11 @@ def query_by_image_vit(
         return {
             "status": "success",
             "movies": [],
-            "actor_similarities": [],
+            "actor_similarities": [],  # Không có gì
             "message": content_results.get("message", "Không tìm thấy phim liên quan.")
         }
 
-    # 2. BƯỚC 2: Trích xuất đặc trưng khuôn mặt bằng ViT
+    # Load ảnh để xử lý (dùng chung cho cả hai bước)
     img_tensor = safe_load_image(img_path)
     if img_tensor is None:
         return {
@@ -246,20 +268,24 @@ def query_by_image_vit(
             "message": "Không đọc được ảnh đầu vào."
         }
 
-    actor_feat = extract_vit_feature(img_path)
+    # BƯỚC 2: Trích xuất đặc trưng khuôn mặt bằng ViT
+    actor_feat = extract_vit_feature(img_path)  # Hàm này nên trả về None nếu không detect face
 
+    # Trường hợp KHÔNG phát hiện khuôn mặt
     if actor_feat is None:
+        # Vẫn trả về danh sách phim (nếu có), nhưng không có thông tin diễn viên
         return {
             "status": "success",
             "movies": movie_list,
-            "actor_similarities": [],
-            "message": "Tìm thấy phim nhưng không phát hiện khuôn mặt để nhận dạng diễn viên."
+            "actor_similarities": [],  # Không hiển thị bảng so sánh diễn viên
+            "message": "Tìm thấy phim liên quan nhưng không phát hiện khuôn mặt để nhận dạng diễn viên."
         }
 
-    # 2b. Tính độ tương đồng diễn viên toàn cục
-    print("actor_feat shape:", None if actor_feat is None else actor_feat.shape)
+    # === Chỉ chạy phần này nếu CÓ phát hiện khuôn mặt ===
+    print("actor_feat shape:", actor_feat.shape)
 
-    global_actor_similarities = get_all_actor_similarities_vit(actor_feat, top_k_actors=400)
+    # Tính độ tương đồng với tất cả diễn viên trong database
+    global_actor_similarities = get_all_actor_similarities_vit(actor_feat, top_k_actors=800)
 
     updated_movie_list = []
     global_best_actor = None
@@ -271,7 +297,7 @@ def query_by_image_vit(
 
         print(f"[DEBUG] Phim: {movie_title}, Diễn viên: {actor_names_in_movie}")
 
-        movie["actors"] = []
+        movie["actors"] = []  # Danh sách diễn viên + similarity trong phim này
 
         best_actor_in_movie = None
         max_similarity_in_movie = 0.0
@@ -293,6 +319,7 @@ def query_by_image_vit(
                 global_best_similarity = sim
                 global_best_actor = actor_name
 
+        # Gán diễn viên khớp tốt nhất cho phim (nếu đạt ngưỡng)
         if best_actor_in_movie and max_similarity_in_movie >= actor_threshold:
             movie["matched_actor"] = best_actor_in_movie
             movie["actor_similarity"] = float(max_similarity_in_movie)
@@ -302,22 +329,24 @@ def query_by_image_vit(
 
         updated_movie_list.append(movie)
 
+    # Sắp xếp danh sách tất cả diễn viên theo similarity (chỉ khi có face)
     sorted_actors = sorted(
         global_actor_similarities.items(),
         key=lambda item: item[1],
         reverse=True
-    )
+    )[:50]  # Giới hạn lại để không quá dài (tùy chỉnh nếu cần)
 
-    message = f"Tìm thấy {len(updated_movie_list)} phim."
+    # Tạo message
+    message = f"Tìm thấy {len(updated_movie_list)} phim liên quan."
     if global_best_actor and global_best_similarity >= actor_threshold:
-        message += f" Diễn viên tiềm năng tổng thể: {global_best_actor} (Sim: {global_best_similarity:.2f})"
+        message += f" Diễn viên nhận dạng tốt nhất: {global_best_actor.replace('_', ' ')} (độ tương đồng: {global_best_similarity:.2f})"
     else:
-        message += " Không nhận dạng được diễn viên rõ ràng."
+        message += " Có khuôn mặt nhưng không khớp chắc chắn với diễn viên nào trong database."
 
     return {
         "status": "success",
         "movies": updated_movie_list,
-        "actor_similarities": sorted_actors,
+        "actor_similarities": sorted_actors,  # Chỉ có khi detect face
         "message": message
     }
 
@@ -328,7 +357,7 @@ def query_by_image_vit(
 def query_by_image(
     img_path: str,
     mode: str = "actor",
-    top_k: int = 6,
+    top_k: int = 5,
     db: Session = None
 ) -> dict:
     """

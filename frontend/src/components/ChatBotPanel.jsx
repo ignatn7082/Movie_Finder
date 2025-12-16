@@ -145,14 +145,14 @@ export default function ChatBotPanel({ onClose }) {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input */}
+{/* Input */}
       <div className="flex gap-2 items-center">
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && sendMessage()}
           placeholder="Nhập câu hỏi về phim..."
-          className="flex-1 p-2 text-sm rounded-lg border border-gray-300 dark:border-gray-700 dark:bg-gray-800 focus:ring-2 focus:ring-blue-500 outline-none"
+          className="flex-1 p-2 text-sm rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-900 focus:ring-2 focus:ring-blue-500 outline-none text-white placeholder-gray-400"
         />
         <button
           onClick={sendMessage}

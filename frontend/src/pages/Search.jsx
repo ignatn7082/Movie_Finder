@@ -24,6 +24,8 @@ function Search() {
   const [results, setResults] = useState([]);
   const [actorInfo, setActorInfo] = useState(null);
   const [selected, setSelected] = useState(null);
+  const [errorMsg, setErrorMsg] = useState("");
+
 
   const getPosterUrl = (movie) => {
     if (!movie?.poster) return BaseURL + "300x450/1a1a1a/ffffff?text=No+Poster";
@@ -42,52 +44,118 @@ function Search() {
     if (newTab === "text") setSearchMode("actor"); // reset mode khi chuyển sang text
   };
 
+  // const handleSearch = async (e) => {
+  //   e.preventDefault();
+  //   if (tab === "image" && !file) return;
+  //   if (tab === "text" && !query.trim()) return;
+
+  //   setLoading(true);
+  //   setResults([]);
+  //   setActorInfo(null);
+  //   setSelected(null);
+
+  //   try {
+  //     let res, data;
+
+  //     if (tab === "image" && file) {
+  //       const formData = new FormData();
+  //       formData.append("file", file);
+  //       formData.append("mode", searchMode);
+
+  //       res = await fetch(`${API_HOST}/search/image`, {
+  //         method: "POST",
+  //         body: formData,
+  //       });
+  //       data = await res.json();
+
+  //       if (data.status === "success") {
+  //         if (data.search_mode === "actor") {
+  //           setActorInfo({
+  //             detected_actor: data.detected_actor,
+  //             actor_filmography: data.actor_filmography || [],
+  //             actor_similarities: data.actor_similarities || [],
+  //           });
+  //         }
+  //         setResults(data.movies || []);
+  //       }
+  //     } 
+  //     else if (tab === "text" && query.trim()) {
+  //       res = await fetch(`${API_HOST}/search/text?query=${encodeURIComponent(query)}`);
+  //       data = await res.json();
+  //       setResults(data.results || data.movies || []);
+  //     }
+  //   } catch (err) {
+  //     console.error("Lỗi tìm kiếm:", err);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
   const handleSearch = async (e) => {
-    e.preventDefault();
-    if (tab === "image" && !file) return;
-    if (tab === "text" && !query.trim()) return;
+  e.preventDefault();
 
-    setLoading(true);
-    setResults([]);
-    setActorInfo(null);
-    setSelected(null);
+  // Reset lỗi cũ
+  setErrorMsg("");
 
-    try {
-      let res, data;
+  // === VALIDATE INPUT ===
+  if (tab === "image" && !file) {
+    setErrorMsg(
+      searchMode === "actor"
+        ? "⚠️ Vui lòng tải lên ảnh diễn viên trước khi tìm kiếm."
+        : "⚠️ Vui lòng tải lên ảnh cảnh phim trước khi tìm kiếm."
+    );
+    return;
+  }
 
-      if (tab === "image" && file) {
-        const formData = new FormData();
-        formData.append("file", file);
-        formData.append("mode", searchMode);
+  if (tab === "text" && !query.trim()) {
+    setErrorMsg("⚠️ Vui lòng nhập nội dung tìm kiếm.");
+    return;
+  }
 
-        res = await fetch(`${API_HOST}/search/image`, {
-          method: "POST",
-          body: formData,
-        });
-        data = await res.json();
+  // === HỢP LỆ → TIẾP TỤC ===
+  setLoading(true);
+  setResults([]);
+  setActorInfo(null);
+  setSelected(null);
 
-        if (data.status === "success") {
-          if (data.search_mode === "actor") {
-            setActorInfo({
-              detected_actor: data.detected_actor,
-              actor_filmography: data.actor_filmography || [],
-              actor_similarities: data.actor_similarities || [],
-            });
-          }
-          setResults(data.movies || []);
+  try {
+    let res, data;
+
+    if (tab === "image" && file) {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("mode", searchMode);
+
+      res = await fetch(`${API_HOST}/search/image`, {
+        method: "POST",
+        body: formData,
+      });
+      data = await res.json();
+
+      if (data.status === "success") {
+        if (data.search_mode === "actor") {
+          setActorInfo({
+            detected_actor: data.detected_actor,
+            actor_filmography: data.actor_filmography || [],
+            actor_similarities: data.actor_similarities || [],
+          });
         }
-      } 
-      else if (tab === "text" && query.trim()) {
-        res = await fetch(`${API_HOST}/search/text?query=${encodeURIComponent(query)}`);
-        data = await res.json();
-        setResults(data.results || data.movies || []);
+        setResults(data.movies || []);
       }
-    } catch (err) {
-      console.error("Lỗi tìm kiếm:", err);
-    } finally {
-      setLoading(false);
+    } else if (tab === "text") {
+      res = await fetch(
+        `${API_HOST}/search/text?query=${encodeURIComponent(query)}`
+      );
+      data = await res.json();
+      setResults(data.results || data.movies || []);
     }
-  };
+  } catch (err) {
+    console.error("Lỗi tìm kiếm:", err);
+    setErrorMsg("❌ Có lỗi xảy ra trong quá trình tìm kiếm.");
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:to-indigo-950">
@@ -135,7 +203,8 @@ function Search() {
 
                 <button
                   type="submit"
-                  disabled={loading || (tab === "image" && !file) || (tab === "text" && !query.trim())}
+                  // disabled={loading || (tab === "image" && !file) || (tab === "text" && !query.trim())}
+                  disabled={loading}
                   className="mt-10 w-full py-6 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-extrabold text-2xl rounded-3xl shadow-2xl transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-4"
                 >
                   {loading ? (
@@ -152,6 +221,12 @@ function Search() {
                     </>
                   )}
                 </button>
+                {errorMsg && (
+  <div className="mt-6 text-center text-red-600 font-bold text-lg">
+    {errorMsg}
+  </div>
+)}
+
               </form>
 
               {/* Kết quả */}

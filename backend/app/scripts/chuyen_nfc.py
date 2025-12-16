@@ -16,7 +16,7 @@ from datetime import datetime
 import sys
 
 # ====== Cấu hình ======
-INPUT_PATH = Path(r"F:\LV\ui\backend\data\actor_labels_clip_colab.json")   # đổi theo file của bạn
+INPUT_PATH = Path(r"F:\LV\ui\backend\data\actor_all_labels.json")   # đổi theo file của bạn
 MAKE_BACKUP = True
 REPLACE_UNDERSCORE = True   # nếu muốn thay "_" -> " "
 LOWERCASE_KEYS = False      # nếu muốn chuyển thành lowercase khi normalize keys/values
