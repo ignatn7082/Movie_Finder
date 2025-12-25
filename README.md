@@ -35,7 +35,9 @@
    git clone https://github.com/ignatn7082/Movie_Finder.git
    cd Movie_Finder
 
-Build và chạy toàn bộ ứng dụng:Bashdocker compose up --build -d
+2. Build và chạy toàn bộ ứng dụng:
+   ```bash
+   docker compose up --build -d
 Truy cập:
 Frontend: http://localhost:3000 (hoặc port được cấu hình trong docker-compose.yml)
 Backend API: http://localhost:8000 (hoặc port tương ứng)
@@ -44,23 +46,29 @@ Backend API: http://localhost:8000 (hoặc port tương ứng)
 Lần đầu chạy sẽ mất vài phút để build image và khởi tạo database.
 Cách chạy thủ công (không dùng Docker)
 
-Backend:Bashcd backend
-python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
-pip install -r requirements.txt
-# Cấu hình database trong file config (nếu có)
-python main.py  # hoặc lệnh chạy server chính (flask run / uvicorn ...)
-Frontend:Bashcd frontend
+Backend:
+```bash
+  cd backend
+  python -m venv venv
+  source venv/bin/activate  # Windows: venv\Scripts\activate
+  pip install -r requirements.txt
+  # Cấu hình database trong file config (nếu có)
+  python main.py  # hoặc lệnh chạy server chính (flask run / uvicorn ...)
+```
+
+Frontend:
+```bash
+cd frontend
 npm install  # hoặc yarn install / pnpm install
 npm start    # hoặc yarn dev
+```
+
 Database:
 Cài đặt PostgreSQL locally
 Tạo database và user theo cấu hình trong backend
 Chạy migration nếu có (alembic / django migrate ...)
 
 
-📸 Ảnh chụp màn hình
-(Hiện tại chưa có ảnh thực tế – bạn có thể thêm sau khi chụp và upload vào thư mục .github/assets/)
 
 📌 Roadmap (Tính năng dự kiến phát triển)
 
@@ -73,16 +81,6 @@ Chạy migration nếu có (alembic / django migrate ...)
  Hỗ trợ đa ngôn ngữ (Tiếng Việt + Tiếng Anh)
  Tối ưu SEO và PWA (Progressive Web App)
 
-🤝 Đóng góp vào dự án
-Chúng tôi rất hoan nghênh mọi đóng góp! Hãy giúp dự án tốt hơn bằng cách:
-
-Fork repository
-Tạo branch mới:Bashgit checkout -b feature/ten-tinh-nang
-# hoặc bugfix/loi-sua
-Commit thay đổi:Bashgit commit -m "Thêm tính năng X / Sửa lỗi Y"
-Push branch và tạo Pull Request
-
-Vui lòng tuân theo code style hiện có và viết test nếu có thể.
 ⚖️ Giấy phép
 Dự án hiện sử dụng MIT License (hoặc bạn có thể thay đổi). Xem chi tiết tại file LICENSE.
 
@@ -90,4 +88,5 @@ Dự án hiện sử dụng MIT License (hoặc bạn có thể thay đổi). Xe
   Cảm ơn bạn đã quan tâm đến Movie Finder! ⭐ Nếu thấy hữu ích, hãy cho repository một ngôi sao để ủng hộ nhé!
 
 ```
+
 
